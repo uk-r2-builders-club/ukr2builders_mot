@@ -1,0 +1,8 @@
+<?
+
+$database_host = "localhost";
+$database_name = "mot";
+$database_user = "mot";
+$database_pass = "changeme";
+
+?>
