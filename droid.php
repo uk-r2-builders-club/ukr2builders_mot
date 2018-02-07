@@ -20,6 +20,17 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
+if ($_REQUEST['new_comment'] != "") {
+    $sql = "INSERT INTO droid_comments(droid_uid, comment, added_by) VALUES (?,?,?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isi", $_REQUEST['droid_uid'], $_REQUEST['new_comment'], $_REQUEST['officer']);
+    $stmt->execute();
+    printf("Error: %s.\n", $stmt->sqlstate);
+    printf("Error: %s.\n", $stmt->error);
+
+    $stmt->close();
+}
+
 # Comments
 
 $sql = "SELECT * FROM droid_comments WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER BY added_on";
@@ -40,6 +51,12 @@ if ($comments_result->num_rows > 0) {
 } else {
     echo "No Comments";
 }
+
+echo "<form>";
+echo "<textarea name=new_comment>New comment</textarea>";
+echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
+echo "<input type=hidden name=officer value=0><br />";
+echo "<input type=submit value=Add>";
 echo "</div>";
 
 
@@ -77,16 +94,24 @@ echo "<div id=mot>";
 if ($mot_result->num_rows > 0) {
     // output data of each row
     echo "<table>";
-    echo "<tr><th>Date</th><th>Location</th><th>Officer</th><th>Approved?</th><th></th></tr>";
+    echo "<tr><th>Date</th><th>Location</th><th>Officer</th><th>Approved</th><th>Valid</th><th></th></tr>";
     while($row = $mot_result->fetch_assoc()) {
 	$sql = "SELECT name FROM users WHERE user_uid = ".$row["user"];
 	$officer = $conn->query($sql)->fetch_object()->name;
-        echo "<tr><td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer. "</td><td>".$row["approved"]."</td><td><a href=mot.php?mot_uid=". $row["mot_uid"]. ">View MOT</a></td></tr>";
+	if ((strtotime($row['date']) > time()-28930000) && ($row['approved'] == "Yes")) {
+            echo "<tr bgcolor=green>";
+        } else {
+            echo "<tr bgcolor=red>";
+        }
+	echo "<td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer. "</td><td>".$row["approved"]."</td><td><a href=mot.php?mot_uid=". $row["mot_uid"]. ">View MOT</a></td>";
+	echo "</tr>";
     }
     echo "</table>";
 } else {
     echo "No MOT";
 }
+echo "<a href=new_mot.php?droid_uid=".$_REQUEST['droid_uid'].">Add new MOT</a>";
+
 echo "</div>";
 
 echo "</div>";

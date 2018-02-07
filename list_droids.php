@@ -27,13 +27,14 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $sql = "SELECT * FROM mot WHERE droid_uid = " .$row["droid_uid"];
 	$mot_count = $conn->query($sql);
-        echo "<tr><td>" . $row["name"]. "</td><td>" . $row["type"]. "</td><td>" . $row["style"]. "</td><td>". $mot_count->num_rows. "</td><td><a href=droid.php?droid_uid=". $row["droid_uid"]. ">View Droid</a> | <a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a></td></tr>";
+        echo "<tr><td>" . $row["name"]. "</td><td>" . $row["type"]. "</td><td>" . $row["style"]. "</td><td>". $mot_count->num_rows. "</td><td><a href=droid.php?droid_uid=". $row["droid_uid"]. ">View Droid</a></td></tr>";
     }
     echo "</table>";
 } else {
     echo "No Droids";
 }
 $conn->close();
+echo "<hr /><a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>"
 ?>
 
 

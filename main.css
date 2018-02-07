@@ -9,10 +9,31 @@
     text-align:center;
     padding:5px;
 }
+#wrapper {
+}
+#main {
+	position: relative;
+	padding: 3px;
+}
+#mot_test {
+	position: relative;
+	padding: 3px;
+	width: 750px;
+	margin-top: 150px;
+}
+#mot_block {
+        position: relative;
+	width: 500px;
+}
+#mot_block table {
+	width: 400px;
+}
+
 #comments {
 	position: relative;
 	float: right;
-	width: 250px;
+	width: 350px;
+	padding: 5px;
 }
 #info {
 	position: relative;
@@ -33,11 +54,12 @@
 	position: relative;
 	float: left;
 	width: 150px;
+	background-color: grey;
 }
 #time {
 	position: relative;
 	float: right;
-	width: 100px;
+	width: 200px;
 }
 
 

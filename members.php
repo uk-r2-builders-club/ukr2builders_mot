@@ -26,7 +26,7 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
 	$droid_count = $conn->query($sql);
-	echo "<tr><td>" . $row["member_uid"]. "</td><td>" . $row["forename"]. " " . $row["surname"]. "</td><td>" . $row["email"]. "</td>";
+	echo "<tr><td>" . $row["member_uid"]. "</td><td><a href=member.php?member_uid=" . $row["member_uid"].">".$row["forename"]. " " . $row["surname"]. "</a></td><td>" . $row["email"]. "</td>";
 	if (strtotime($row[pli_date]) > time()-28930000) {
 	    echo "<td bgcolor=green>".$row[pli_date]."</td>";
 	} else {
