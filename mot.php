@@ -1,3 +1,8 @@
+<?
+
+include "session.php";
+
+?>
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
@@ -56,7 +61,7 @@ if ($comments_result->num_rows > 0) {
 echo "<form>";
 echo "<textarea name=new_comment>New comment</textarea>";
 echo "<input type=hidden name=mot_uid value=".$_REQUEST['mot_uid'].">";
-echo "<input type=hidden name=officer value=0><br />";
+echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
 echo "<input type=submit value=Add>";
 echo "</div>";
 

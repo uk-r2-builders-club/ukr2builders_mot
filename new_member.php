@@ -1,3 +1,8 @@
+<?
+
+include "session.php";
+
+?>
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
@@ -18,10 +23,9 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['email'] != "") {
-    $sql = "INSERT INTO members(forename, surname, email, created_on, created_by) VALUES (?,?,?, NOW(), ?)";
+    $sql = "INSERT INTO members(forename, surname, email, created_on, created_by, username) VALUES (?,?,?, NOW(), ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $_REQUEST['forename'], $_REQUEST['surname'], $_REQUEST['email'], $user);
-    $user = 1;
+    $stmt->bind_param("sssi", $_REQUEST['forename'], $_REQUEST['surname'], $_REQUEST['email'], $_SESSION['user'], $_REQUEST['username']);
     $stmt->execute();
     printf("Error: %s.\n", $stmt->sqlstate);
     printf("Error: %s.\n", $stmt->error);
@@ -33,6 +37,7 @@ echo "<ul>";
 echo " <li>Forename: <input type=text name=forename size=50></li>";
 echo " <li>Surname: <input type=text name=surname size=50></li>";
 echo " <li>Email: <input type=email name=email size=50></li>";
+echo " <li>Forum Username: <input type=text name=username size=50></li>";
 echo "</ul>";
 echo "<input type=submit name=add value=Add>";
 

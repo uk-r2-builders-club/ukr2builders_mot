@@ -1,3 +1,8 @@
+<?
+
+include "session.php";
+
+?>
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
@@ -117,6 +122,9 @@ if ($_REQUEST['new_mot'] != "") {
     }
 }
 
+$sql = "SELECT name FROM users WHERE user_uid = ".$_SESSION["user"];
+$officer = $conn->query($sql)->fetch_object()->name;
+
 
 # Comments
 
@@ -124,7 +132,7 @@ echo "<div id=comments>";
 echo "<form>";
 echo "<textarea name=new_comment rows=20 cols=30>New MOT</textarea>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-echo "<input type=hidden name=user value=0><br />";
+echo "<input type=hidden name=user value=".$_SESSION['user']."><br />";
 echo "</div>";
 
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 06, 2018 at 08:24 PM
+-- Generation Time: Feb 08, 2018 at 11:44 AM
 -- Server version: 5.6.38
 -- PHP Version: 5.6.30
 
@@ -32,9 +32,10 @@ CREATE TABLE `droids` (
   `droid_uid` int(11) NOT NULL,
   `member_uid` int(11) NOT NULL,
   `name` text NOT NULL,
+  `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` text NOT NULL,
   `style` text NOT NULL,
-  `radio_controlled` tinyint(1) NOT NULL DEFAULT '0',
+  `radio_controlled` varchar(5) NOT NULL,
   `transmitter_type` text NOT NULL,
   `material` text NOT NULL,
   `weight` text NOT NULL,
@@ -45,7 +46,10 @@ CREATE TABLE `droids` (
   `photo_side` mediumblob,
   `photo_front` mediumblob,
   `photo_rear` mediumblob,
-  `tier_two` tinyint(1) NOT NULL DEFAULT '0'
+  `topps_id` int(10) DEFAULT '0',
+  `topps_front` mediumblob,
+  `topps_rear` mediumblob,
+  `tier_two` varchar(5) NOT NULL DEFAULT 'No'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -73,9 +77,10 @@ CREATE TABLE `members` (
   `forename` text,
   `surname` text,
   `email` text NOT NULL,
-  `pli_date` timestamp NULL DEFAULT NULL,
+  `username` varchar(25) DEFAULT NULL,
+  `pli_date` date DEFAULT NULL,
   `created_on` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(11) NOT NULL
+  `created_by` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -87,12 +92,67 @@ CREATE TABLE `members` (
 CREATE TABLE `mot` (
   `mot_uid` int(11) NOT NULL,
   `droid_uid` int(11) NOT NULL,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date` date NOT NULL,
   `location` text NOT NULL,
-  `approval` tinyint(1) NOT NULL,
-  `annual_mot` tinyint(1) NOT NULL,
-  `approved` tinyint(1) NOT NULL,
+  `approval` varchar(5) NOT NULL,
+  `annual_mot` varchar(5) NOT NULL,
+  `struct_overall` varchar(5) NOT NULL,
+  `struct_left_leg` varchar(5) NOT NULL,
+  `struct_right_leg` varchar(5) NOT NULL,
+  `struct_left_foot_ankle` varchar(5) NOT NULL,
+  `struct_right_foot_ankle` varchar(5) NOT NULL,
+  `struct_left_shoulder` varchar(5) NOT NULL,
+  `struct_right_shoulder` varchar(5) NOT NULL,
+  `struct_center_foot` varchar(5) NOT NULL,
+  `struct_center_ankle` varchar(5) NOT NULL,
+  `struct_body_skirt_frame` varchar(5) NOT NULL,
+  `struct_dome_mech` varchar(5) NOT NULL,
+  `struct_dome` varchar(5) NOT NULL,
+  `struct_details` varchar(5) NOT NULL,
+  `mech_center_wheel` varchar(5) NOT NULL,
+  `mech_drive` varchar(5) NOT NULL,
+  `mech_two_three_two` varchar(5) NOT NULL,
+  `mech_dome` varchar(5) NOT NULL,
+  `mech_utility_arms` varchar(5) NOT NULL,
+  `mech_rear_door_skins` varchar(5) NOT NULL,
+  `mech_doors` varchar(5) NOT NULL,
+  `elec_overall` varchar(5) NOT NULL,
+  `elec_transmitter` varchar(5) NOT NULL,
+  `elec_receiver` varchar(5) NOT NULL,
+  `elec_feet` varchar(5) NOT NULL,
+  `elec_dome` varchar(5) NOT NULL,
+  `elec_audio` varchar(5) NOT NULL,
+  `elec_other` varchar(5) NOT NULL,
+  `gadget_danger` varchar(5) NOT NULL,
+  `gadget_1` varchar(5) NOT NULL,
+  `gadget_2` varchar(5) NOT NULL,
+  `gadget_3` varchar(5) NOT NULL,
+  `gadget_4` varchar(5) NOT NULL,
+  `drive_general` varchar(5) NOT NULL,
+  `drive_dizzy` varchar(5) NOT NULL,
+  `drive_boomerang` varchar(5) NOT NULL,
+  `drive_gnaremoob` varchar(5) NOT NULL,
+  `drive_eight` varchar(5) NOT NULL,
+  `drive_speed` varchar(5) NOT NULL,
+  `drive_estop` varchar(5) NOT NULL,
+  `drive_dome_spin` varchar(5) NOT NULL,
+  `drive_range` varchar(5) NOT NULL,
+  `approved` varchar(5) NOT NULL,
   `user` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mot_comments`
+--
+
+CREATE TABLE `mot_comments` (
+  `uid` int(11) NOT NULL,
+  `mot_uid` int(11) NOT NULL,
+  `comment` longtext NOT NULL,
+  `added_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `added_by` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -107,7 +167,10 @@ CREATE TABLE `users` (
   `name` varchar(100) NOT NULL,
   `password` text NOT NULL,
   `email` text NOT NULL,
-  `enabled` tinyint(1) NOT NULL DEFAULT '1'
+  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `admin` int(11) NOT NULL DEFAULT '0',
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `created_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -140,6 +203,12 @@ ALTER TABLE `mot`
   ADD KEY `droid_uid` (`droid_uid`);
 
 --
+-- Indexes for table `mot_comments`
+--
+ALTER TABLE `mot_comments`
+  ADD PRIMARY KEY (`uid`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -153,27 +222,32 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `droids`
 --
 ALTER TABLE `droids`
-  MODIFY `droid_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `droid_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 --
 -- AUTO_INCREMENT for table `droid_comments`
 --
 ALTER TABLE `droid_comments`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT for table `members`
 --
 ALTER TABLE `members`
-  MODIFY `member_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `member_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 --
 -- AUTO_INCREMENT for table `mot`
 --
 ALTER TABLE `mot`
-  MODIFY `mot_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `mot_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+--
+-- AUTO_INCREMENT for table `mot_comments`
+--
+ALTER TABLE `mot_comments`
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;COMMIT;
+  MODIFY `user_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

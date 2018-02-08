@@ -1,3 +1,8 @@
+<?
+
+include "session.php";
+
+?>
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
@@ -9,6 +14,7 @@
 
 include "config.php";
 
+include "menu.php";
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
 // Check connection
@@ -27,8 +33,10 @@ if ($result->num_rows > 0) {
         $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
 	$droid_count = $conn->query($sql);
 	echo "<tr><td>" . $row["member_uid"]. "</td><td><a href=member.php?member_uid=" . $row["member_uid"].">".$row["forename"]. " " . $row["surname"]. "</a></td><td>" . $row["email"]. "</td>";
-	if (strtotime($row[pli_date]) > time()-28930000) {
+	if (strtotime($row[pli_date]) > strtotime('-11 months')) {
 	    echo "<td bgcolor=green>".$row[pli_date]."</td>";
+	} elseif ((strtotime($row[pli_date]) < strtotime('-11 months')) && (strtotime($row[pli_date]) > strtotime('-1 year'))) {
+	    echo "<td bgcolor=orange>".$row[pli_date]."</td>";
 	} else {
 	    echo "<td bgcolor=red>".$row[pli_date]."</td>";
 	}
@@ -41,5 +49,7 @@ if ($result->num_rows > 0) {
 $conn->close();
 ?>
 <a href=new_member.php>Add new member</a>
+<br />
+<a href=list_droids.php>List all droids</a>
 
 
