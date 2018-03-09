@@ -1,20 +1,6 @@
 <?
 
-include "session.php";
-
-?>
-<html>
- <head>
-  <title>UK R2 Builders MOT Database</title>
-  <link rel="stylesheet" href="main.css">
- </head>
-
- <body>
-
-<?
-
-include "menu.php";
-include "config.php";
+include "includes/header.php";
 
 echo "<div id=main>";
 

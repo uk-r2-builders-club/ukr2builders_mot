@@ -1,6 +1,6 @@
 <?
 
-include "session.php";
+include "includes/session.php";
 
 ?>
 <html>
@@ -12,9 +12,9 @@ include "session.php";
 
 <?
 
-include "config.php";
+include "includes/config.php";
 
-include "menu.php";
+include "includes/menu.php";
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
 // Check connection

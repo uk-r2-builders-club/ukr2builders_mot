@@ -1,20 +1,6 @@
 <?
 
-include "session.php";
-
-?>
-<html>
- <head>
-  <title>UK R2 Builders MOT Database</title>
-  <link rel="stylesheet" href="main.css">
- </head>
-
- <body>
-
-<?
-
-include "menu.php";
-include "config.php";
+include "includes/header.php";
 
 echo "<div id=wrapper>";
 echo "<div id=main>";
@@ -37,8 +23,7 @@ if ($_REQUEST['new_mot'] != "") {
     $fields = array('droid_uid',
 	'date',
 	'location',
-	'approval',
-	'annual_mot',
+	'mot_type',
 	'struct_overall',
 	'struct_left_leg',
 	'struct_right_leg',
@@ -108,18 +93,87 @@ if ($_REQUEST['new_mot'] != "") {
     call_user_func_array(array($stmt, 'bind_param'), $bind_params);
     $stmt->execute();
     $mot_id = $stmt->insert_id;
-    printf("Error code: %s.\n", $stmt->sqlstate);
-    printf("Error code: %s.\n", $stmt->error);
+    if ($stmt->error != "") {
+            printf("<br />Error code: %s.\n", $stmt->sqlstate);
+            printf("<br />Error code: %s.\n", $stmt->error);
+    } else {
+	    # Get some MOT details for emails
+	    $sql = "SELECT * FROM users WHERE user_uid = ".$_SESSION["user"];
+            $officer = $conn->query($sql)->fetch_object();
+            $sql = "SELECT * FROM droids WHERE droid_uid=".$_REQUEST['droid_uid'];
+            $droid = $conn->query($sql)->fetch_object();
+            $sql = "SELECT * FROM members WHERE member_uid=$droid->member_uid";
+            $member = $conn->query($sql)->fetch_object();
+            $mot_head_email = array();
+	    $mot_head_email[] = $officer->email;
+	    $mot_head_email[] = $config->email_mot;
+	    $mot_head_email[] = $config->email_treasurer;
+	    $to = implode(',', $mot_head_email);
+            # Approved, email peeps
+            $subject = "UK R2 Builders MOT - MOT Submitted";
+	    $message = "An MOT has been submitted by ".$officer->name." and an email to the droid owner with";
+	    $message .= "instructions on paying any PLI due<br />";
+            $message .= "<br />";
+            $message .= "<a href=\"".$config->site_base."/droid.php?droid_uid=".$_REQUEST['droid_uid']."\">".$config->site_base."/droid.php?droid_uid=".$_REQUEST['droid_uid']."</a><br />";
+	    $message .= "<br />";
+	    $message .= "<ul><li>Member: ".$member->forename." ".$member->surname."</li>";
+	    $message .= "<li>MOT Location: ".$_REQUEST['location']."</li>";
+	    $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
+	    $message .= "<li>MOT Type ".$_REQUEST['mot_type']."</li></ul>";
+            $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
+	    $headers .= "MIME-Version: 1.0\r\n";
+	    $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
+            $success = mail($to, $subject, $message, $headers);
+	    echo "<br />Email sent to MOT officers ".$success;
+
+	    # Send email to owner
+	    $subject = "UK R2 Builders MOT - MOT Submitted";
+	    $message = "Hello ".$member->forename.",<br />";
+	    $message .= "<br />";
+	    $message .= "An MOT for your droid has been submitted by ".$officer->name."<br />";
+	    $message .= "<br />";
+	    $message .= "<ul><li>MOT Location: ".$_REQUEST['location']."</li>";
+            $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
+            $message .= "<li>MOT Type ".$_REQUEST['mot_type']."</li>";
+	    $message .= "</ul>";
+	    if (($_REQUEST['approved'] == "Yes") || ($_REQUEST['approved'] == "Advisory")) {
+		    if ($_REQUEST['approved'] == "Yes") {
+		        $message .= "Congratulations on your droid passing its MOT. To be covered by the group's PLI, please make sure<br />";
+		        $message .= "to send in your payment. You are covered by the PLI at the point payment is received and cleared by the PLI officer.<br />";
+		    } else {
+			$message .= "Congratulations on the results of your droids MOT. The MOT has been submitted with an Advisory associated<br />";
+			$message .= "with it. The MOT officer should have gone through the advisories and advised you of timescales to fix the issues.<br />";
+			$message .= "You are covered by PLI at the point payment is received and cleared by the PLI officer. Failure to rectify the<br />";
+			$message .= "outstanding advisories within the agreed timescale, or failure to contact an MOT officer to explain why you cannot<br />";
+			$message .= "effect the fix before the timescale expired will render you PLI void until such a time that you surrender your droid<br />";
+			$message .= "for a full MOT.<br />";
+		    }
+		    $message .= "<br />";
+		    if ($droid->primary_droid == "Yes") {
+			    $message .= "Cost for primary droid is £25. The link below will take you directly to the paypal payment page<br />";
+			    $message .= "<a href=\"".$config->paypal_link."/".$config->primary_cost."\">".$config->paypal_link."/".$config->primary_cost."</a><br />";
+	            } else {
+			    $message .= "As you already have a droid, cost for an additional droid is £5. The link below will take you directly to the paypal payment page<br />";
+			    $message .= "<a href=\"".$config->paypal_link."/".$config->other_cost."\">".$config->paypal_link."/".$config->other_cost."</a><br />";
+	            }
+		    $message .= "Or, if you prefer not to follow the links, you can send it via paypal to ".$config->paypal_email."<br />";
+	    }
+	    $success = mail($member->email, $subject, $message, $headers);
+	    echo "<br />Email sent to droid owner ".$success;
+
+
+    }
 
     $stmt->close();
 
     if ($_REQUEST['new_comment'] != "") {
         $sql = "INSERT INTO mot_comments(mot_uid, comment, added_by) VALUES (?,?,?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isi", $mot_id, $_REQUEST['new_comment'], $_REQUEST['user']);
+        $stmt->bind_param("isi", $mot_id, $_REQUEST['new_comment'], $_SESSION['user']);
         $stmt->execute();
         $stmt->close();
     }
+
 }
 
 $sql = "SELECT name FROM users WHERE user_uid = ".$_SESSION["user"];
@@ -128,7 +182,7 @@ $officer = $conn->query($sql)->fetch_object()->name;
 
 # Comments
 
-echo "<div id=comments>";
+echo "<div class=comments>";
 echo "<form>";
 echo "<textarea name=new_comment rows=20 cols=30>New MOT</textarea>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
@@ -141,9 +195,8 @@ echo "<div id=info>";
 echo "<ul>";
 echo " <li>Date Taken: <input type=date name=date value=".date('Y-m-d')."></li>";
 echo " <li>Location: <input type=text name=location></li>";
-echo " <li>Club Approval: <select name=approval><option value=Yes>Yes</option><option value=No>No</option></select></li>";
-echo " <li>MOT Renewal: <select name=annual_mot><option value=Yes>Yes</option><option value=No>No</option></select></li>";
-echo " <li>Pass/Fail: <select name=approved><option value=Yes>Yes</option><option value=No>No</option><option value=WIP>WIP</option></select></li>";
+echo " <li>MOT Type: <select name=mot_type><option value=Initial>Initial</option><option value=Renewal>Renewal</option></select></li>";
+echo " <li>Pass: <select name=approved><option value=Yes>Yes</option><option value=No>No</option><option value=WIP>WIP</option><option value=Advisory>Yes (Advisory)</option></select></li>";
 echo " <li>MOT Officer: ".$officer."</li>";
 echo "</ul>";
 echo "</div>";
@@ -153,7 +206,7 @@ echo "</div>";
 echo "<div id=mot_test>";
 echo "<div id=mot_block>";
 echo "<h3>Structural</h3>";
-echo "<table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
 echo "<tr><td>Overall Structural Worry?</td><td>".displayMOTRadio(struct_overall)."</td></tr>";
 echo "<tr><td>Left Leg</td><td>".displayMOTRadio(struct_left_leg)."</td></tr>";
 echo "<tr><td>Left Foot/Ankle Joint</td><td>".displayMOTRadio(struct_left_foot_ankle)."</td></tr>";
@@ -172,7 +225,7 @@ echo "</div>";
 
 echo "<div id=mot_block>";
 echo "<h3>Mechanical</h3>";
-echo "<table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
 echo "<tr><td>Center Wheel Setup</td><td>".displayMOTRadio(mech_center_wheel)."</td></tr>";
 echo "<tr><td>Drive Setup</td><td>".displayMOTRadio(mech_drive)."</td></tr>";
 echo "<tr><td>2-3-2? - Discuss</td><td>".displayMOTRadio(mech_two_three_two)."</td></tr>";
@@ -185,7 +238,7 @@ echo "</div>";
 
 echo "<div id=mot_block>";
 echo "<h3>Electrical</h3>";
-echo "<table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
 echo "<tr><td>Overall Setup</td><td>".displayMOTRadio(elec_overall)."</td></tr>";
 echo "<tr><td>Control System Transmitter</td><td>".displayMOTRadio(elec_transmitter)."</td></tr>";
 echo "<tr><td>Control System Receiver</td><td>".displayMOTRadio(elec_receiver)."</td></tr>";
@@ -198,7 +251,7 @@ echo "</div>";
 
 echo "<div id=mot_block>";
 echo "<h3>Gadgets</h3>";
-echo "<table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
 echo "<tr><td>Serious Safety Concern</td><td>".displayMOTRadio(gadget_danger)."</td></tr>";
 echo "<tr><td>Gadget 1</td><td>".displayMOTRadio(gadget_1)."</td></tr>";
 echo "<tr><td>Gadget 2</td><td>".displayMOTRadio(gadget_2)."</td></tr>";
@@ -209,7 +262,7 @@ echo "</div>";
 
 echo "<div id=mot_block>";
 echo "<h3>Basic Control</h3>";
-echo "<table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
 echo "<tr><td>Any Driving Issues</td><td>".displayMOTRadio(drive_general)."</td></tr>";
 echo "<tr><td>Dizzy</td><td>".displayMOTRadio(drive_dizzy)."</td></tr>";
 echo "<tr><td>Boomerang</td><td>".displayMOTRadio(drive_boomerang)."</td></tr>";

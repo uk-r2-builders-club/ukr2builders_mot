@@ -1,6 +1,6 @@
 <?
 
-include "session.php";
+include "includes/session.php";
 
 if ($_SESSION['admin'] != 1) {
     header("Location:/mot");
@@ -18,8 +18,8 @@ if ($_SESSION['admin'] != 1) {
 
 <?
 
-include "menu.php";
-include "config.php";
+include "includes/menu.php";
+include "includes/config.php";
 
 echo "<div id=main>";
 
@@ -56,7 +56,7 @@ echo "<h2>". $user['name']." (".$user['username'].")</h2>";
 echo "<ul>";
 echo " <li>email: <input type=email size=40 name=email value=".$user['email']."></li>";
 echo " <li>Enabled: <input type=checkbox name=enabled> | Admin: <input type=checkbox name=admin> </li>";
-echo " <li>Created On: ".$user['create_on']."</li>";
+echo " <li>Created On: ".$user['created_on']."</li>";
 echo " <li>Created By: ".$officer."</li>";
 echo "</ul>";
 echo "<input type=submit name=update value=Update>";

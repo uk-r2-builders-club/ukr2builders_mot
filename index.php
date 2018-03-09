@@ -24,9 +24,18 @@ $_SESSION['fingerprint'] = $fingerprint;
 
  <body>
 
+<div name=menu>
+ <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
 <?
 
-include "config.php";
+if (isset($_SESSION['username'])) {
+   echo "Logged in as ".$_SESSION['username'];
+}
+
+echo "</div>";
+
+
+include "includes/config.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -44,6 +53,8 @@ if ($_REQUEST['login'] == "Go") {
 		$_SESSION['username']=$_REQUEST['username'];
 		$_SESSION['enabled']=$row['enabled'];
 		$_SESSION['admin']=$row['admin'];
+		$sql="UPDATE users SET last_login=NOW(), last_login_from='".$_ENV['REMOTE_ADDR']."' WHERE user_uid=".$row['user_uid'];
+		$result = $conn->query($sql);
 	}
 
 }
@@ -59,14 +70,19 @@ if (!isset($_SESSION['username'])) {
 	echo "Password: <input type=password name=password size=25><br />";
 	echo "<input type=submit name=login value=Go>";
 	echo "<hr />";
-	echo "<a href=topps.php>View the Topps Droids</a>";
+	echo "<a href=topps.php>View the Topps Droids</a> | ";
+	echo "<a href=stats.php>Current UK Droid statistics</a>";
 } else {
-	echo "<h1>Welcome ".$_SESSION['username']."</h1>";
 	echo "<ul>";
 	echo " <li><a href=members.php>List Members</a></li>";
 	echo " <li><a href=list_droids.php>List Droids</a></li>";
 	echo " <li><a href=topps.php>View the Topps Droids</a></li>";
-	echo " <li><a href=users.php>List Users</a></li>";
+	echo " <li><a href=map.php>Members Map</a></li>";
+	echo " <li><a href=stats.php>Current UK Droid statistics</a></li>";
+	if ($_SESSION['admin'] == 1) {
+		echo " <li><a href=users.php>List Users</a></li>";
+		echo " <li><a href=edit_config.php>Edit config</a></li>";
+	}
 	echo " <li><a href=password.php>Change Password</a></li>";
 	echo " <li><a href=?logout=yes>Logout</a></li>";
 	echo "</ul>";

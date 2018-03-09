@@ -1,6 +1,6 @@
 <?
 
-include "session.php";
+include "includes/session.php";
 
 if ($_SESSION['admin'] != 1) {
     header("Location:/mot");
@@ -17,8 +17,8 @@ if ($_SESSION['admin'] != 1) {
 
 <?
 
-include "menu.php";
-include "config.php";
+include "includes/menu.php";
+include "includes/config.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
