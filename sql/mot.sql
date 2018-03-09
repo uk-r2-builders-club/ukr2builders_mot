@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.3
+-- version 4.7.7
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 08, 2018 at 11:44 AM
+-- Generation Time: Mar 09, 2018 at 05:51 PM
 -- Server version: 5.6.38
 -- PHP Version: 5.6.30
 
@@ -25,6 +25,24 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `config`
+--
+
+CREATE TABLE `config` (
+  `config_uid` int(11) NOT NULL,
+  `email_treasurer` varchar(50) NOT NULL,
+  `email_mot` varchar(50) NOT NULL,
+  `site_base` varchar(50) NOT NULL,
+  `paypal_link` varchar(50) NOT NULL,
+  `paypal_email` varchar(50) NOT NULL,
+  `primary_cost` int(25) NOT NULL,
+  `other_cost` int(5) NOT NULL,
+  `google_map_api` varchar(48) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `droids`
 --
 
@@ -32,6 +50,7 @@ CREATE TABLE `droids` (
   `droid_uid` int(11) NOT NULL,
   `member_uid` int(11) NOT NULL,
   `name` text NOT NULL,
+  `primary_droid` varchar(5) NOT NULL,
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `type` text NOT NULL,
   `style` text NOT NULL,
@@ -46,10 +65,14 @@ CREATE TABLE `droids` (
   `photo_side` mediumblob,
   `photo_front` mediumblob,
   `photo_rear` mediumblob,
+  `thumb_front` mediumblob,
+  `thumb_side` mediumblob,
+  `thumb_rear` mediumblob,
   `topps_id` int(10) DEFAULT '0',
   `topps_front` mediumblob,
   `topps_rear` mediumblob,
-  `tier_two` varchar(5) NOT NULL DEFAULT 'No'
+  `tier_two` varchar(5) NOT NULL DEFAULT 'No',
+  `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -76,11 +99,20 @@ CREATE TABLE `members` (
   `member_uid` int(11) NOT NULL,
   `forename` text,
   `surname` text,
+  `county` varchar(50) DEFAULT NULL,
+  `postcode` varchar(50) DEFAULT NULL,
+  `latitude` varchar(16) DEFAULT NULL,
+  `longitude` varchar(16) DEFAULT NULL,
   `email` text NOT NULL,
   `username` varchar(25) DEFAULT NULL,
   `pli_date` date DEFAULT NULL,
-  `created_on` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(11) NOT NULL DEFAULT '0'
+  `pli_active` varchar(5) DEFAULT NULL,
+  `active` varchar(3) NOT NULL DEFAULT 'on',
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` int(11) NOT NULL DEFAULT '0',
+  `mug_shot` mediumblob,
+  `mug_thumb` blob,
+  `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -96,6 +128,7 @@ CREATE TABLE `mot` (
   `location` text NOT NULL,
   `approval` varchar(5) NOT NULL,
   `annual_mot` varchar(5) NOT NULL,
+  `mot_type` varchar(10) NOT NULL DEFAULT 'Initial',
   `struct_overall` varchar(5) NOT NULL,
   `struct_left_leg` varchar(5) NOT NULL,
   `struct_right_leg` varchar(5) NOT NULL,
@@ -137,7 +170,7 @@ CREATE TABLE `mot` (
   `drive_estop` varchar(5) NOT NULL,
   `drive_dome_spin` varchar(5) NOT NULL,
   `drive_range` varchar(5) NOT NULL,
-  `approved` varchar(5) NOT NULL,
+  `approved` varchar(15) NOT NULL,
   `user` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -170,12 +203,20 @@ CREATE TABLE `users` (
   `enabled` tinyint(1) NOT NULL DEFAULT '1',
   `admin` int(11) NOT NULL DEFAULT '0',
   `created_by` int(11) NOT NULL DEFAULT '0',
-  `created_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_login` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_login_from` varchar(20) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `config`
+--
+ALTER TABLE `config`
+  ADD PRIMARY KEY (`config_uid`);
 
 --
 -- Indexes for table `droids`
@@ -219,35 +260,47 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `config`
+--
+ALTER TABLE `config`
+  MODIFY `config_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `droids`
 --
 ALTER TABLE `droids`
-  MODIFY `droid_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `droid_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+
 --
 -- AUTO_INCREMENT for table `droid_comments`
 --
 ALTER TABLE `droid_comments`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
 --
 -- AUTO_INCREMENT for table `members`
 --
 ALTER TABLE `members`
-  MODIFY `member_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `member_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+
 --
 -- AUTO_INCREMENT for table `mot`
 --
 ALTER TABLE `mot`
-  MODIFY `mot_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `mot_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+
 --
 -- AUTO_INCREMENT for table `mot_comments`
 --
 ALTER TABLE `mot_comments`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;COMMIT;
+  MODIFY `user_uid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
