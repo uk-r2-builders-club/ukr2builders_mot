@@ -18,7 +18,7 @@ if ($result->num_rows > 0) {
 		if (($row['latitude'] == "" ) && ( $row['postcode'] != "" )) {
 			echo "Updating coords for ".$row['forename']." ".$row['surname']."<br/>";
         		$address = str_replace(' ','+',$row["postcode"]);
-        		$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key=AIzaSyDSW-P-s6Bj-CfZdukmaSR1m6u2dT3dBFA&address='.$address.'&sensor=false');
+        		$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key=<? echo $config->google_map_api; ?>&address='.$address.'&sensor=false');
         		$output= json_decode($geocode);
         		$latitude = $output->results[0]->geometry->location->lat;
         		$longitude = $output->results[0]->geometry->location->lng;
