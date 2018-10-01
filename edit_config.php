@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if ($_SESSION['admin'] != 1) {
+if ($_SESSION['role'] != "admin") {
 	echo "<h1>Permission Denied</h1>";
 } else {
 

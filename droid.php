@@ -10,15 +10,17 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
-	echo "<form method=POST enctype=\"multipart/form-data\">";
-	echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-	echo "<input type=file name=$box>";
-	echo "<input type=submit name=upload value=$box>";
-	echo "</form>";
+	if ($_SESSION['role'] != "user") {
+	    echo "<form method=POST enctype=\"multipart/form-data\">";
+	    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
+	    echo "<input type=file name=$box>";
+	    echo "<input type=submit name=upload value=\"Upload $box\">";
+	    echo "</form>";
+	}
 }
 
 # Image uploads
-if ($_REQUEST['upload'] != "") {
+if (($_REQUEST['upload'] != "") && ( $_SESSION['role'] != "user")) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
 	$imagetype=$_FILES[$_REQUEST['upload']]["type"];
 	echo "Image Type: $imagetype <br />";
@@ -66,19 +68,19 @@ if ($_REQUEST['upload'] != "") {
 
 }
 
-if (($_REQUEST['delete_comment'] == "yes") && ($_SESSION['admin'] == 1)) {
+if (($_REQUEST['delete_comment'] == "yes") && ($_SESSION['role'] == "admin")) {
     echo "Deleting comment";
     $sql = "DELETE from droid_comments WHERE uid=".$_REQUEST['uid'];
     $result = $conn->query($sql);
 }
 
-if (($_REQUEST['delete_image'] != "") && ($_SESSION['admin'] == 1)) {
+if (($_REQUEST['delete_image'] != "") && ($_SESSION['role'] == "admin")) {
     echo "Deleting image";
     $sql = "UPDATE droids SET ".$_REQUEST['delete_image']."='' WHERE droid_uid=".$_REQUEST['droid_uid'];
     $result = $conn->query($sql);
 }
 
-if ($_REQUEST['new_comment'] != "") {
+if (($_REQUEST['new_comment'] != "") && ($_SESSION['role'] != "user")) {
     $sql = "INSERT INTO droid_comments(droid_uid, comment, added_by) VALUES (?,?,?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isi", $_REQUEST['droid_uid'], $_REQUEST['new_comment'], $_REQUEST['officer']);
@@ -89,7 +91,7 @@ if ($_REQUEST['new_comment'] != "") {
     $stmt->close();
 }
 
-if ($_REQUEST['update'] != "") {
+if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
     # $sql = "INSERT INTO droid_comments(droid_uid, comment, added_by) VALUES (?,?,?)";
     $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
@@ -108,6 +110,10 @@ echo "<div class=droid_column_left>";
 
 $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
 $droid = $conn->query($sql)->fetch_assoc();
+if (($_SESSION['role'] == "user") && ( $droid['member_uid'] != $_SESSION['user'] )) {
+	echo "Oi, stop trying to look at other peoples droids!";
+	die();
+}
 $sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
 $member = $conn->query($sql)->fetch_object();
 
@@ -150,7 +156,9 @@ echo "</select></td></tr>";
 echo " <tr><td>Topps Number: </td><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
 echo " <tr><td>Last Updated: </td><td>".$droid['last_updated']."</td></tr>";
 echo "</table>";
-echo "<input type=submit value=Update name=update>";
+if ($_SESSION['role'] != "user") {
+    echo "<input type=submit value=Update name=update>";
+}
 echo "</form>";
 echo "</div>";
 
@@ -174,7 +182,7 @@ if ($mot_result->num_rows > 0) {
         }
 	echo "<td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer. "</td><td>".$row["approved"]."</td>";
 	echo "<td><a href=mot.php?mot_uid=". $row["mot_uid"]. "><img src=\"images/view_button.png\"></a>";
-	if ($_SESSION['admin'] == 1) {
+	if ($_SESSION['role'] == "admin") {
              echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=mot.php?mot_uid=". $row["mot_uid"]. "&delete=yes><img src=\"images/delete_button.png\"></a>";
         }
 	echo "</td>";
@@ -184,7 +192,9 @@ if ($mot_result->num_rows > 0) {
 } else {
     echo "No MOT<br />";
 }
-echo "<a href=new_mot.php?droid_uid=".$_REQUEST['droid_uid'].">Add new MOT</a>";
+if ($_SESSION['role'] != "user") {
+    echo "<a href=new_mot.php?droid_uid=".$_REQUEST['droid_uid'].">Add new MOT</a>";
+}
 
 echo "</div>";
 
@@ -213,12 +223,14 @@ if ($comments_result->num_rows > 0) {
     echo "No Comments";
 }
 
-echo "<form>";
-echo "<textarea name=new_comment>New comment</textarea>";
-echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
-echo "<input type=submit value=Add>";
-echo "</form>";
+if ($_SESSION['role'] != "user") {
+    echo "<form>";
+    echo "<textarea name=new_comment>New comment</textarea>";
+    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
+    echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
+    echo "<input type=submit value=Add>";
+    echo "</form>";
+}
 echo "</div>";
 
 echo "</div>";

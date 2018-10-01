@@ -85,7 +85,7 @@ $member = $conn->query($sql)->fetch_object();
 
 echo "<div id=info>";
 echo "<ul>";
-echo " <li>Owner: <a href=member.php?member_uid=$member_uid>$member->forename $member->surname</a></li>";
+echo " <li>Owner: <a href=member.php?member_uid=$member->member_uid>$member->forename $member->surname</a></li>";
 echo " <li>Droid: <a href=droid.php?droid_uid=".$mot["droid_uid"].">$droid->name</a></li>";
 echo " <li>Date Taken: ".$mot['date']."</li>";
 echo " <li>Location: ".$mot['location']."</li>";

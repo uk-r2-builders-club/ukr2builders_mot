@@ -2,6 +2,10 @@
 
 include "includes/header.php";
 
+if ($_SESSION['role'] == "user") {
+        $_REQUEST['member_uid'] = $_SESSION['user'];
+}
+
 echo "<div id=main>";
 
 // Create connection
@@ -12,15 +16,17 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
-        echo "<form method=POST enctype=\"multipart/form-data\">";
-        echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
-        echo "<input type=file name=$box>";
-        echo "<input type=submit name=upload value=$box>";
-        echo "</form>";
+	if ($_SESSION['role'] != "user") {
+            echo "<form method=POST enctype=\"multipart/form-data\">";
+            echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
+            echo "<input type=file name=$box>";
+            echo "<input type=submit name=upload value=$box>";
+            echo "</form>";
+	}
 }
 
 # Image uploads
-if ($_REQUEST['upload'] != "") {
+if (($_REQUEST['upload'] != "") && ($_SESSION['role'] != "user")) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
         $exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
         if( isset($exif['Orientation']) )
@@ -63,13 +69,13 @@ if ($_REQUEST['upload'] != "") {
 }
 
 
-if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['admin'] == 1)) {
+if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['role'] == "admin")) {
 	$conn->query("UPDATE members SET mug_shot='' WHERE member_uid=".$_REQUEST['member_uid']);
 	echo "Image deleted";
 }
 
 
-if ($_REQUEST['update'] != "") {
+if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
     $longitude = $_REQUEST['longitude'];
     $latitude = $_REQUEST['latitude'];
     $sql = "SELECT pli_date FROM members WHERE member_uid=".$_REQUEST['member_uid'];
@@ -112,6 +118,11 @@ if ($_REQUEST['update'] != "") {
     }
 }
 
+if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
+    $sql = "INSERT into members_achievements(achievement_uid, member_uid, notes, added_by) VALUES(".$_REQUEST['achievement_uid'].", ".$_REQUEST['member_uid'].", '".$_REQUEST['notes']."', ".$_SESSION['user'].")";
+    $result=$conn->query($sql);
+}
+
 $sql = "SELECT * FROM members WHERE member_uid = ". $_REQUEST['member_uid'];
 $result = $conn->query($sql);
 $member = $result->fetch_assoc();
@@ -132,7 +143,7 @@ echo " <tr><td>Longitude: </td><td><input type=text size=50 name=longitude value
 echo " <tr><td>Forum Username: </td><td><input type=text size=50 name=username value=\"".$member['username']."\"></td></tr>";
 echo " <tr><td>Created On: </td><td>".$member['created_on']."</td></tr>";
 echo " <tr><td>Created By: </td><td>".$officer."</td></tr>";
-echo " <tr><td>PLI Cover Last Paid: </td><td><input type=date name=pli_date value=".$member['pli_date']."><input type=checkbox name=pli_active";
+echo " <tr><td>PLI Cover Last Paid: </td><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
 echo ($member['pli_active'] == "on") ? " checked" : "";
 echo "></td></tr>";
 echo " <tr><td>Last Updated: </td><td>".$member['last_updated']."</td></tr>";
@@ -140,14 +151,16 @@ echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";
 echo "</table>";
-echo "<input type=submit name=update value=Update>";
+if ($_SESSION['role'] != "user") {
+    echo "<input type=submit name=update value=Update>";
+}
 echo "</form>";
 echo "</div>";
 
 echo "<div class=mug_shot>";
 if ($member['mug_shot'] != "") {
 	echo "<div class=\"mug_shot\"><img id=mug_shot src=data:image/jpeg;base64,".base64_encode( $member['mug_shot'] )." width=240>";
-        if ($_SESSION['admin'] == 1) {
+        if ($_SESSION['role'] == "admin") {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
         }
 	echo "</div>";
@@ -179,7 +192,7 @@ if ($result->num_rows > 0) {
     echo "</tr>";
     while($row = $result->fetch_assoc()) {
 	# Pull the latest MOT for the droid that is a pass
-        $sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$row["droid_uid"]. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date LIMIT 1";
+        $sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$row["droid_uid"]. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
 	$mot_result = $conn->query($sql);
 	echo "<tr class=\"item\">";
 	if ($mot_result->num_rows > 0) {
@@ -206,9 +219,67 @@ if ($result->num_rows > 0) {
 } else {
     echo "No Droids";
 }
-echo "<hr /><a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
+if ($_SESSION['role'] != "user" ) {
+    echo "<a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
+}
 echo "</div>";
+echo "<hr />";
 
+# Achievements
+echo "<h4>Achievements</h4>";
+echo "<div class=achievements_list>";
+$sql = "SELECT * FROM members_achievements WHERE member_uid=".$member['member_uid'];
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    $sql = "SELECT * FROM achievements";
+    $achievements = $conn->query($sql)->fetch_assoc();
+    echo "<table class=achievements_list id=achievements_list>";
+    echo "<tr>";
+    echo "<th onclick=\"w3.sortHTML('#achievements_list','.item', 'td:nth-child(1)')\">Name</th>";
+    echo "<th onclick=\"w3.sortHTML('#achievements_list','.item', 'td:nth-child(2)')\">Notes</th>";
+    echo "<th onclick=\"w3.sortHTML('#achievements_list','.item', 'td:nth-child(3)')\">Date Added</th>";
+    echo "<th onclick=\"w3.sortHTML('#achievements_list','.item', 'td:nth-child(4)')\"></th></tr>";
+    while($row = $result->fetch_assoc()) {
+	$sql = "SELECT * FROM achievements WHERE achievement_uid=".$row['achievement_uid'];
+	$achievement = $conn->query($sql)->fetch_assoc();
+	echo "<td class=achievements_list><a href='#'>".$achievement['name']."<div class='tooltipcontainer'>";
+	echo "<div class='tooltip'>".$achievement['description']."</div>";
+	echo "</td>";
+	echo "<td class=achievements_list>".$row['notes']."</td>";
+	echo "<td class=achievements_list>".$row['date_added']."</td>";
+	echo "<td class=achievements_list>";
+        if ($achievement['icon'] != "") {
+            echo "<img id=icon src=data:image/jpeg;base64,".base64_encode( $achievement['icon'] )." width=40>";
+        } else {
+            echo "";
+        }
+	echo "</td>";
+	echo "</tr>";
+    }
+
+} else {
+    echo "No achievements";
+}
+echo "</table>";
+$sql="SELECT * FROM achievements";
+$result=$conn->query($sql);
+
+if ($_SESSION['role'] != "user") {
+    echo "<form>";
+    echo "Add achievement<br />";
+    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
+    echo "Notes: <input type=text size=50 name=notes>";
+    echo "<select name=achievement_uid>";
+    while($row = $result->fetch_assoc()) {
+        echo "<option value=".$row['achievement_uid'].">".$row['name']."</option>";
+    }
+    echo "</select>";
+    echo "<input type=Submit value=Add name=achievement>";
+    echo "</form>";
+}
+echo "</div>";
+echo "<hr />";
+# End of Achievements
 
 echo "</div>";
 

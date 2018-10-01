@@ -2,6 +2,7 @@
  <head>
   <title>UK R2 Builders MOT Database</title>
   <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
  </head>
 
  <body>
@@ -23,20 +24,16 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     // output data of each row
-    echo "<table class=topps>";
-    echo "<tr><th colspan=2>Details</th><th>Front</th><th>Back</th></tr>";
+    echo "<div class=topps>";
     while($row = $result->fetch_assoc()) {
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$row['member_uid'];
 	    $owner = $conn->query($sql)->fetch_assoc();
-	    echo "<tr>";
-	    echo "<td>Droid Name: </td><td>".$row['name']."</td>";
-	    echo "<td rowspan=3><img src=data:image/jpeg;base64,".base64_encode( $row['topps_front'] )." width=240></td>";
-	    echo "<td rowspan=3><img src=data:image/jpeg;base64,".base64_encode( $row['topps_rear'] )." width=240></td>";
-	    echo "</tr>";
-	    echo "<tr><td>Owner: </td><td>".$owner['forename']." ".$owner['surname']."</td></tr>";
-	    echo "<tr><td>Topps Number: </td><td>".$row['topps_id']."</td></tr>";
+	    echo "<div class=flip-container><div class=flipper>";
+            echo "<div class=front><img src=data:image/jpeg;base64,".base64_encode( $row['topps_front'] )." width=240></div>";
+	    echo "<div class=back><img src=data:image/jpeg;base64,".base64_encode( $row['topps_rear'] )." width=240></div>";
+	    echo "</div></div>";
     }
-    echo "</table>";
+    echo "</div>";
 } else {
     echo "0 results";
 }

@@ -2,6 +2,10 @@
 
 include "includes/header.php";
 
+if($_SESSION['role'] != "admin") {
+	die();
+}
+
 ?>
 
   <script src="https://maps.google.com/maps/api/js?key=<? echo $config->google_map_api; ?>&sensor=false" 

@@ -2,6 +2,10 @@
 
 include "includes/header.php";
 
+if($_SESSION['role'] == "user") {
+	die();
+}
+
 ?>
 <script src="https://www.w3schools.com/lib/w3.js"></script>
 
@@ -39,7 +43,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT * FROM members";
+$sql = "SELECT * FROM members WHERE active = 'on'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -51,22 +55,22 @@ if ($result->num_rows > 0) {
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(1)')\">ID</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(2)')\">Name</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(3)')\">email</th>";
-    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(4)')\">PLI</th>";
-    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(5)')\">Primary MOT</th>";
-    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(6)')\">Droids</th>";
+    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(4)')\">BID</th>";
+    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(5)')\">PLI</th>";
+    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(6)')\">Primary MOT</th>";
+    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(7)')\">Droids</th>";
     echo "</tr>";
     while($row = $result->fetch_assoc()) {
         $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
 	$droids = $conn->query($sql);
         $num_droids = $droids->num_rows;
-	if ($row[active] == "on") {
-	    echo "<tr class=\"item\">";
-	} else {
-	    echo "<tr class=\"item greyout\">";
-	}
+	echo "<tr class=\"item\">";
 	echo "<td class=members>" . $row["member_uid"]. "</td>";
 	echo "<td class=members><a href=member.php?member_uid=" . $row["member_uid"].">".$row["forename"]. " " . $row["surname"]. "</a></td>";
 	echo "<td class=members>" . $row["email"]. "</td>";
+	echo "<td align=center class=members>";
+	echo ($row['pli_active'] == "on") ? "Sent" : "";
+	echo "</td>";
 	# Display PLI information and colour code to expiry date
 	if (strtotime($row[pli_date]) > strtotime('-11 months')) {
 	    echo "<td class=members bgcolor=green>".$row[pli_date]."</td>";
@@ -81,7 +85,7 @@ if ($result->num_rows > 0) {
         $color = "red";
 	while ($droid = $droids->fetch_object()) {
 		if ($droid->primary_droid == "Yes") {
-			$sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$droid->droid_uid. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date LIMIT 1";
+			$sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$droid->droid_uid. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
 			$mot = $conn->query($sql)->fetch_object();
 		        if (strtotime($mot->date) > strtotime('-11 months')) {
 			    $color = "green";
@@ -124,8 +128,47 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
+echo "<a href=new_member.php>Add new member</a>";
+
+echo "<hr>";
+echo "<h2>Inactive Members</h2>";
+
+$sql = "SELECT * FROM members WHERE active = ''";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+	echo "<br />";
+	echo "<table class=members id=members>";
+	echo "<tr class=members>";
+	echo "<th class=members>ID</th>";
+	echo "<th class=members>Name</th>";
+	echo "<th class=members>email</th>";
+	echo "<th class=members>Droids</th>";
+	echo "</tr>";
+	while($row = $result->fetch_assoc()) {
+	        $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
+        	$droids = $conn->query($sql);
+        	$num_droids = $droids->num_rows;
+        	echo "<tr class=\"item\">";
+        	echo "<td class=members>" . $row["member_uid"]. "</td>";
+        	echo "<td class=members><a href=member.php?member_uid=" . $row["member_uid"].">".$row["forename"]. " " . $row["surname"]. "</a></td>";
+        	echo "<td class=members>" . $row["email"]. "</td>";
+        	echo "<td class=members align=center><a href=list_droids.php?member_uid=" .$row["member_uid"]. ">";
+        	if ($num_droids > 0) {
+             		if ($num_droids == 1) {
+                 		echo "1 Droid";
+             		} else {
+                 		echo $num_droids." Droids";
+             		}
+        	} else {
+	             	echo "No Droids";
+        	}
+        	echo "</a></td></tr>";
+	}
+	echo "</table>";
+} else {
+	echo "No inactive members";
+}
+
 $conn->close();
 ?>
-<a href=new_member.php>Add new member</a>
-
 

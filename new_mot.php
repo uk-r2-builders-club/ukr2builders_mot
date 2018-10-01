@@ -2,6 +2,11 @@
 
 include "includes/header.php";
 
+if($_SESSION['role'] == "user") {
+	die();
+}
+
+
 echo "<div id=wrapper>";
 echo "<div id=main>";
 
@@ -68,6 +73,14 @@ if ($_REQUEST['new_mot'] != "") {
 	'approved',
 	'user'
 	);
+    if ($_REQUEST['mot_type'] == "Retest") {
+	    $sql = "SELECT * FROM mot WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER BY date DESC LIMIT 1";
+	    $mot_result = $conn->query($sql);
+	    if ($mot_result->num_rows > 0) {
+		    $row = $mot_result->fetch_assoc();
+		    $_REQUEST['date'] = $row['date'];
+	    }
+    }
     $sql = "INSERT INTO mot(";
     $x=0;
     $bind_params_type="";
@@ -136,8 +149,8 @@ if ($_REQUEST['new_mot'] != "") {
             $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
             $message .= "<li>MOT Type ".$_REQUEST['mot_type']."</li>";
 	    $message .= "</ul>";
-	    if (($_REQUEST['approved'] == "Yes") || ($_REQUEST['approved'] == "Advisory")) {
-		    if ($_REQUEST['approved'] == "Yes") {
+	    if (($_REQUEST['approved'] == "Yes") || ($_REQUEST['approved'] == "Advisory") || ($_REQUEST['approved'] == "WIP")) {
+		    if (($_REQUEST['approved'] == "Yes") || ($_REQUEST['approved'] == "WIP")) {
 		        $message .= "Congratulations on your droid passing its MOT. To be covered by the group's PLI, please make sure<br />";
 		        $message .= "to send in your payment. You are covered by the PLI at the point payment is received and cleared by the PLI officer.<br />";
 		    } else {
@@ -150,10 +163,10 @@ if ($_REQUEST['new_mot'] != "") {
 		    }
 		    $message .= "<br />";
 		    if ($droid->primary_droid == "Yes") {
-			    $message .= "Cost for primary droid is £25. The link below will take you directly to the paypal payment page<br />";
+			    $message .= "Cost for primary droid is £".$config->primary_cost.". The link below will take you directly to the paypal payment page<br />";
 			    $message .= "<a href=\"".$config->paypal_link."/".$config->primary_cost."\">".$config->paypal_link."/".$config->primary_cost."</a><br />";
 	            } else {
-			    $message .= "As you already have a droid, cost for an additional droid is £5. The link below will take you directly to the paypal payment page<br />";
+			    $message .= "As you already have a droid, cost for an additional droid is £".$config->other_cost.". The link below will take you directly to the paypal payment page<br />";
 			    $message .= "<a href=\"".$config->paypal_link."/".$config->other_cost."\">".$config->paypal_link."/".$config->other_cost."</a><br />";
 	            }
 		    $message .= "Or, if you prefer not to follow the links, you can send it via paypal to ".$config->paypal_email."<br />";
@@ -161,6 +174,8 @@ if ($_REQUEST['new_mot'] != "") {
 	    $success = mail($member->email, $subject, $message, $headers);
 	    echo "<br />Email sent to droid owner ".$success;
 
+	    $sql = "UPDATE members SET pli_active='' WHERE member_uid = $droid->member_uid";
+	    $conn->query($sql);
 
     }
 
@@ -173,6 +188,10 @@ if ($_REQUEST['new_mot'] != "") {
         $stmt->execute();
         $stmt->close();
     }
+
+    echo "<br />";
+    echo "<a href=droid.php?droid_uid=".$_REQUEST['droid_uid'].">Back to droid</a>";
+    echo "<br />";
 
 }
 
@@ -195,7 +214,7 @@ echo "<div id=info>";
 echo "<ul>";
 echo " <li>Date Taken: <input type=date name=date value=".date('Y-m-d')."></li>";
 echo " <li>Location: <input type=text name=location></li>";
-echo " <li>MOT Type: <select name=mot_type><option value=Initial>Initial</option><option value=Renewal>Renewal</option></select></li>";
+echo " <li>MOT Type: <select name=mot_type><option value=Initial>Initial</option><option value=Renewal>Renewal</option><option value=Retest>Retest</option></select></li>";
 echo " <li>Pass: <select name=approved><option value=Yes>Yes</option><option value=No>No</option><option value=WIP>WIP</option><option value=Advisory>Yes (Advisory)</option></select></li>";
 echo " <li>MOT Officer: ".$officer."</li>";
 echo "</ul>";

@@ -14,8 +14,15 @@ $_SESSION['last_active'] = time();
 $_SESSION['fingerprint'] = $fingerprint;
 
 if (!isset($_SESSION['user'])) {
-    header("Location:/mot");
+    header("Location:https://r2djp.co.uk/new_mot/");
     die();
 }
+
+//echo basename($_SERVER['PHP_SELF']);
+
+//if (($_SESSION['role'] == "user") && (basename($_SERVER['PHP_SELF']) != "member.php")) {
+//    header("Location:member.php?member_uid=".$user);
+ //   die();
+//}
 
 ?>

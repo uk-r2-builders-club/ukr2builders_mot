@@ -2,6 +2,10 @@
 
 include "includes/header.php";
 
+if($_SESSION['role'] == "user") {
+	die();
+}
+
 ?>
 <script src="https://www.w3schools.com/lib/w3.js"></script>
 

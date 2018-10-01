@@ -2,6 +2,10 @@
 
 include "includes/header.php";
 
+if($_SESSION['role'] == "user") {
+	die();
+}
+
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
 // Check connection
