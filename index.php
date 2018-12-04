@@ -89,6 +89,7 @@ if (!isset($_SESSION['username'])) {
 	if ($_SESSION['role'] == 'admin') {
 		echo " <li><a href=map.php>Members Map</a></li>";
 		echo " <li><a href=edit_config.php>Edit config</a></li>";
+		echo " <li><a href=edit_pli.php>Edit PLI Details</a></li>";
 		echo " <li><a href=achievements.php>Edit Achievements</a></li>";
 	}
 	echo " <li><a href=password.php>Change Password</a></li>";

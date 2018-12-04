@@ -183,6 +183,17 @@ table.achievements_list tr,td,th{
         border: 1px solid black;
 }
 
+table.events_list {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.events_list tr,td,th{
+        border: 1px solid black;
+}
+
+
 /* Container is necessary because td cannot be positioned relative */
 td .tooltipcontainer {
     position: relative;

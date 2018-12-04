@@ -123,13 +123,19 @@ if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
     $result=$conn->query($sql);
 }
 
+if (($_REQUEST['event'] == "Add") && ($_SESSION['role'] != "user") ) {
+    $sql = "INSERT into members_official_events(member_uid, details, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".$_REQUEST['details']."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
+    $result=$conn->query($sql);
+}
+
+
 $sql = "SELECT * FROM members WHERE member_uid = ". $_REQUEST['member_uid'];
 $result = $conn->query($sql);
 $member = $result->fetch_assoc();
 $sql = "SELECT name FROM users WHERE user_uid = ".$member["created_by"];
 $officer = $conn->query($sql)->fetch_object()->name;
 
-
+# Member details
 echo "<div class=info>";
 echo "<form>";
 echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
@@ -145,7 +151,11 @@ echo " <tr><td>Created On: </td><td>".$member['created_on']."</td></tr>";
 echo " <tr><td>Created By: </td><td>".$officer."</td></tr>";
 echo " <tr><td>PLI Cover Last Paid: </td><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
 echo ($member['pli_active'] == "on") ? " checked" : "";
-echo "></td></tr>";
+echo ">";
+if (strtotime($member['pli_date']) > strtotime('-1 year')) {
+	echo "<a target=_blank href=cover_note.php?member_uid=".$member['member_uid'].">Cover Note</a>";
+}
+echo "</td></tr>";
 echo " <tr><td>Last Updated: </td><td>".$member['last_updated']."</td></tr>";
 echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
@@ -172,6 +182,7 @@ if ($member['mug_shot'] != "") {
 
 echo "</div>";
 
+# Droid list
 echo "<div class=droid_list>";
 
 $sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid'];
@@ -280,6 +291,46 @@ if ($_SESSION['role'] != "user") {
 echo "</div>";
 echo "<hr />";
 # End of Achievements
+
+
+# Official Events
+echo "<h4>Official Events</h4>";
+echo "<div class=events_list>";
+$sql = "SELECT * FROM members_official_events WHERE member_uid=".$member['member_uid'];
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    echo "<table class=events_list id=events_list>";
+    echo "<tr>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Date Added</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Details</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Spotter</th></tr>";
+    while($row = $result->fetch_assoc()) {
+        echo "<td class=events_list>".$row['date_added']."</td>";
+        echo "<td class=events_list>".$row['details']."</td>";
+	echo "<td class=events_list>";
+	if ($row['spotter'] == "on") 
+		echo "Yes";
+	echo "</td>";
+        echo "</tr>";
+    }
+
+} else {
+    echo "No events";
+}
+echo "</table>";
+
+if ($_SESSION['role'] != "user") {
+    echo "<form>";
+    echo "Add event<br />";
+    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
+    echo "Details: <input type=text size=80 name=details>";
+    echo "Spotter: <input type=checkbox name=spotter>";
+    echo "<input type=Submit value=Add name=event>";
+    echo "</form>";
+}
+echo "</div>";
+echo "<hr />";
+# End of Official Events
 
 echo "</div>";
 
