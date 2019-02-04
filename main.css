@@ -193,6 +193,28 @@ table.events_list tr,td,th{
         border: 1px solid black;
 }
 
+table.course_list {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.course_list tr,td,th{
+        border: 1px solid black;
+}
+
+table.leaderboard {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+	margin-left:auto;
+        margin-right:auto;
+        width: 95%;
+}
+table.leaderboard tr,td,th{
+        border: 1px solid black;
+}
+
 
 /* Container is necessary because td cannot be positioned relative */
 td .tooltipcontainer {

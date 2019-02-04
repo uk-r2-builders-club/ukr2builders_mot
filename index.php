@@ -93,6 +93,7 @@ if (!isset($_SESSION['username'])) {
 		echo " <li><a href=achievements.php>Edit Achievements</a></li>";
 	}
 	echo " <li><a href=password.php>Change Password</a></li>";
+	echo " <li><a href=leaderboard.php>View the Droid Driving Course Leaderboard</a></li>";
 	echo " <li><a href=topps.php>View the Topps Droids</a></li>";
 	echo " <li><a href=stats.php>Current UK Droid statistics</a></li>";
 	echo " <li><a href=?logout=yes>Logout</a></li>";

@@ -6,6 +6,7 @@ if ($_SESSION['role'] == "user") {
         $_REQUEST['member_uid'] = $_SESSION['user'];
 }
 
+echo "<script src=\"https://www.w3schools.com/lib/w3.js\"></script>";
 echo "<div id=main>";
 
 // Create connection
@@ -119,12 +120,12 @@ if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
 }
 
 if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
-    $sql = "INSERT into members_achievements(achievement_uid, member_uid, notes, added_by) VALUES(".$_REQUEST['achievement_uid'].", ".$_REQUEST['member_uid'].", '".$_REQUEST['notes']."', ".$_SESSION['user'].")";
+    $sql = "INSERT into members_achievements(achievement_uid, member_uid, notes, added_by) VALUES(".$_REQUEST['achievement_uid'].", ".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['notes'])."', ".$_SESSION['user'].")";
     $result=$conn->query($sql);
 }
 
 if (($_REQUEST['event'] == "Add") && ($_SESSION['role'] != "user") ) {
-    $sql = "INSERT into members_official_events(member_uid, details, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".$_REQUEST['details']."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
+    $sql = "INSERT into members_official_events(member_uid, details, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['details'])."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
     $result=$conn->query($sql);
 }
 
@@ -186,9 +187,9 @@ echo "</div>";
 echo "<div class=droid_list>";
 
 $sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid'];
-$result = $conn->query($sql);
+$droids = $conn->query($sql);
 
-if ($result->num_rows > 0) {
+if ($droids->num_rows > 0) {
     // output data of each row
     echo "<table class=droid_list id=droid_list>";
     echo "<tr><th colspan=7>Droid info</th></tr>";
@@ -201,7 +202,7 @@ if ($result->num_rows > 0) {
     echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(8)')\">Tier Two</th>";
     echo "<th></th>";
     echo "</tr>";
-    while($row = $result->fetch_assoc()) {
+    while($row = $droids->fetch_assoc()) {
 	# Pull the latest MOT for the droid that is a pass
         $sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$row["droid_uid"]. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
 	$mot_result = $conn->query($sql);
@@ -242,8 +243,6 @@ echo "<div class=achievements_list>";
 $sql = "SELECT * FROM members_achievements WHERE member_uid=".$member['member_uid'];
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
-    $sql = "SELECT * FROM achievements";
-    $achievements = $conn->query($sql)->fetch_assoc();
     echo "<table class=achievements_list id=achievements_list>";
     echo "<tr>";
     echo "<th onclick=\"w3.sortHTML('#achievements_list','.item', 'td:nth-child(1)')\">Name</th>";
@@ -331,6 +330,46 @@ if ($_SESSION['role'] != "user") {
 echo "</div>";
 echo "<hr />";
 # End of Official Events
+
+
+# Course runs
+echo "<h4>Driving Course Runs</h4>";
+echo "<div class=course_list>";
+$sql = "SELECT * FROM course_runs WHERE member_uid=".$member['member_uid']." ORDER BY final_time ASC";
+$runs = $conn->query($sql);
+if ($runs->num_rows > 0) {
+    echo "<table class=course_list id=course_list>";
+    echo "<tr>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(1)')\">Run date</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(2)')\">Droid</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(3)')\">First Half</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(4)')\">Second Half</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(5)')\">Clock Time</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(6)')\">Penalties</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(7)')\">Final Time</th></tr>";
+    while($row = $runs->fetch_assoc()) {
+	echo "<tr>";
+        echo "<td class=course_list>".$row['run_timestamp']."</td>";
+	$sql = "SELECT name FROM droids WHERE droid_uid = ".$row['droid_uid'];
+	$droid_name = $conn->query($sql)->fetch_assoc();
+        echo "<td class=course_list>".$droid_name['name']."</td>";
+	echo "<td class=course_list>".$row['first_half']."</td>";
+	echo "<td class=course_list>".$row['second_half']."</td>";
+	echo "<td class=course_list>".$row['clock_time']."</td>";
+	echo "<td class=course_list>".$row['num_penalties']."</td>";
+	echo "<td class=course_list>".$row['final_time']."</td>";
+        echo "</tr>";
+    }
+
+} else {
+    echo "No runs";
+}
+echo "</table>";
+echo "</div>";
+echo "<hr />";
+# End of Course Runs
+
+
 
 echo "</div>";
 
