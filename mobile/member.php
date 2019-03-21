@@ -1,12 +1,14 @@
 <?
 
-include "includes/header.php";
+include "../includes/config.php";
+include "session.php";
+include "header.php";
+
 
 if ($_SESSION['role'] == "user") {
         $_REQUEST['member_uid'] = $_SESSION['user'];
 }
 
-echo "<script src=\"https://www.w3schools.com/lib/w3.js\"></script>";
 echo "<div id=main>";
 
 // Create connection
@@ -15,120 +17,6 @@ $conn = new mysqli($database_host, $database_user, $database_pass, $database_nam
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
-
-function imageUpload($box) {
-	if ($_SESSION['role'] != "user") {
-            echo "<form method=POST enctype=\"multipart/form-data\">";
-            echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
-            echo "<input type=file name=$box>";
-            echo "<input type=submit name=upload value=$box>";
-            echo "</form>";
-	}
-}
-
-# Image uploads
-if (($_REQUEST['upload'] != "") && ($_SESSION['role'] != "user")) {
-        $imagename=$_FILES[$_REQUEST['upload']]["name"];
-        $exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
-        if( isset($exif['Orientation']) )
-            $orientation = $exif['Orientation'];
-        elseif( isset($exif['IFD0']['Orientation']) )
-            $orientation = $exif['IFD0']['Orientation'];
-        else
-            $orientation = 0;
-        echo "Orientation: $orientation<br/>";
-        $img = imagecreatefromjpeg($_FILES[$_REQUEST['upload']]['tmp_name']);
-        switch($orientation)
-        {
-            case 3: // 180 rotate left
-            $newimg = imagerotate($img, 180, -1);
-            break;
-
-            case 6: // 90 rotate right
-            $newimg = imagerotate($img, -90, -1);
-            break;
-
-            case 8:    // 90 rotate left
-            $newimg = imagerotate($img, 90, -1);
-            break;
-
-            case 0:    // 90 rotate left
-            $newimg = imagerotate($img, 0, 0);
-            break;
-
-	    default:
-	    $newimg = $img;
-	    break;
-        }
-        ob_start();
-        imagejpeg($newimg);
-        $contents = ob_get_contents();
-        ob_end_clean();
-        $insert_image="UPDATE members SET ".$_REQUEST['upload']."='".addslashes($contents)."' WHERE member_uid=".$_REQUEST['member_uid'];
-        $result=$conn->query($insert_image);
-
-}
-
-
-if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['role'] == "admin")) {
-	$conn->query("UPDATE members SET mug_shot='' WHERE member_uid=".$_REQUEST['member_uid']);
-	echo "Image deleted";
-}
-
-
-if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
-    $longitude = $_REQUEST['longitude'];
-    $latitude = $_REQUEST['latitude'];
-    $sql = "SELECT pli_date FROM members WHERE member_uid=".$_REQUEST['member_uid'];
-    $original_pli = $conn->query($sql)->fetch_object()->pli_date;
-    echo "Original PLI date = ".$original_pli;
-    if (($_REQUEST['latitude'] == "" ) && ( $_REQUEST['postcode'] != "" )) {
-   	$address = str_replace(' ','+',$_REQUEST["postcode"]);
-	$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key=AIzaSyDSW-P-s6Bj-CfZdukmaSR1m6u2dT3dBFA&address='.$address.'&sensor=false');
-        $output= json_decode($geocode);
-        $latitude = $output->results[0]->geometry->location->lat;
-        $longitude = $output->results[0]->geometry->location->lng;
-    }
-    $sql = "UPDATE members SET email=?, county=?, postcode=?, latitude=?, longitude=?, pli_date=?, pli_active=?, active=?, username=? WHERE member_uid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssi", $_REQUEST['email'], $_REQUEST['county'], $_REQUEST['postcode'], $latitude, $longitude, $_REQUEST['pli_date'], $_REQUEST['pli_active'], $_REQUEST['active'], $_REQUEST['username'], $_REQUEST['member_uid']);
-    $stmt->execute();
-    printf("Error: %s.\n", $stmt->sqlstate);
-    printf("Error: %s.\n", $stmt->error);
-    if ($original_pli != $_REQUEST['pli_date']) {
-	    # PLI Change, send email
-   	    # Get some MOT details for emails
-	    $sql = "SELECT * FROM members WHERE member_uid = ".$_SESSION["user"];
-            $officer = $conn->query($sql)->fetch_object();
-            $sql = "SELECT * FROM members WHERE member_uid=".$_REQUEST['member_uid'];
-            $member = $conn->query($sql)->fetch_object();
-            $mot_head_email = array();
-	    $mot_head_email[] = $officer->email;
-	    $mot_head_email[] = $config->email_treasurer;
-	    $mot_head_email[] = $member->email;
-	    $to = implode(',', $mot_head_email);
-            # Approved, email peeps
-            $subject = "UK R2 Builders MOT - PLI Updated";
-            $message = "Your PLI date has been updated by ".$officer->forename." ".$officer->surname."\r\n";
-            $message .= "\r\n";
-	    $message .= "Member: ".$member->forename." ".$member->surname."\r\n";
-	    $message .= "PLI Date: ".$_REQUEST['pli_date']."\r\n";
-            $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
-            $success = mail($to, $subject, $message, $headers);
-
-    }
-}
-
-if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
-    $sql = "INSERT into members_achievements(achievement_uid, member_uid, notes, added_by) VALUES(".$_REQUEST['achievement_uid'].", ".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['notes'])."', ".$_SESSION['user'].")";
-    $result=$conn->query($sql);
-}
-
-if (($_REQUEST['event'] == "Add") && ($_SESSION['role'] != "user") ) {
-    $sql = "INSERT into members_official_events(member_uid, details, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['details'])."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
-    $result=$conn->query($sql);
-}
-
 
 $sql = "SELECT * FROM members WHERE member_uid = ". $_REQUEST['member_uid'];
 $result = $conn->query($sql);
@@ -139,36 +27,21 @@ $officer_name = $officer->forename." ".$officer->surname;
 
 # Member details
 echo "<div class=info>";
-echo "<form>";
-echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
 echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
 echo "<table class=member>";
-echo " <tr><td>email: </td><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
-echo " <tr><td>County: </td><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
-echo " <tr><td>Postcode: </td><td><input type=text size=50 name=postcode value=\"".$member['postcode']."\"></td></tr>";
-if ($_SESSION['role'] != "user") {
-    echo " <tr><td>Latitude: </td><td><input type=text size=50 name=latitude value=\"".$member['latitude']."\"></td></tr>";
-    echo " <tr><td>Longitude: </td><td><input type=text size=50 name=longitude value=\"".$member['longitude']."\"></td></tr>";
-}
-echo " <tr><td>Forum Username: </td><td><input type=text size=50 name=username value=\"".$member['username']."\"></td></tr>";
+echo " <tr><td>email: </td><td>".$member['email']."</td></tr>";
+echo " <tr><td>County: </td><td>".$member['county']."</td></tr>";
+echo " <tr><td>Postcode: </td><td>".$member['postcode']."</td></tr>";
+echo " <tr><td>Forum Username: </td><td>".$member['username']."</td></tr>";
 echo " <tr><td>Created On: </td><td>".$member['created_on']."</td></tr>";
 echo " <tr><td>Created By: </td><td>".$officer_name."</td></tr>";
-echo " <tr><td>PLI Cover Last Paid: </td><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
-echo ($member['pli_active'] == "on") ? " checked" : "";
-echo ">";
+echo " <tr><td>PLI Cover Last Paid: </td><td>".$member['pli_date'];
 if (strtotime($member['pli_date']) > strtotime('-1 year')) {
 	echo "<a target=_blank href=cover_note.php?member_uid=".$member['member_uid'].">Cover Note</a>";
 }
 echo "</td></tr>";
 echo " <tr><td>Last Updated: </td><td>".$member['last_updated']."</td></tr>";
-echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
-echo ($member['active'] == "on") ? " checked" : "";
-echo "></td></tr>";
 echo "</table>";
-if ($_SESSION['role'] != "user") {
-    echo "<input type=submit name=update value=Update>";
-}
-echo "</form>";
 echo "</div>";
 
 echo "<div class=mug_shot>";
@@ -178,10 +51,6 @@ if ($member['mug_shot'] != "") {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
         }
 	echo "</div>";
-} else {
-        echo "<div id=mug_shot class=image_upload>";
-        imageUpload('mug_shot');
-        echo "</div>";
 }
 
 echo "</div>";
@@ -234,9 +103,6 @@ if ($droids->num_rows > 0) {
 } else {
     echo "No Droids";
 }
-if ($_SESSION['role'] != "user" ) {
-    echo "<a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
-}
 echo "</div>";
 echo "<hr />";
 
@@ -277,19 +143,6 @@ echo "</table>";
 $sql="SELECT * FROM achievements";
 $result=$conn->query($sql);
 
-if ($_SESSION['role'] != "user") {
-    echo "<form>";
-    echo "Add achievement<br />";
-    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
-    echo "Notes: <input type=text size=50 name=notes>";
-    echo "<select name=achievement_uid>";
-    while($row = $result->fetch_assoc()) {
-        echo "<option value=".$row['achievement_uid'].">".$row['name']."</option>";
-    }
-    echo "</select>";
-    echo "<input type=Submit value=Add name=achievement>";
-    echo "</form>";
-}
 echo "</div>";
 echo "<hr />";
 # End of Achievements
@@ -321,15 +174,6 @@ if ($result->num_rows > 0) {
 }
 echo "</table>";
 
-if ($_SESSION['role'] != "user") {
-    echo "<form>";
-    echo "Add event<br />";
-    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
-    echo "Details: <input type=text size=80 name=details>";
-    echo "Spotter: <input type=checkbox name=spotter>";
-    echo "<input type=Submit value=Add name=event>";
-    echo "</form>";
-}
 echo "</div>";
 echo "<hr />";
 # End of Official Events

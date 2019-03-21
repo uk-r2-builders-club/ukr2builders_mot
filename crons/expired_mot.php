@@ -23,7 +23,7 @@ if ($expiring->num_rows > 0) {
         $message = "A droids MOT expires in a month\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/droid.php?droid_uid=".$row['droid_uid']."\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
 
 	# Also email member to let them know
@@ -35,7 +35,7 @@ if ($expiring->num_rows > 0) {
 	$subject = "UK R2 Builders - ".$droid['name']." MOT Expiring";
         $message = "Your droid's MOT expires in a month\r\n";
         $message .= "\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($owner['email'], $subject, $message, $headers);
 
     }
@@ -55,7 +55,7 @@ if ($expiring->num_rows > 0) {
         $message = "A droids MOT expired\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/droid.php?droid_uid=".$row['droid_uid']."\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
 
         # Also email member to let them know
@@ -67,7 +67,7 @@ if ($expiring->num_rows > 0) {
         $subject = "UK R2 Builders - ".$droid['name']." MOT Expired";
         $message = "Your droid's MOT has expired\r\n";
         $message .= "\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($owner['email'], $subject, $message, $headers);
 
     }

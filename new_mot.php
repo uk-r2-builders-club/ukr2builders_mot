@@ -111,7 +111,7 @@ if ($_REQUEST['new_mot'] != "") {
             printf("<br />Error code: %s.\n", $stmt->error);
     } else {
 	    # Get some MOT details for emails
-	    $sql = "SELECT * FROM users WHERE user_uid = ".$_SESSION["user"];
+	    $sql = "SELECT * FROM members WHERE member_uid = ".$_SESSION["user"];
             $officer = $conn->query($sql)->fetch_object();
             $sql = "SELECT * FROM droids WHERE droid_uid=".$_REQUEST['droid_uid'];
             $droid = $conn->query($sql)->fetch_object();
@@ -124,7 +124,7 @@ if ($_REQUEST['new_mot'] != "") {
 	    $to = implode(',', $mot_head_email);
             # Approved, email peeps
             $subject = "UK R2 Builders MOT - MOT Submitted";
-	    $message = "An MOT has been submitted by ".$officer->name." and an email to the droid owner with";
+	    $message = "An MOT has been submitted by ".$officer->forename." ".$officer->surname." and an email to the droid owner with";
 	    $message .= "instructions on paying any PLI due<br />";
             $message .= "<br />";
             $message .= "<a href=\"".$config->site_base."/droid.php?droid_uid=".$_REQUEST['droid_uid']."\">".$config->site_base."/droid.php?droid_uid=".$_REQUEST['droid_uid']."</a><br />";
@@ -133,7 +133,7 @@ if ($_REQUEST['new_mot'] != "") {
 	    $message .= "<li>MOT Location: ".$_REQUEST['location']."</li>";
 	    $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
 	    $message .= "<li>MOT Type ".$_REQUEST['mot_type']."</li></ul>";
-            $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
+            $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
 	    $headers .= "MIME-Version: 1.0\r\n";
 	    $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
             $success = mail($to, $subject, $message, $headers);
@@ -143,7 +143,7 @@ if ($_REQUEST['new_mot'] != "") {
 	    $subject = "UK R2 Builders MOT - MOT Submitted";
 	    $message = "Hello ".$member->forename.",<br />";
 	    $message .= "<br />";
-	    $message .= "An MOT for your droid has been submitted by ".$officer->name."<br />";
+	    $message .= "An MOT for your droid has been submitted by ".$officer->forename." ".$officer->surname."<br />";
 	    $message .= "<br />";
 	    $message .= "<ul><li>MOT Location: ".$_REQUEST['location']."</li>";
             $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
@@ -195,8 +195,9 @@ if ($_REQUEST['new_mot'] != "") {
 
 }
 
-$sql = "SELECT name FROM users WHERE user_uid = ".$_SESSION["user"];
-$officer = $conn->query($sql)->fetch_object()->name;
+$sql = "SELECT forename, surname FROM members WHERE member_uid = ".$_SESSION["user"];
+$officer = $conn->query($sql)->fetch_object();
+$officer_name = $officer->forename." ".$officer->surname;
 
 
 # Comments
@@ -216,7 +217,7 @@ echo " <li>Date Taken: <input type=date name=date value=".date('Y-m-d')."></li>"
 echo " <li>Location: <input type=text name=location></li>";
 echo " <li>MOT Type: <select name=mot_type><option value=Initial>Initial</option><option value=Renewal>Renewal</option><option value=Retest>Retest</option></select></li>";
 echo " <li>Pass: <select name=approved><option value=Yes>Yes</option><option value=No>No</option><option value=WIP>WIP</option><option value=Advisory>Yes (Advisory)</option></select></li>";
-echo " <li>MOT Officer: ".$officer."</li>";
+echo " <li>MOT Officer: ".$officer_name."</li>";
 echo "</ul>";
 echo "</div>";
 

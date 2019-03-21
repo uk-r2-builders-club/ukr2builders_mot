@@ -9,19 +9,19 @@ if($_SERVER["HTTPS"] != "on")
 $timeout = 10 * 60; // 3 minutes
 $fingerprint = md5('SECRET-SALT'.$_SERVER['HTTP_USER_AGENT']);
 session_start();
-if ( (isset($_SESSION['last_active']) && (time() > ($_SESSION['last_active']+$timeout)))
-     || (isset($_SESSION['fingerprint']) && $_SESSION['fingerprint']!=$fingerprint)
+if (
+     (isset($_SESSION['fingerprint']) && $_SESSION['fingerprint']!=$fingerprint)
      || isset($_GET['logout']) ) {
     setcookie(session_name(), '', time()-3600, '/');
     session_destroy();
-    header("Location:/new_mot/");
+    header("Location:/new_mot/mobile/");
     die();
 }
 session_regenerate_id();
 $_SESSION['last_active'] = time();
 $_SESSION['fingerprint'] = $fingerprint;
 
-include "includes/config.php";
+include "../includes/config.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -82,16 +82,6 @@ if (!isset($_SESSION['username'])) {
 } else {
 	echo "<ul>";
 	echo " <li><a href='member.php?member_uid=".$_SESSION['user']."'>Your Profile</a></li>";
-	if ($_SESSION['role'] != 'user') {
-	    echo " <li><a href=members.php>List Members</a></li>";
-	    echo " <li><a href=list_droids.php>List Droids</a></li>";
-	}
-	if ($_SESSION['role'] == 'admin') {
-		echo " <li><a href=map.php>Members Map</a></li>";
-		echo " <li><a href=edit_config.php>Edit config</a></li>";
-		echo " <li><a href=edit_pli.php>Edit PLI Details</a></li>";
-		echo " <li><a href=achievements.php>Edit Achievements</a></li>";
-	}
 	echo " <li><a href=password.php>Change Password</a></li>";
 	echo " <li><a href=leaderboard.php>View the Droid Driving Course Leaderboard</a></li>";
 	echo " <li><a href=topps.php>View the Topps Droids</a></li>";

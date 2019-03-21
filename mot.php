@@ -53,9 +53,10 @@ if ($comments_result->num_rows > 0) {
     // output data of each row
     echo "<div id=comment>";
     while($row = $comments_result->fetch_assoc()) {
-        $sql = "SELECT name FROM users WHERE user_uid = ".$row["added_by"];
-        $officer = $conn->query($sql)->fetch_object()->name;
-        echo "<div id=officer>$officer</div>";
+        $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$row["added_by"];
+        $officer = $conn->query($sql)->fetch_object();
+        $officer_name = $officer->forename." ".$officer->surname;
+        echo "<div id=officer>$officer_name</div>";
         echo "<div id=time>".$row['added_on']."</div>";
         echo "<div id=text>".$row['comment']."</div>";
     }
@@ -76,8 +77,9 @@ echo "</div>";
 $sql = "SELECT * FROM mot WHERE mot_uid = ". $_REQUEST['mot_uid'];
 $result = $conn->query($sql);
 $mot = $result->fetch_assoc();
-$sql = "SELECT name FROM users WHERE user_uid = ".$mot["user"];
-$officer = $conn->query($sql)->fetch_object()->name;
+$sql = "SELECT forename,surname FROM members WHERE member_uid = ".$mot["user"];
+$officer = $conn->query($sql)->fetch_object();
+$officer_name = $officer->forename." ".$officer->surname;
 $sql = "SELECT * FROM droids WHERE droid_uid = ".$mot["droid_uid"];
 $droid = $conn->query($sql)->fetch_object();
 $sql = "SELECT * FROM members WHERE member_uid = $droid->member_uid";
@@ -91,7 +93,7 @@ echo " <li>Date Taken: ".$mot['date']."</li>";
 echo " <li>Location: ".$mot['location']."</li>";
 echo " <li>MOT type: ".$mot['mot_type']."</li>";
 echo " <li>Pass/Fail: ".$mot['approved']."</li>";
-echo " <li>MOT Officer: ".$officer."</li>";
+echo " <li>MOT Officer: ".$officer_name."</li>";
 echo "</ul>";
 echo "</div>";
 

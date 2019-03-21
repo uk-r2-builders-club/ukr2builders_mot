@@ -1,6 +1,6 @@
 <?
-include "includes/session.php";
 include "includes/config.php";
+include "includes/session.php";
 
 
 if ($_SESSION['role'] == "user") {

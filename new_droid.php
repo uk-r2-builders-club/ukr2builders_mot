@@ -25,19 +25,20 @@ if ($_REQUEST['name'] != "") {
     printf("Error: %s.\n", $stmt->sqlstate);
     printf("Error: %s.\n", $stmt->error);
     if ($stmt->error == "") {
-        $sql = "SELECT * FROM users WHERE user_uid = ".$_SESSION["user"];
-        $officer = $conn->query($sql)->fetch_assoc();
+        $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$_SESSION["user"];
+        $officer = $conn->query($sql)->fetch_object();
+        $officer_name = $officer->forename." ".$officer->surname;
         $mot_head_email = array();
-        $mot_head_email[] = $officer['email'];
+        $mot_head_email[] = $officer->email;
         $mot_head_email[] = $config->email_mot;
 	$mot_head_email[] = $config->email_treasurer;
         $to = implode(',', $mot_head_email);
         # Approved, email peeps
         $subject = "UK R2 Builders MOT - New Droid";
-        $message = "A droid has been added by ".$officer['name']."\r\n";
+        $message = "A droid has been added by ".$officer->forename." ".$officer->surname."\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/droid.php?droid_uid=".$droid_uid."\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
     }
 

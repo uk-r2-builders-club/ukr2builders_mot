@@ -171,8 +171,9 @@ if ($mot_result->num_rows > 0) {
     echo "<table>";
     echo "<tr><th>Date</th><th>Location</th><th>Officer</th><th>Approved</th><th></th></tr>";
     while($row = $mot_result->fetch_assoc()) {
-	$sql = "SELECT name FROM users WHERE user_uid = ".$row["user"];
-	$officer = $conn->query($sql)->fetch_object()->name;
+	$sql = "SELECT forename, surname FROM members WHERE member_uid = ".$row["user"];
+	$officer = $conn->query($sql)->fetch_object();
+        $officer_name = $officer->forename." ".$officer->surname;
 	if ((strtotime($row['date']) > time()-28930000) && ($row['approved'] == "Yes")) {
             echo "<tr bgcolor=green>";
         } elseif ((strtotime($row['date']) > time()-28930000) && ($row['approved'] == "Advisory")) {
@@ -180,7 +181,7 @@ if ($mot_result->num_rows > 0) {
 	} else {
             echo "<tr bgcolor=red>";
         }
-	echo "<td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer. "</td><td>".$row["approved"]."</td>";
+	echo "<td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer_name. "</td><td>".$row["approved"]."</td>";
 	echo "<td><a href=mot.php?mot_uid=". $row["mot_uid"]. "><img src=\"images/view_button.png\"></a>";
 	if ($_SESSION['role'] == "admin") {
              echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=mot.php?mot_uid=". $row["mot_uid"]. "&delete=yes><img src=\"images/delete_button.png\"></a>";
@@ -208,9 +209,10 @@ if ($comments_result->num_rows > 0) {
     // output data of each row
     echo "<div id=comment>";
     while($row = $comments_result->fetch_assoc()) {
-        $sql = "SELECT name FROM users WHERE user_uid = ".$row["added_by"];
-        $officer = $conn->query($sql)->fetch_object()->name;
-        echo "<div id=officer>$officer</div>";
+        $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$row["added_by"];
+        $officer = $conn->query($sql)->fetch_object();
+        $officer_name = $officer->forename." ".$officer->surname;
+        echo "<div id=officer>$officer_name</div>";
         echo "<div id=time>".$row['added_on']."</div>";
         echo "<div id=text>".$row['comment'];
 	if ($_SESSION['admin'] == 1) {

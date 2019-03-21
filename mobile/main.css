@@ -1,0 +1,324 @@
+#menu {
+    position: absolute;
+    height: 150px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#nameSearch {
+    background-image: url('images/searchicon.png'); /* Add a search icon to input */
+    background-position: 10px 12px; /* Position the search icon */
+    background-repeat: no-repeat; /* Do not repeat the icon image */
+    width: 95%; /* Full-width */
+    font-size: 16px; /* Increase font-size */
+    padding: 12px 20px 12px 40px; /* Add some padding */
+    border: 1px solid #ddd; /* Add a grey border */
+    margin-bottom: 12px; /* Add some space below the input */
+}
+
+/* droid image section */
+.images {
+        position: relative;
+        float: left;
+}
+.droid_image {
+	width:240px;
+	position:relative;
+}
+
+.droid_image img {
+	max-width:100%;
+	max-height:100%;
+}
+
+.droid_image a {
+	display:block;
+	width:20px;
+	height:20px;
+	position:absolute;
+	top:3px;
+	right:3px;
+	background-image: url('images/delete_button.png');
+	overflow:hidden;
+	text-indent:-9999px;
+}
+
+/* Topps cards */
+.topps {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 30px;
+}
+
+.image_upload {
+	height: 320px;
+	width: 240px;
+	position: relative;
+	float: left;
+}
+#banner {
+	height: 100px;
+	background-color: #6699cc;
+	background-image: url(images/MOT_Banner.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+	padding: 10px;
+	text-align: left;
+	overflow: hidden;
+}
+.main {
+	position: relative;
+	padding: 3px;
+}
+#mot_test {
+	position: relative;
+	padding: 3px;
+	width: 750px;
+	margin-top: 150px;
+}
+#mot_block {
+        position: relative;
+	width: 500px;
+}
+#mot_block table {
+	width: 400px;
+}
+
+.droid_column_left {
+	float: left;
+	width: 600px;
+}
+
+.droid_column_right {
+	float: right;
+}
+
+/* Comments Section */
+.comments {
+	position: relative;
+	float: right;
+	width: 550px;
+	padding: 5px;
+	margin: 5px;
+}
+#officer {
+	position: relative;
+	float: left;
+	width: 350px;
+	background-color: grey;
+}
+#time {
+	position: relative;
+	float: right;
+	width: 200px;
+}
+
+.item.grayout {
+    opacity: 0.6; /* Real browsers */
+    filter: alpha(opacity = 60); /* MSIE */
+}
+
+.info {
+	position: relative;
+	float: left;
+	width: 600px;
+}
+.info table {
+	width: 95%;
+}
+
+.mot {
+        position: relative;
+        float: left;
+        width: 600px;
+}
+.mot table {
+	width: 95%;
+}
+
+p.mot_pass {
+	color: green;
+}
+p.mot_na {
+	color: black;
+}
+p.mot_fail {
+	color: red;
+}
+table.members {
+        border: 1px solid black;
+	border-collapse: collapse;
+	width: 95%;
+}
+table.members tr,td,th{
+	border: 1px solid black;
+}
+tr.members {
+	text-align: center;
+}
+table.droid_list {
+	padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.droid_list tr,td,th{
+        border: 1px solid black;
+}
+
+table.achievements_list {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.achievements_list tr,td,th{
+        border: 1px solid black;
+}
+
+table.events_list {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.events_list tr,td,th{
+        border: 1px solid black;
+}
+
+table.course_list {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+        width: 95%;
+}
+table.course_list tr,td,th{
+        border: 1px solid black;
+}
+
+table.leaderboard {
+        padding: 2px;
+        border: 1px solid black;
+        border-collapse: collapse;
+	margin-left:auto;
+        margin-right:auto;
+        width: 95%;
+}
+table.leaderboard tr,td,th{
+        border: 1px solid black;
+}
+
+
+/* Container is necessary because td cannot be positioned relative */
+td .tooltipcontainer {
+    position: relative;
+}
+td .tooltip {
+    display: none;
+    position: absolute;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    z-index: 1;
+    /* More positioning, heigh, width, etc */
+}
+td a:hover .tooltip {
+    display: block;
+}
+
+.mug_shot {
+	width:240px;
+	position:relative;
+	float: right;
+	margin: 5px;
+}
+
+.mug_shot img {
+	max-width:100%;
+	max-height:100%;
+}
+
+.mug_shot a {
+	display:block;
+	width:20px;
+	height:20px;
+	position:absolute;
+	top:3px;
+	right:3px;
+	background-image: url('images/delete_button.png');
+	overflow:hidden;
+	text-indent:-9999px;
+}
+/* entire container, keeps perspective */
+.flip-container{
+/*perspective*/
+-webkit-perspective:1000;
+   -moz-perspective:1000;
+    -ms-perspective:1000;
+     -o-perspective:1000;
+        perspective:1000;
+}
+/* flip the pane when hovered */
+	.flip-container:hover .flipper, .flip-container.hover .flipper{
+/*transform*/
+-webkit-transform:rotateY(180deg);
+   -moz-transform:rotateY(180deg);
+    -ms-transform:rotateY(180deg);
+     -o-transform:rotateY(180deg);
+        transform:rotateY(180deg);
+}
+.flip-container, .front, .back{
+width:240px;
+height:332px;
+}
+/* flip speed goes here */
+.flipper{
+/*transition*/
+-webkit-transition:0.6s;
+   -moz-transition:0.6s;
+     -o-transition:0.6s;
+        transition:0.6s;
+/*transform-style*/
+-webkit-transform-style:preserve-3d;
+   -moz-transform-style:preserve-3d;
+    -ms-transform-style:preserve-3d;
+     -o-transform-style:preserve-3d;
+        transform-style:preserve-3d;
+position:relative;
+}
+/* hide back of pane during swap */
+.front, .back{
+/*backface-visibility*/
+-webkit-backface-visibility:hidden;
+   -moz-backface-visibility:hidden;
+    -ms-backface-visibility:hidden;
+     -o-backface-visibility:hidden;
+        backface-visibility:hidden;
+position:absolute;
+top:0;
+left:0;
+}
+/* front pane, placed above back */
+.front{
+z-index:2;
+}
+/* back, initially hidden pane */
+.back{
+/*transform*/
+-webkit-transform:rotateY(180deg);
+   -moz-transform:rotateY(180deg);
+    -ms-transform:rotateY(180deg);
+     -o-transform:rotateY(180deg);
+        transform:rotateY(180deg);
+}
+

@@ -24,14 +24,14 @@ if ($expiring->num_rows > 0) {
         $message = "A members PLI expires in a month\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/member.php?member_uid=".$row['member_uid']."\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
 
 	# Also email member to let them know
 	$subject = "UK R2 Builders - PLI Expiring";
         $message = "Your PLI expires in a month\r\n";
         $message .= "\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($row['email'], $subject, $message, $headers);
 
     }
@@ -54,14 +54,14 @@ if ($expired->num_rows > 0) {
         $message = "A members PLI has expired\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/member.php?member_uid=".$row['member_uid']."\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
 
         # Also email member to let them know
         $subject = "UK R2 Builders - PLI Expired";
         $message = "Your PLI has expired\r\n";
         $message .= "\r\n";
-        $headers = "From: webmaster@r2djp.co.uk"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($row['email'], $subject, $message, $headers);
 
     }

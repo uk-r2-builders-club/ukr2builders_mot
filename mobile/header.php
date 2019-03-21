@@ -1,9 +1,3 @@
-<?
-
-include "includes/config.php";
-include "includes/session.php";
-
-?>
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
@@ -13,8 +7,3 @@ include "includes/session.php";
 
  <body>
 
-<?
-
-include "includes/menu.php";
-
-?>
