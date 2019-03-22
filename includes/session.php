@@ -13,11 +13,15 @@ session_regenerate_id();
 $_SESSION['last_active'] = time();
 $_SESSION['fingerprint'] = $fingerprint;
 
-if (!isset($_SESSION['user'])) {
+// If the is no current user session and they aren't trying to reset their password
+// redirect to the login page
+if (!isset($_SESSION['user']) && basename($_SERVER['PHP_SELF']) != "password.php") {
     header("Location:https://r2djp.co.uk/new_mot/");
     die();
 }
 
+// Check to see if the logged in user needs to change their password, if 
+// they aren't on the password page.
 if (isset($_SESSION['user']) && basename($_SERVER['PHP_SELF']) != "password.php") {
 	// Create connection
         $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -33,8 +37,6 @@ if (isset($_SESSION['user']) && basename($_SERVER['PHP_SELF']) != "password.php"
 		header("Location:https://r2djp.co.uk/new_mot/password.php?force");
 		die();
 	}
-
-
 }
 
 

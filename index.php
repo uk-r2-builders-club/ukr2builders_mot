@@ -76,6 +76,7 @@ if (!isset($_SESSION['username'])) {
 	echo "Username: <input type=text name=username size=25><br />";
 	echo "Password: <input type=password name=password size=25><br />";
 	echo "<input type=submit name=login value=Go>";
+	echo "<a href=\"reset.php\">Reset password</a>";
 	echo "<hr />";
 	echo "<a href=topps.php>View the Topps Droids</a> | ";
 	echo "<a href=stats.php>Current UK Droid statistics</a>";
