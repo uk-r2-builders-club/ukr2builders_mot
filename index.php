@@ -31,7 +31,7 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['login'] == "Go") {
-	$sql="SELECT active,email,member_uid,role,admin FROM members WHERE (email='".$_REQUEST['username']."' OR username='".$_REQUEST['username']."') AND password=PASSWORD('".$_REQUEST['password']."') LIMIT 1";
+	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted FROM members WHERE (email='".$_REQUEST['username']."' OR username='".$_REQUEST['username']."') AND password=PASSWORD('".$_REQUEST['password']."') LIMIT 1";
 	$result = $conn->query($sql);
 	if ($result->num_rows == 1) {
 		$row = $result->fetch_assoc();
@@ -40,6 +40,8 @@ if ($_REQUEST['login'] == "Go") {
 		$_SESSION['enabled']=$row['active'];
 		$_SESSION['admin']=$row['admin'];
 		$_SESSION['role']=$row['role'];
+		$_SESSION['force_password']=$row['force_password'];
+		$_SESSION['gdpr_accepted']=$row['gdpr_accepted'];
 		$sql="UPDATE members SET last_login=NOW(), last_login_from='".$_ENV['REMOTE_ADDR']."' WHERE member_uid=".$row['member_uid'];
 		$result = $conn->query($sql);
 	}

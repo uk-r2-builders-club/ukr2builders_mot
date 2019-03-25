@@ -161,6 +161,7 @@ if (strtotime($member['pli_date']) > strtotime('-1 year')) {
 }
 echo "</td></tr>";
 echo " <tr><td>Last Updated: </td><td>".$member['last_updated']."</td></tr>";
+echo " <tr><td>ID Link: </td><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br /><img id=qr_code src=data:image/png;base64,".base64_encode( $member['qr_code'] )." width=200></td></tr>";
 echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";

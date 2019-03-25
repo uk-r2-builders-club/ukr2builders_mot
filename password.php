@@ -11,12 +11,45 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-if ($_REQUEST['update'] != "") {
+$allow_reset = 0;
+$member_reset = 0;
+
+if (isset($_SESSION['user'])) {
+	$allow_reset = 1;
+	$member_reset = $_SESSION['user'];
+} elseif (isset($_REQUEST['reset'])) {
+	echo "<h3>Password Reset</h3>";
+        $reset_code = $_REQUEST['reset'];
+        $sql = "SELECT * FROM password_reset WHERE hash = '".$reset_code."'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+                // Code accepted
+		$reset_row = $result->fetch_assoc();
+		$expire = strtotime($reset_row['expire']);
+		$member_reset = $reset_row['member_uid'];
+	        $now = time();
+	        if ($now > $expire) {
+		      echo "Request has expired. Please submit again";
+		      $sql = "DELETE FROM password_reset WHERE member_uid = ?";
+                      $stmt = $conn->prepare($sql);
+                      $stmt->bind_param("i", $member_reset);
+                      $stmt->execute();
+	        } else {
+		      echo "Resetting password<br/>";
+		      $allow_reset = 1;
+	        }
+        } else {
+                echo "That reset code is not recognised";
+	}
+}
+
+
+if ($_REQUEST['update'] != "" && $allow_reset == 1) {
     if ($_REQUEST['password1'] == $_REQUEST['password2']) {
 	if ($_REQUEST['gdpr'] == "on") {
             $sql = "UPDATE members SET password=PASSWORD(?), force_password=0, gdpr_accepted=1 WHERE member_uid = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("si", $_REQUEST['password1'], $_SESSION['user']);
+            $stmt->bind_param("si", $_REQUEST['password1'], $member_reset);
             $stmt->execute();
 	    if ($stmt->sqlstate == "00000") {
 	   	 echo "Password change successful";
@@ -25,6 +58,10 @@ if ($_REQUEST['update'] != "") {
                  printf("Error: %s.\n", $stmt->sqlstate);
                  printf("Error: %s.\n", $stmt->error);
 	    }
+	    $sql = "DELETE FROM password_reset WHERE member_uid = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $member_reset);
+            $stmt->execute();
 	} else {
 	    echo "You must accept the Data Protection Policy";
 	}
@@ -42,6 +79,7 @@ echo "<ul>";
 echo " <li>New Password: <input type=password name=password1 size=40></li>";
 echo " <li>Repeat: <input type=password name=password2 size=40></li>";
 echo " <li>I have read and understood the <a href=gdpr.php>Data Protection Policy</a> <input type=checkbox name=gdpr></li>";
+echo " <input type=hidden name=reset value=".$_REQUEST['reset'].">";
 echo "</ul>";
 echo "<input type=submit name=update value=Update>";
 echo "</div>";
