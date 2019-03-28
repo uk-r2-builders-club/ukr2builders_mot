@@ -1,5 +1,7 @@
 <?
 
+include "includes/config.php";
+
 if($_SERVER["HTTPS"] != "on")
 {
     header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
@@ -7,11 +9,9 @@ if($_SERVER["HTTPS"] != "on")
 }
 
 if (isset($_SESSION['user']))  {
-    header("Location:https://r2djp.co.uk/new_mot/password.php");
+    header("Location:".$config->site_base."/password.php");
     die();
 }
-
-include "includes/config.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);

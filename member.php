@@ -113,7 +113,7 @@ if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
             $message .= "\r\n";
 	    $message .= "Member: ".$member->forename." ".$member->surname."\r\n";
 	    $message .= "PLI Date: ".$_REQUEST['pli_date']."\r\n";
-            $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
+            $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
             $success = mail($to, $subject, $message, $headers);
 
     }
@@ -125,7 +125,7 @@ if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
 }
 
 if (($_REQUEST['event'] == "Add") && ($_SESSION['role'] != "user") ) {
-    $sql = "INSERT into members_official_events(member_uid, details, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['details'])."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
+    $sql = "INSERT into members_events(member_uid, event_uid, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['event_uid'])."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
     $result=$conn->query($sql);
 }
 
@@ -299,34 +299,45 @@ echo "<hr />";
 # Official Events
 echo "<h4>Official Events</h4>";
 echo "<div class=events_list>";
-$sql = "SELECT * FROM members_official_events WHERE member_uid=".$member['member_uid'];
+$sql = "SELECT * FROM members_events, events WHERE events.event_uid = members_events.event_uid AND member_uid=".$member['member_uid']." ORDER BY events.date";
 $result = $conn->query($sql);
+$charity_raised = 0;
 if ($result->num_rows > 0) {
     echo "<table class=events_list id=events_list>";
     echo "<tr>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Date Added</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Date</th>";
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Details</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Spotter</th></tr>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Spotter</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th></tr>";
     while($row = $result->fetch_assoc()) {
-        echo "<td class=events_list>".$row['date_added']."</td>";
-        echo "<td class=events_list>".$row['details']."</td>";
+        echo "<td class=events_list>".$row['date']."</td>";
+        echo "<td class=events_list>".$row['name']."</td>";
 	echo "<td class=events_list>";
 	if ($row['spotter'] == "on") 
 		echo "Yes";
 	echo "</td>";
-        echo "</tr>";
+	echo "<td class=events_list>£".$row['charity_raised']."</td>";
+	echo "</tr>";
+	$charity_raised = $charity_raised + $row['charity_raised'];
     }
+    echo "<tr><td colspan=2></td><th>Total</th><td>£".$charity_raised."</td></tr>";
 
 } else {
     echo "No events";
 }
 echo "</table>";
+$sql="SELECT * FROM events WHERE date < NOW() ORDER BY date";
+$result=$conn->query($sql);
 
 if ($_SESSION['role'] != "user") {
     echo "<form>";
     echo "Add event<br />";
     echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
-    echo "Details: <input type=text size=80 name=details>";
+    echo "<select name=event_uid>";
+    while($row = $result->fetch_assoc()) {
+        echo "<option value=".$row['event_uid'].">".$row['name']."</option>";
+    }
+    echo "</select>";
     echo "Spotter: <input type=checkbox name=spotter>";
     echo "<input type=Submit value=Add name=event>";
     echo "</form>";

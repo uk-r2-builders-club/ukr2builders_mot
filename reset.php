@@ -1,5 +1,7 @@
 <?
 
+include "includes/config.php";
+
 if($_SERVER["HTTPS"] != "on")
 {
     header("Location: https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
@@ -7,11 +9,9 @@ if($_SERVER["HTTPS"] != "on")
 }
 
 if (isset($_SESSION['user']))  {
-    header("Location:https://r2djp.co.uk/new_mot/password.php");
+    header("Location:".$config->site_base."/password.php");
     die();
 }
-
-include "includes/config.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -67,7 +67,7 @@ if (isset($_REQUEST['mail'])) {
 		      $message .= "If you have not requested this, please do NOT follow the link, and let a club admin know";
 		      $message .= "\r\n";
                       $message .= $config->site_base."/password.php?reset=".$hash."\r\n";
-                      $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
+                      $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
                       mail($to, $subject, $message, $headers);
 		      echo "Mail sent with reset instructions";
 	      }

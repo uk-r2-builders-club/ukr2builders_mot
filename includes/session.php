@@ -8,6 +8,8 @@ if ( (isset($_SESSION['last_active']) && (time() > ($_SESSION['last_active']+$ti
      || isset($_GET['logout']) ) {
     setcookie(session_name(), '', time()-3600, '/');
     session_destroy();
+    header("Location:".$config->site_base);
+    die();
 }
 session_regenerate_id();
 $_SESSION['last_active'] = time();

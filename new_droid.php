@@ -38,7 +38,7 @@ if ($_REQUEST['name'] != "") {
         $message = "A droid has been added by ".$officer->forename." ".$officer->surname."\r\n";
         $message .= "\r\n";
         $message .= $config->site_base."/droid.php?droid_uid=".$droid_uid."\r\n";
-        $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion();
+        $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
     }
 

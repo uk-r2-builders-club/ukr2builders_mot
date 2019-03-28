@@ -133,7 +133,7 @@ if ($_REQUEST['new_mot'] != "") {
 	    $message .= "<li>MOT Location: ".$_REQUEST['location']."</li>";
 	    $message .= "<li>Droid Status: ".$_REQUEST['approved']."</li>";
 	    $message .= "<li>MOT Type ".$_REQUEST['mot_type']."</li></ul>";
-            $headers = "From: R2 Builders MOT <mot@r2djp.co.uk>"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
+            $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
 	    $headers .= "MIME-Version: 1.0\r\n";
 	    $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
             $success = mail($to, $subject, $message, $headers);

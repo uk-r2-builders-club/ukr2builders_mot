@@ -6,7 +6,7 @@ if($_SERVER["HTTPS"] != "on")
     exit();
 }
 
-$timeout = 10 * 60; // 3 minutes
+$timeout = 15 * 60; // 15 minutes
 $fingerprint = md5('SECRET-SALT'.$_SERVER['HTTP_USER_AGENT']);
 session_start();
 if ( (isset($_SESSION['last_active']) && (time() > ($_SESSION['last_active']+$timeout)))
@@ -14,7 +14,7 @@ if ( (isset($_SESSION['last_active']) && (time() > ($_SESSION['last_active']+$ti
      || isset($_GET['logout']) ) {
     setcookie(session_name(), '', time()-3600, '/');
     session_destroy();
-    header("Location:/new_mot/");
+    header("Location:/");
     die();
 }
 session_regenerate_id();
@@ -74,9 +74,11 @@ echo "</div>";
 if (!isset($_SESSION['username'])) {
 	echo "<form method=post>";
 	echo "<h1>Login:</h1>";
-	echo "Use either username or email address<br />";
-	echo "Username: <input type=text name=username size=25><br />";
-	echo "Password: <input type=password name=password size=25><br />";
+	echo "Use email address<br />";
+	echo "<table border=0>";
+	echo "<tr><th>Email Address:</th><td><input type=text name=username size=25></td></tr>";
+	echo "<tr><th>Password:</th><td><input type=password name=password size=25></td></tr>";
+	echo "</table>";
 	echo "<input type=submit name=login value=Go>";
 	echo "<a href=\"reset.php\">Reset password</a>";
 	echo "<hr />";
@@ -94,6 +96,7 @@ if (!isset($_SESSION['username'])) {
 		echo " <li><a href=edit_config.php>Edit config</a></li>";
 		echo " <li><a href=edit_pli.php>Edit PLI Details</a></li>";
 		echo " <li><a href=achievements.php>Edit Achievements</a></li>";
+		echo " <li><a href=events.php>Edit Events</a></li>";
 	}
 	echo " <li><a href=password.php>Change Password</a></li>";
 	echo " <li><a href=leaderboard.php>View the Droid Driving Course Leaderboard</a></li>";

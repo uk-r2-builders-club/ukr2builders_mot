@@ -75,13 +75,14 @@ if (isset($_REQUEST['force'])) {
 }
 echo "<div id=info>";
 echo "<form method=post>";
-echo "<ul>";
-echo " <li>New Password: <input type=password name=password1 size=40></li>";
-echo " <li>Repeat: <input type=password name=password2 size=40></li>";
-echo " <li>I have read and understood the <a href=gdpr.php>Data Protection Policy</a> <input type=checkbox name=gdpr></li>";
+echo "<table border=0>";
+echo " <tr><th>New Password:</th><td><input type=password name=password1 size=40></td></tr>";
+echo " <tr><th>Repeat:</th><td><input type=password name=password2 size=40></td></tr>";
+echo " <tr><th colspan=2>I have read and understood the <a href=gdpr.php>Data Protection Policy</a> <input type=checkbox name=gdpr></th></tr>";
+echo "</table>";
 echo " <input type=hidden name=reset value=".$_REQUEST['reset'].">";
-echo "</ul>";
 echo "<input type=submit name=update value=Update>";
+echo "</form>";
 echo "</div>";
 
 echo "</div>";
