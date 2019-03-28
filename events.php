@@ -49,7 +49,7 @@ if (($_REQUEST['submit'] == "Add") && ($_SESSION['role'] != "user") ) {
 if (($_REQUEST['update'] == "Update") && ($_SESSION['role'] != "user") ) {
     $sql = "UPDATE events SET name=?, description=?, date=?, charity_raised=? WHERE event_uid=?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssii", $_REQUEST['name'], $_REQUEST['description'], $_REQUEST['date'], $_REQUEST['charity_raised'], $_REQUEST['event_uid']);
+    $stmt->bind_param("sssdi", $_REQUEST['name'], $_REQUEST['description'], $_REQUEST['date'], $_REQUEST['charity_raised'], $_REQUEST['event_uid']);
     $stmt->execute();
     printf("Error: %s.\n", $stmt->sqlstate);
     printf("Error: %s.\n", $stmt->error);
