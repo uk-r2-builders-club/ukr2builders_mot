@@ -82,13 +82,13 @@ if ($result->num_rows > 0) {
 	$mot_result = $conn->query($sql);
 	echo "<tr class=\"item\">";
 	if ($mot_result->num_rows > 0) {
-	    $mot_details=$mot_result->fetch_object();
-	    if ($mot_details->approved == "Yes") {
-	        echo "<td class=droid_list bgcolor=green><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Valid</a></td>";
-	    } elseif ($mot_details->approved == "WIP") {
-		echo "<td class=droid_list bgcolor=blue><a href=mot.php?mot_uid=".$mot_details->mot_uid.">WIP</a></td>";
+	    $mot_details=$mot_result->fetch_assoc();
+	    if ($mot_details['approved'] == "Yes") {
+	        echo "<td class=droid_list bgcolor=green><a href=mot.php?mot_uid=".$mot_details['mot_uid'].">Valid</a></td>";
+	    } elseif ($mot_details['approved'] == "WIP") {
+		echo "<td class=droid_list bgcolor=blue><a href=mot.php?mot_uid=".$mot_details['mot_uid'].">WIP</a></td>";
             } else { 
-		echo "<td class=droid_list bgcolor=orange><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Advisory</a></td>";
+		echo "<td class=droid_list bgcolor=orange><a href=mot.php?mot_uid=".$mot_details['mot_uid'].">Advisory</a></td>";
             }
         } else { 
 	    echo "<td class=droid_list bgcolor=red>Not Valid</td>";

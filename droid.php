@@ -115,14 +115,14 @@ if (($_SESSION['role'] == "user") && ( $droid['member_uid'] != $_SESSION['user']
 	die();
 }
 $sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
-$member = $conn->query($sql)->fetch_object();
+$member = $conn->query($sql)->fetch_assoc();
 
 echo "<div class=info>";
 echo "<form>";
 echo "<h2>". $droid['name'] ."</h2>";
 echo "<table style=droid>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-echo " <tr><td>Owner: </td><td><a href=member.php?member_uid=$member->member_uid>$member->forename $member->surname</a></td></tr>";
+echo " <tr><td>Owner: </td><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
 echo " <tr><td>Primary Droid: </td><td><select name=primary_droid>";
 if ($droid['primary_droid'] == No) {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
@@ -172,8 +172,8 @@ if ($mot_result->num_rows > 0) {
     echo "<tr><th>Date</th><th>Location</th><th>Officer</th><th>Approved</th><th></th></tr>";
     while($row = $mot_result->fetch_assoc()) {
 	$sql = "SELECT forename, surname FROM members WHERE member_uid = ".$row["user"];
-	$officer = $conn->query($sql)->fetch_object();
-        $officer_name = $officer->forename." ".$officer->surname;
+	$officer = $conn->query($sql)->fetch_assoc();
+        $officer_name = $officer['forename']." ".$officer['surname'];
 	if ((strtotime($row['date']) > time()-28930000) && ($row['approved'] == "Yes")) {
             echo "<tr bgcolor=green>";
         } elseif ((strtotime($row['date']) > time()-28930000) && ($row['approved'] == "Advisory")) {
@@ -210,8 +210,8 @@ if ($comments_result->num_rows > 0) {
     echo "<div id=comment>";
     while($row = $comments_result->fetch_assoc()) {
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$row["added_by"];
-        $officer = $conn->query($sql)->fetch_object();
-        $officer_name = $officer->forename." ".$officer->surname;
+        $officer = $conn->query($sql)->fetch_assoc();
+        $officer_name = $officer['forename']." ".$officer['surname'];
         echo "<div id=officer>$officer_name</div>";
         echo "<div id=time>".$row['added_on']."</div>";
         echo "<div id=text>".$row['comment'];
