@@ -23,7 +23,7 @@ function colouriseMOT($mot_result, $field) {
 	return $s;
 }
 
-if ($_REQUEST['new_comment'] != "") {
+if ($_REQUEST['new_comment'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])) {
     $sql = "INSERT INTO mot_comments(mot_uid, comment, added_by) VALUES (?,?,?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isi", $_REQUEST['mot_uid'], $_REQUEST['new_comment'], $_REQUEST['officer']);
@@ -34,7 +34,7 @@ if ($_REQUEST['new_comment'] != "") {
     $stmt->close();
 }
 
-if (($_REQUEST['delete'] == "yes") && ($_SESSION['admin'] == 1)) {
+if (($_REQUEST['delete'] == "yes") && ($_SESSION['permissions'] & $perms['ADD_MOT'])) {
 	echo "Deleting MOT record";
 	$sql = "DELETE FROM mot WHERE mot_uid=".$_REQUEST['mot_uid'];
 	$result = $conn->query($sql);

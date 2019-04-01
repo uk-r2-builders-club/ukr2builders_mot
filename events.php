@@ -36,13 +36,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-if (($_REQUEST['submit'] == "Add") && ($_SESSION['role'] != "user") ) {
+if (($_REQUEST['submit'] == "Add") && ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) ) {
     $sql = "INSERT into events(name, description, date) VALUES('".$_REQUEST['newname']."', '".addslashes($_REQUEST['newdescription'])."', '".$_REQUEST['newdate']."')";
     echo $sql;
     $result=$conn->query($sql);
 }
 
-if (($_REQUEST['update'] == "Update") && ($_SESSION['role'] != "user") ) {
+if (($_REQUEST['update'] == "Update") && ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) ) {
     $sql = "UPDATE events SET name=?, description=?, forum_link=?, report_link=?, date=?, charity_raised=? WHERE event_uid=?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssssdi", $_REQUEST['name'], $_REQUEST['description'], $_REQUEST['forum_link'], $_REQUEST['report_link'], $_REQUEST['date'], $_REQUEST['charity_raised'], $_REQUEST['event_uid']);
@@ -77,7 +77,7 @@ if (isset($_REQUEST['event_uid'])) {
 }
 
 
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) {
     $sql = "SELECT * FROM events ORDER BY date DESC";
 } else {
     $sql = "SELECT * FROM events WHERE date > NOW() - INTERVAL 365 DAY ORDER BY date DESC";
@@ -101,7 +101,7 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 	    echo "<tr class=\"item\">";
 	    echo " <td class=events_list>";
-	    if ($_SESSION['role'] != "user") {
+	    if ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) {
 		    echo "<a href=events.php?event_uid=".$row['event_uid'].">".$row['name']."</a></td>";
 	    } else {
 		    echo $row['name']."</td>";
@@ -124,7 +124,7 @@ if ($result->num_rows > 0) {
     echo "0 results";
 }
 
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) {
    echo "<form>";
    echo "Name: <input type=text name=newname size=20> Description: <input type=text name=newdescription size=60> Date: <input type=date name=newdate><br />";
    echo "<input type=submit name=submit value=Add>";

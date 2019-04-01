@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if($_SESSION['role'] == "user") {
+if(!$_SESSION['permissions'] & $perms['ADD_MOT']()) {
 	die();
 }
 
@@ -24,7 +24,7 @@ function displayMOTRadio($field) {
 	return $option;
 }
 
-if ($_REQUEST['new_mot'] != "") {
+if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])) {
     $fields = array('droid_uid',
 	'date',
 	'location',

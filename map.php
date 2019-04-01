@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if($_SESSION['role'] != "admin") {
+if(!($_SESSION['permissions'] & $perms['VIEW_MAP'])) {
 	die();
 }
 

@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if ($_SESSION['role'] != "admin") {
+if (!($_SESSION['permissions'] & $perms['EDIT_CONFIG'])) {
 	echo "<h1>Permission Denied</h1>";
 } else {
 
@@ -40,9 +40,9 @@ echo "<tr><td>Paypal.me Link</td><td><input type=text size=50 name=paypal_link v
 echo "<tr><td>Paypal Email</td><td><input type=text size=50 name=paypal_email value=\"".$config->paypal_email."\"></td></tr>";
 echo "<tr><td>Main PLI Cost</td><td><input type=text size=50 name=primary_cost value=\"".$config->primary_cost."\"></td></tr>";
 echo "<tr><td>Extra droid PLI Cost</td><td><input type=text size=50 name=other_cost value=\"".$config->other_cost."\"></td></tr>";
-echo "<tr><td>From Email</td><td><input type=text size=50 name=other_cost value=\"".$config->from_email."\"></td></tr>";
-echo "<tr><td>Google Maps API key</td><td><input type=text size=50 name=other_cost value=\"".$config->google_map_api."\"></td></tr>";
-echo "<tr><td>Driving Course API key</td><td><input type=text size=50 name=other_cost value=\"".$config->course_api."\"></td></tr>";
+echo "<tr><td>From Email</td><td><input type=text size=50 name=from_email value=\"".$config->from_email."\"></td></tr>";
+echo "<tr><td>Google Maps API key</td><td><input type=text size=50 name=google_map_api value=\"".$config->google_map_api."\"></td></tr>";
+echo "<tr><td>Driving Course API key</td><td><input type=text size=50 name=course_api value=\"".$config->course_api."\"></td></tr>";
 echo "</table>";
 echo "<input type=submit name=update value=Update>";
 echo "</form>";

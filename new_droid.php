@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if($_SESSION['role'] == "user") {
+if(!$_SESSION['permissions'] & $perms['EDIT_DROIDS']()) {
 	die();
 }
 

@@ -10,20 +10,21 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
-	if ($_SESSION['role'] != "user") {
+	if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
 	    echo "<form method=POST enctype=\"multipart/form-data\">";
 	    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
 	    echo "<input type=file name=$box>";
-	    echo "<input type=submit name=upload value=\"Upload $box\">";
+	    echo "<input type=submit name=upload value=$box>";
 	    echo "</form>";
 	}
 }
 
 # Image uploads
-if (($_REQUEST['upload'] != "") && ( $_SESSION['role'] != "user")) {
+if (($_REQUEST['upload'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
 	$imagetype=$_FILES[$_REQUEST['upload']]["type"];
-	echo "Image Type: $imagetype <br />";
+	echo "Upload: ".$_REQUEST['upload'] ."<br />";
+	echo "Image Name: $imagename | Image Type: $imagetype <br />";
 	$exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
 	if( isset($exif['Orientation']) )
             $orientation = $exif['Orientation'];
@@ -68,19 +69,19 @@ if (($_REQUEST['upload'] != "") && ( $_SESSION['role'] != "user")) {
 
 }
 
-if (($_REQUEST['delete_comment'] == "yes") && ($_SESSION['role'] == "admin")) {
+if (($_REQUEST['delete_comment'] == "yes") && ( $_SESSION['permissions'] & $perms['DELETE_DROIDS'])) {
     echo "Deleting comment";
     $sql = "DELETE from droid_comments WHERE uid=".$_REQUEST['uid'];
     $result = $conn->query($sql);
 }
 
-if (($_REQUEST['delete_image'] != "") && ($_SESSION['role'] == "admin")) {
+if (($_REQUEST['delete_image'] != "") && ( $_SESSION['permissions'] & $perms['DELETE_IMAGES'] )) {
     echo "Deleting image";
     $sql = "UPDATE droids SET ".$_REQUEST['delete_image']."='' WHERE droid_uid=".$_REQUEST['droid_uid'];
     $result = $conn->query($sql);
 }
 
-if (($_REQUEST['new_comment'] != "") && ($_SESSION['role'] != "user")) {
+if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
     $sql = "INSERT INTO droid_comments(droid_uid, comment, added_by) VALUES (?,?,?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isi", $_REQUEST['droid_uid'], $_REQUEST['new_comment'], $_REQUEST['officer']);
@@ -91,8 +92,7 @@ if (($_REQUEST['new_comment'] != "") && ($_SESSION['role'] != "user")) {
     $stmt->close();
 }
 
-if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
-    # $sql = "INSERT INTO droid_comments(droid_uid, comment, added_by) VALUES (?,?,?)";
+if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
     $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssssssssssii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'], 
@@ -183,7 +183,7 @@ if ($mot_result->num_rows > 0) {
         }
 	echo "<td>" . $row["date"]. "</td><td>" . $row["location"]. "</td><td>" . $officer_name. "</td><td>".$row["approved"]."</td>";
 	echo "<td><a href=mot.php?mot_uid=". $row["mot_uid"]. "><img src=\"images/view_button.png\"></a>";
-	if ($_SESSION['role'] == "admin") {
+	if ($_SESSION['permissions'] & $perms['DELETE_DROIDS']) {
              echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=mot.php?mot_uid=". $row["mot_uid"]. "&delete=yes><img src=\"images/delete_button.png\"></a>";
         }
 	echo "</td>";
@@ -193,7 +193,7 @@ if ($mot_result->num_rows > 0) {
 } else {
     echo "No MOT<br />";
 }
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['ADD_MOT']) {
     echo "<a href=new_mot.php?droid_uid=".$_REQUEST['droid_uid'].">Add new MOT</a>";
 }
 
@@ -225,7 +225,7 @@ if ($comments_result->num_rows > 0) {
     echo "No Comments";
 }
 
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
     echo "<form>";
     echo "<textarea name=new_comment>New comment</textarea>";
     echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";

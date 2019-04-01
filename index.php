@@ -31,7 +31,7 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['login'] == "Go") {
-	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted FROM members WHERE (email='".$_REQUEST['username']."' OR username='".$_REQUEST['username']."') AND password=PASSWORD('".$_REQUEST['password']."') LIMIT 1";
+	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted,permissions FROM members WHERE (email='".$_REQUEST['username']."' OR username='".$_REQUEST['username']."') AND password=PASSWORD('".$_REQUEST['password']."') LIMIT 1";
 	$result = $conn->query($sql);
 	if ($result->num_rows == 1) {
 		$row = $result->fetch_assoc();
@@ -42,6 +42,7 @@ if ($_REQUEST['login'] == "Go") {
 		$_SESSION['role']=$row['role'];
 		$_SESSION['force_password']=$row['force_password'];
 		$_SESSION['gdpr_accepted']=$row['gdpr_accepted'];
+		$_SESSION['permissions'] = $row['permissions'];
 		$sql="UPDATE members SET last_login=NOW(), last_login_from='".$_ENV['REMOTE_ADDR']."' WHERE member_uid=".$row['member_uid'];
 		$result = $conn->query($sql);
 	}
@@ -87,16 +88,13 @@ if (!isset($_SESSION['username'])) {
 } else {
 	echo "<ul>";
 	echo " <li><a href='member.php?member_uid=".$_SESSION['user']."'>Your Profile</a></li>";
-	if ($_SESSION['role'] != 'user') {
-	    echo " <li><a href=members.php>List Members</a></li>";
-	    echo " <li><a href=list_droids.php>List Droids</a></li>";
-	}
-	if ($_SESSION['role'] == 'admin') {
-		echo " <li><a href=map.php>Members Map</a></li>";
-		echo " <li><a href=edit_config.php>Edit config</a></li>";
-		echo " <li><a href=edit_pli.php>Edit PLI Details</a></li>";
-		echo " <li><a href=achievements.php>Edit Achievements</a></li>";
-	}
+	if ($_SESSION['permissions'] & $perms['VIEW_MEMBERS']) echo " <li><a href=members.php>List Members</a></li>";
+	if ($_SESSION['permissions'] & $perms['VIEW_DROIDS']) echo " <li><a href=list_droids.php>List Droids</a></li>";
+	if ($_SESSION['permissions'] & $perms['VIEW_MAP']) echo " <li><a href=map.php>Members Map</a></li>";
+	if ($_SESSION['permissions'] & $perms['EDIT_CONFIG']) echo " <li><a href=edit_config.php>Edit Config</a></li>";
+	if ($_SESSION['permissions'] & $perms['EDIT_PLI']) echo " <li><a href=edit_pli.php>Edit PLI</a></li>";
+	if ($_SESSION['permissions'] & $perms['EDIT_ACHIEVEMENTS']) echo " <li><a href=achievements.php>Edit Achievements</a></li>";
+	if ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS']) echo " <li><a href=edit_permissions.php>Edit Permissions</a></li>";
 	echo " <li><a href=events.php>Events</a></li>";
 	echo " <li><a href=password.php>Change Password</a></li>";
 	echo " <li><a href=leaderboard.php>View the Droid Driving Course Leaderboard</a></li>";

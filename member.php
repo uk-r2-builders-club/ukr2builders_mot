@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if ($_SESSION['role'] == "user") {
+if (!($_SESSION['permissions'] & $perms['VIEW_MEMBERS'])) {
         $_REQUEST['member_uid'] = $_SESSION['user'];
 }
 
@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
-	if ($_SESSION['role'] != "user") {
+	if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
             echo "<form method=POST enctype=\"multipart/form-data\">";
             echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
             echo "<input type=file name=$box>";
@@ -27,7 +27,7 @@ function imageUpload($box) {
 }
 
 # Image uploads
-if (($_REQUEST['upload'] != "") && ($_SESSION['role'] != "user")) {
+if (($_REQUEST['upload'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS'])) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
         $exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
         if( isset($exif['Orientation']) )
@@ -70,13 +70,13 @@ if (($_REQUEST['upload'] != "") && ($_SESSION['role'] != "user")) {
 }
 
 
-if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['role'] == "admin")) {
+if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['permissions'] & $perms['DELETE_IMAGES'])) {
 	$conn->query("UPDATE members SET mug_shot='' WHERE member_uid=".$_REQUEST['member_uid']);
 	echo "Image deleted";
 }
 
 
-if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
+if (($_REQUEST['update'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS'])) {
     $longitude = $_REQUEST['longitude'];
     $latitude = $_REQUEST['latitude'];
     $sql = "SELECT pli_date FROM members WHERE member_uid=".$_REQUEST['member_uid'];
@@ -119,12 +119,12 @@ if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
     }
 }
 
-if (($_REQUEST['achievement'] == "Add") && ($_SESSION['role'] != "user") ) {
+if (($_REQUEST['achievement'] == "Add") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) ) {
     $sql = "INSERT into members_achievements(achievement_uid, member_uid, notes, added_by) VALUES(".$_REQUEST['achievement_uid'].", ".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['notes'])."', ".$_SESSION['user'].")";
     $result=$conn->query($sql);
 }
 
-if (($_REQUEST['event'] == "Add") && ($_SESSION['role'] != "user") ) {
+if (($_REQUEST['event'] == "Add") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) ) {
     $sql = "INSERT into members_events(member_uid, event_uid, added_by, spotter) VALUES(".$_REQUEST['member_uid'].", '".addslashes($_REQUEST['event_uid'])."', ".$_SESSION['user'].", '".$_REQUEST['spotter']."')";
     $result=$conn->query($sql);
 }
@@ -146,7 +146,7 @@ echo "<table class=member>";
 echo " <tr><td>email: </td><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
 echo " <tr><td>County: </td><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
 echo " <tr><td>Postcode: </td><td><input type=text size=50 name=postcode value=\"".$member['postcode']."\"></td></tr>";
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo " <tr><td>Latitude: </td><td><input type=text size=50 name=latitude value=\"".$member['latitude']."\"></td></tr>";
     echo " <tr><td>Longitude: </td><td><input type=text size=50 name=longitude value=\"".$member['longitude']."\"></td></tr>";
 }
@@ -166,7 +166,7 @@ echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";
 echo "</table>";
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<input type=submit name=update value=Update>";
 }
 echo "</form>";
@@ -175,7 +175,7 @@ echo "</div>";
 echo "<div class=mug_shot>";
 if ($member['mug_shot'] != "") {
 	echo "<div class=\"mug_shot\"><img id=mug_shot src=data:image/jpeg;base64,".base64_encode( $member['mug_shot'] )." width=240>";
-        if ($_SESSION['role'] == "admin") {
+        if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
         }
 	echo "</div>";
@@ -278,7 +278,7 @@ echo "</table>";
 $sql="SELECT * FROM achievements";
 $result=$conn->query($sql);
 
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<form>";
     echo "Add achievement<br />";
     echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
@@ -338,7 +338,7 @@ echo "</table>";
 $sql="SELECT * FROM events WHERE date < NOW() ORDER BY date";
 $result=$conn->query($sql);
 
-if ($_SESSION['role'] != "user") {
+if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<form>";
     echo "Add event<br />";
     echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
