@@ -43,9 +43,9 @@ if (($_REQUEST['submit'] == "Add") && ($_SESSION['role'] != "user") ) {
 }
 
 if (($_REQUEST['update'] == "Update") && ($_SESSION['role'] != "user") ) {
-    $sql = "UPDATE events SET name=?, description=?, date=?, charity_raised=? WHERE event_uid=?";
+    $sql = "UPDATE events SET name=?, description=?, forum_link=?, report_link=?, date=?, charity_raised=? WHERE event_uid=?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssdi", $_REQUEST['name'], $_REQUEST['description'], $_REQUEST['date'], $_REQUEST['charity_raised'], $_REQUEST['event_uid']);
+    $stmt->bind_param("sssssdi", $_REQUEST['name'], $_REQUEST['description'], $_REQUEST['forum_link'], $_REQUEST['report_link'], $_REQUEST['date'], $_REQUEST['charity_raised'], $_REQUEST['event_uid']);
     $stmt->execute();
     printf("Error: %s.\n", $stmt->sqlstate);
     printf("Error: %s.\n", $stmt->error);
@@ -60,6 +60,8 @@ if (isset($_REQUEST['event_uid'])) {
     echo "<tr><td>Name</td><td><input type=text size=50 name=name value=\"".$event['name']."\"></td></tr>";
     echo "<tr><td>Description</td><td><input type=text size=50 name=description value=\"".$event['description']."\"></td></tr>";
     echo "<tr><td>Date Created</td><td><input type=text size=50 name=date value=\"".$event['date']."\"></td></tr>";
+    echo "<tr><td>Forum Link</td><td><input type=text size=50 name=forum_link value=\"".$event['forum_link']."\"></td></tr>";
+    echo "<tr><td>Report Link</td><td><input type=text size=50 name=report_link value=\"".$event['report_link']."\"></td></tr>";
     echo "<tr><td>Charity Raised</td><td>£<input type=text size=50 name=charity_raised value=\"".$event['charity_raised']."\"></td></tr>";
     echo "</table>";
     echo "<input type=submit name=update value=Update>";
@@ -94,7 +96,8 @@ if ($result->num_rows > 0) {
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Name</th>";
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Description</th>";
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Date</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th></tr>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(5)')\">Links</th></tr>";
     while($row = $result->fetch_assoc()) {
 	    echo "<tr class=\"item\">";
 	    echo " <td class=events_list>";
@@ -106,6 +109,14 @@ if ($result->num_rows > 0) {
             echo " <td class=events_list>".$row['description']."</td>";
             echo " <td class=events_list>".$row['date']."</td>";
 	    echo " <td class=events_list>£".$row['charity_raised']."</td>";
+	    echo " <td class=events_list>";
+	    if ($row['forum_link'] != "") {
+		    echo "<a href=\"".$row['forum_link']."\" target=\"_blank\">F</a> ";
+	    } 
+            if ($row['report_link'] != "") {
+                    echo "<a href=\"".$row['report_link']."\" target=\"_blank\">R</a>";
+            }
+	    echo " </td>";
 	    echo "</tr>";
     }
     echo "</table>";

@@ -51,7 +51,7 @@ function calcLocation($postcode) {
 }
 
 
-if ($_REQUEST['email'] != "") {
+if (isset($_REQUEST['email'])) {
     $sql = "INSERT INTO members(forename, surname, email, county, postcode, latitude, longitude, badge_id, qr_code, created_on, created_by, username) VALUES (?,?,?,?,?,?,?,?,?, NOW(), ?, ?)";
     list($latitude, $longitude) = calcLocation($_REQUEST['postcode']);
     $badge_id = generateID(60);

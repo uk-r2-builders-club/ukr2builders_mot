@@ -308,7 +308,8 @@ if ($result->num_rows > 0) {
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Date</th>";
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Details</th>";
     echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Spotter</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th></tr>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(5)')\">Links</th></tr>";
     while($row = $result->fetch_assoc()) {
         echo "<td class=events_list>".$row['date']."</td>";
         echo "<td class=events_list>".$row['name']."</td>";
@@ -317,6 +318,14 @@ if ($result->num_rows > 0) {
 		echo "Yes";
 	echo "</td>";
 	echo "<td class=events_list>£".$row['charity_raised']."</td>";
+        echo " <td class=events_list>";
+        if ($row['forum_link'] != "") {
+                echo "<a href=\"".$row['forum_link']."\" target=\"_blank\">F</a> ";
+        }
+        if ($row['report_link'] != "") {
+                echo "<a href=\"".$row['report_link']."\" target=\"_blank\">R</a>";
+        }
+        echo " </td>";
 	echo "</tr>";
 	$charity_raised = $charity_raised + $row['charity_raised'];
     }
