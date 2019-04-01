@@ -84,7 +84,7 @@ if (($_REQUEST['update'] != "") && ($_SESSION['role'] != "user")) {
     echo "Original PLI date = ".$original_pli;
     if (($_REQUEST['latitude'] == "" ) && ( $_REQUEST['postcode'] != "" )) {
    	$address = str_replace(' ','+',$_REQUEST["postcode"]);
-	$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key=AIzaSyDSW-P-s6Bj-CfZdukmaSR1m6u2dT3dBFA&address='.$address.'&sensor=false');
+	$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key='.$config->google_map_api.'&address='.$address.'&sensor=false');
         $output= json_decode($geocode);
         $latitude = $output->results[0]->geometry->location->lat;
         $longitude = $output->results[0]->geometry->location->lng;
@@ -390,14 +390,14 @@ if ($runs->num_rows > 0) {
 }
 echo "</table>";
 echo "</div>";
-echo "<hr />";
 # End of Course Runs
 
 
 
 echo "</div>";
 
-$conn->close();
+include "includes/footer.php";
+
 ?>
 
 

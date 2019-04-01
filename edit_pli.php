@@ -61,3 +61,9 @@ This page will update the text on the PLI cover PDF that is available for member
 </ul>
 
 
+<?
+
+include "includes/footer.php";
+
+?>
+

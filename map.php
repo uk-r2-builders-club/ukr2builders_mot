@@ -35,7 +35,6 @@ if ($result->num_rows > 0) {
 }
 echo "['blank', 0,0]";
 
-$conn->close;
 
 ?>
     ];
@@ -64,6 +63,9 @@ $conn->close;
       })(marker, i));
     }
   </script>
+<?
+include "includes/footer.php";
+?>
 </body>
 </html>
 

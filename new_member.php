@@ -78,7 +78,7 @@ echo " <li>Forum Username: <input type=text name=username size=50></li>";
 echo "</ul>";
 echo "<input type=submit name=add value=Add>";
 
-$conn->close();
+include "includes/footer.php";
 ?>
 
 

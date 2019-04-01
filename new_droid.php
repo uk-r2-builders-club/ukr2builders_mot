@@ -65,7 +65,7 @@ echo " <li>Topps Number: <input type=text name=topps_id size=10></li>";
 echo "</ul>";
 echo "<input type=submit name=add value=Add>";
 
-$conn->close();
+include "includes/footer.php";
 ?>
 
 

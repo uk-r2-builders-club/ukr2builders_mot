@@ -87,7 +87,7 @@ echo "</div>";
 
 echo "</div>";
 
-$conn->close();
+include "includes/footer.php";
 ?>
 
 

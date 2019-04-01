@@ -1,8 +1,18 @@
 <?
 
 $database_host = "localhost";
-$database_name = "mot";
-$database_user = "mot";
-$database_pass = "changeme";
+$database_name = "db_name";
+$database_user = "db_user";
+$database_pass = "db_pass";
 
+$conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT * FROM config";
+$config = $conn->query($sql)->fetch_object();
+
+$conn->close();
 ?>

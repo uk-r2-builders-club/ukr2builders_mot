@@ -20,6 +20,11 @@
     margin-bottom: 12px; /* Add some space below the input */
 }
 
+.footer {
+	color:grey;
+	font-size: 75%;
+}
+
 /* droid image section */
 .images {
         position: relative;

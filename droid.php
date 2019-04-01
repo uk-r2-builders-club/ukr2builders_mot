@@ -303,5 +303,4 @@ echo "</div>"; # column right
 
 echo "</div>"; # main
 
-$conn->close();
 ?>

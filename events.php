@@ -131,7 +131,7 @@ if ($_SESSION['role'] != "user") {
    echo "</form>";
 }
 
-$conn->close();
+include "includes/footer.php";
 ?>
 
 

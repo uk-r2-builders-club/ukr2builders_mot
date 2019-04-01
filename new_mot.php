@@ -300,7 +300,8 @@ echo "</form>";
 
 echo "</div>";
 
-$conn->close();
+echo "</div>";
+
+include "includes/footer.php";
 ?>
-</div>
 

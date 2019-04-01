@@ -114,7 +114,6 @@ if ($result->num_rows > 0) {
     echo "0 results";
 }
 
+include "includes/footer.php";
 
-$conn->close();
 ?>
-<a href=achievements.php?new>Add new achievement</a>

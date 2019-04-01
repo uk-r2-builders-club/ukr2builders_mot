@@ -107,7 +107,8 @@ if (!isset($_SESSION['username'])) {
 	echo "</ul>";
 }
 
-$conn->close();
+include "includes/footer.php";
+
 ?>
 
 

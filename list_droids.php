@@ -116,8 +116,10 @@ if ($result->num_rows > 0) {
 } else {
     echo "No Droids";
 }
-$conn->close();
-echo "<hr /><a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>"
+echo "<hr /><a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
+
+
+include "includes/footer.php";
 ?>
 
 
