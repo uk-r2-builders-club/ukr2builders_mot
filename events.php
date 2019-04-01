@@ -2,10 +2,6 @@
 
 include "includes/header.php";
 
-if($_SESSION['role'] == "user") {
-	die();
-}
-
 ?>
 <script src="https://www.w3schools.com/lib/w3.js"></script>
 
@@ -20,7 +16,7 @@ function myFunction() {
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[2];
+    td = tr[i].getElementsByTagName("td")[1];
     if (td) {
       if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
@@ -68,10 +64,23 @@ if (isset($_REQUEST['event_uid'])) {
     echo "</table>";
     echo "<input type=submit name=update value=Update>";
     echo "<br />";
+    echo "Members in attendance: <br />";
+    $sql = "SELECT members.forename, members.surname, members.member_uid, members_events.event_uid FROM members_events RIGHT JOIN members ON members.member_uid = members_events.member_uid WHERE members_events.event_uid = ".$_REQUEST['event_uid'];
+    $result = $conn->query($sql);
+    echo "<ul>";
+    while($row = $result->fetch_assoc()) {
+	    echo "<li><a href=member.php?member_uid=".$row['member_uid'].">".$row['forename']." ".$row['surname']."</a></li>";
+    }
+    echo "</ul>";
 }
 
 
-$sql = "SELECT * FROM events ORDER BY date";
+if ($_SESSION['role'] != "user") {
+    $sql = "SELECT * FROM events ORDER BY date DESC";
+} else {
+    $sql = "SELECT * FROM events WHERE date > NOW() - INTERVAL 365 DAY ORDER BY date DESC";
+    echo "Showing events from the last 365 days.<br />";
+}
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -82,15 +91,18 @@ if ($result->num_rows > 0) {
     // output data of each row
     echo "<table class=events_list id=events_list>";
     echo "<tr>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">ID</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Name</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Description</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Date</th>";
-    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(5)')\">Charity Raised</th></tr>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(1)')\">Name</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(2)')\">Description</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(3)')\">Date</th>";
+    echo "<th onclick=\"w3.sortHTML('#events_list','.item', 'td:nth-child(4)')\">Charity Raised</th></tr>";
     while($row = $result->fetch_assoc()) {
 	    echo "<tr class=\"item\">";
-	    echo " <td class=events_list>".$row['event_uid']."</td>";
-            echo " <td class=events_list><a href=events.php?event_uid=".$row['event_uid'].">".$row['name']."</a></td>";
+	    echo " <td class=events_list>";
+	    if ($_SESSION['role'] != "user") {
+		    echo "<a href=events.php?event_uid=".$row['event_uid'].">".$row['name']."</a></td>";
+	    } else {
+		    echo $row['name']."</td>";
+	    }
             echo " <td class=events_list>".$row['description']."</td>";
             echo " <td class=events_list>".$row['date']."</td>";
 	    echo " <td class=events_list>£".$row['charity_raised']."</td>";
@@ -101,13 +113,14 @@ if ($result->num_rows > 0) {
     echo "0 results";
 }
 
-echo "<form>";
-echo "Name: <input type=text name=newname size=20> Description: <input type=text name=newdescription size=60> Date: <input type=date name=newdate><br />";
-echo "<input type=submit name=submit value=Add>";
-echo "</form>";
+if ($_SESSION['role'] != "user") {
+   echo "<form>";
+   echo "Name: <input type=text name=newname size=20> Description: <input type=text name=newdescription size=60> Date: <input type=date name=newdate><br />";
+   echo "<input type=submit name=submit value=Add>";
+   echo "</form>";
+}
 
 $conn->close();
 ?>
-<a href=events.php?new>Add new event</a>
 
 

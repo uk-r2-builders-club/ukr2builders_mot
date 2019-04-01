@@ -10,14 +10,14 @@ $request = $_REQUEST['request'];
 $id = $_REQUEST['id'];
 
 function getDriver($conn, $member_uid) {
-	$sql = "SELECT member_uid, rfid, forename, surname, email FROM members WHERE member_uid = ". $member_uid;
+	$sql = "SELECT member_uid, forename, surname, email FROM members WHERE member_uid = ". $member_uid;
 	$result = $conn->query($sql);
 	$member = $result->fetch_assoc();
         return json_encode($member);
 }
 
 function getDroid($conn, $droid_uid) {
-        $sql = "SELECT droid_uid, rfid, member_uid, name, material, weight, transmitter_type FROM droids WHERE droid_uid = ". $droid_uid;
+        $sql = "SELECT droid_uid, member_uid, name, material, weight, transmitter_type FROM droids WHERE droid_uid = ". $droid_uid;
         $result = $conn->query($sql);
         $droid = $result->fetch_assoc();
         return json_encode($droid);
