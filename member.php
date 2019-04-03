@@ -81,13 +81,25 @@ if (($_REQUEST['update'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMB
     $latitude = $_REQUEST['latitude'];
     $sql = "SELECT pli_date FROM members WHERE member_uid=".$_REQUEST['member_uid'];
     $original_pli = $conn->query($sql)->fetch_object()->pli_date;
-    echo "Original PLI date = ".$original_pli;
+    // echo "Original PLI date = ".$original_pli;
     if (($_REQUEST['latitude'] == "" ) && ( $_REQUEST['postcode'] != "" )) {
    	$address = str_replace(' ','+',$_REQUEST["postcode"]);
 	$geocode=file_get_contents('https://maps.google.com/maps/api/geocode/json?key='.$config->google_map_api.'&address='.$address.'&sensor=false');
         $output= json_decode($geocode);
         $latitude = $output->results[0]->geometry->location->lat;
         $longitude = $output->results[0]->geometry->location->lng;
+    }
+    if ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS']) {
+	$new_perms = 0;
+        for ($i=0 ; $i < $_REQUEST['num_perms'] ; $i++ ) {
+             $perm = strval(2**$i);
+	     if ($_REQUEST[$perm] == "on") {
+		     $new_perms = $new_perms + 2**$i;
+	     }
+
+	}
+	$perms_sql = "UPDATE members SET permissions=".$new_perms." WHERE member_uid=".$_REQUEST['member_uid'];
+	$conn->query($perms_sql);
     }
     $sql = "UPDATE members SET email=?, county=?, postcode=?, latitude=?, longitude=?, pli_date=?, pli_active=?, active=?, username=? WHERE member_uid = ?";
     $stmt = $conn->prepare($sql);
@@ -143,28 +155,49 @@ echo "<form>";
 echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
 echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
 echo "<table class=member>";
-echo " <tr><td>email: </td><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
-echo " <tr><td>County: </td><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
-echo " <tr><td>Postcode: </td><td><input type=text size=50 name=postcode value=\"".$member['postcode']."\"></td></tr>";
+echo " <tr><th>email: </th><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
+echo " <tr><th>County: </th><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
+echo " <tr><th>Postcode: </th><td><input type=text size=50 name=postcode value=\"".$member['postcode']."\"></td></tr>";
 if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
-    echo " <tr><td>Latitude: </td><td><input type=text size=50 name=latitude value=\"".$member['latitude']."\"></td></tr>";
-    echo " <tr><td>Longitude: </td><td><input type=text size=50 name=longitude value=\"".$member['longitude']."\"></td></tr>";
+    echo " <tr><th>Latitude: </th><td><input type=text size=50 name=latitude value=\"".$member['latitude']."\"></td></tr>";
+    echo " <tr><th>Longitude: </th><td><input type=text size=50 name=longitude value=\"".$member['longitude']."\"></td></tr>";
 }
-echo " <tr><td>Forum Username: </td><td><input type=text size=50 name=username value=\"".$member['username']."\"></td></tr>";
-echo " <tr><td>Created On: </td><td>".$member['created_on']."</td></tr>";
-echo " <tr><td>Created By: </td><td>".$officer_name."</td></tr>";
-echo " <tr><td>PLI Cover Last Paid: </td><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
+echo " <tr><th>Forum Username: </th><td><input type=text size=50 name=username value=\"".$member['username']."\"></td></tr>";
+echo " <tr><th>Created On: </th><td>".$member['created_on']."</td></tr>";
+echo " <tr><th>Created By: </th><td>".$officer_name."</td></tr>";
+echo " <tr><th>PLI Cover Last Paid: </th><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
 echo ($member['pli_active'] == "on") ? " checked" : "";
 echo ">";
 if (strtotime($member['pli_date']) > strtotime('-1 year')) {
 	echo "<a target=_blank href=cover_note.php?member_uid=".$member['member_uid'].">Cover Note</a>";
 }
 echo "</td></tr>";
-echo " <tr><td>Last Updated: </td><td>".$member['last_updated']."</td></tr>";
-echo " <tr><td>ID Link: </td><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br /><img id=qr_code src=data:image/png;base64,".base64_encode( $member['qr_code'] )." width=200></td></tr>";
-echo " <tr><td>Active?: </td><td><input name=active type=checkbox";
+echo " <tr><th>Last Updated: </th><td>".$member['last_updated']."</td></tr>";
+echo " <tr><th>ID Link: </th><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br /><img id=qr_code src=data:image/png;base64,".base64_encode( $member['qr_code'] )." width=200></td></tr>";
+echo " <tr><th>Active?: </th><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";
+if ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS']) {
+echo "<tr><th>Permission:</th>";
+echo "<td>";
+       echo "<table><tr>";
+        $sql = "SELECT * FROM permissions";
+        $permissions = $conn->query($sql);
+        while($row = $permissions->fetch_assoc()) {
+            echo "<th class=rotate_permission><div><span>".$row['name']."</span></div></th>";
+            $num_perms++;
+        }
+        echo "</tr><tr>";
+        for ($i=0 ; $i < $num_perms ; $i++) {
+                    $permission = 2**$i;
+                    echo "<td class=permission><input type=checkbox name=$permission ";
+                    echo ($member['permissions'] & $permission) ? "checked" : "";
+                    echo "></td>";
+        }
+        echo "</tr></table>";
+	echo "<input type=hidden name=num_perms value=".$num_perms.">";
+        echo "</td></tr>";
+}
 echo "</table>";
 if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<input type=submit name=update value=Update>";
@@ -335,7 +368,7 @@ if ($result->num_rows > 0) {
     echo "No events";
 }
 echo "</table>";
-$sql="SELECT * FROM events WHERE date < NOW() ORDER BY date";
+$sql="SELECT * FROM events WHERE date < NOW() ORDER BY date DESC";
 $result=$conn->query($sql);
 
 if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
@@ -344,7 +377,7 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
     echo "<select name=event_uid>";
     while($row = $result->fetch_assoc()) {
-        echo "<option value=".$row['event_uid'].">".$row['name']."</option>";
+        echo "<option value=".$row['event_uid'].">(".$row['date'].") ".$row['name']."</option>";
     }
     echo "</select>";
     echo "Spotter: <input type=checkbox name=spotter>";

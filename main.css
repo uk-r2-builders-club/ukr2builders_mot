@@ -30,20 +30,21 @@ td.permission {
 	text-align:center;
 }
 
-th.rotate {
+th.rotate_permission {
   /* Something you can count on */
   height: 140px;
   white-space: nowrap;
   border: 0px;
 }
 
-th.rotate > div {
+th.rotate_permission > div {
   transform:
     /* Magic Numbers */
-    translate(25px, 51px)
+    translate(5px, 51px)
     /* 45 is really 360 - 45 */
-    rotate(315deg);
-  width: 30px;
+    rotate(270deg);
+  width: 25px;
+  font-size: 75%;
 }
 th.rotate > div > span {
   border-bottom: 1px solid #ccc;
@@ -189,11 +190,13 @@ table.members {
 }
 table.members tr,td,th{
 	border: 1px solid black;
+	padding: 4px;
 }
 tr.members {
 	text-align: center;
 }
 table.droid_list {
+	margin: 2px;
 	padding: 2px;
         border: 1px solid black;
         border-collapse: collapse;
@@ -204,6 +207,7 @@ table.droid_list tr,td,th{
 }
 
 table.achievements_list {
+	margin: 2px;
         padding: 2px;
         border: 1px solid black;
         border-collapse: collapse;
@@ -214,6 +218,7 @@ table.achievements_list tr,td,th{
 }
 
 table.events_list {
+	margin: 2px;
         padding: 2px;
         border: 1px solid black;
         border-collapse: collapse;
@@ -224,6 +229,7 @@ table.events_list tr,td,th{
 }
 
 table.course_list {
+	margin: 2px;
         padding: 2px;
         border: 1px solid black;
         border-collapse: collapse;
@@ -234,6 +240,7 @@ table.course_list tr,td,th{
 }
 
 table.leaderboard {
+	margin: 2px;
         padding: 2px;
         border: 1px solid black;
         border-collapse: collapse;
