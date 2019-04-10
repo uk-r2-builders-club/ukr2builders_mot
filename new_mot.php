@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if(!$_SESSION['permissions'] & $perms['ADD_MOT']()) {
+if(!($_SESSION['permissions'] & $perms['ADD_MOT'])) {
 	die();
 }
 
