@@ -17,6 +17,7 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
+	global $perms;
 	if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
             echo "<form method=POST enctype=\"multipart/form-data\">";
             echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";

@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 
 include "includes/header.php";
 
-if(!$_SESSION['permissions'] & $perms['EDIT_MEMBERS']()) {
+if((!$_SESSION['permissions'] & $perms['EDIT_MEMBERS'])) {
 	die();
 }
 

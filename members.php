@@ -66,7 +66,7 @@ if ($result->num_rows > 0) {
 	echo "<tr class=\"item\">";
 	echo "<td class=members>" . $row["member_uid"]. "</td>";
 	echo "<td class=members><a href=member.php?member_uid=" . $row["member_uid"].">".$row["forename"]. " " . $row["surname"]. "</a>";
-	if ($row['permissions'] != 0) echo "*";
+	if (($row['permissions'] != 0 ) && ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS'])) echo "*";
 	echo "</td>";
 	echo "<td class=members>" . $row["email"]. "</td>";
 	# Display PLI information and colour code to expiry date

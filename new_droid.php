@@ -2,7 +2,7 @@
 
 include "includes/header.php";
 
-if(!$_SESSION['permissions'] & $perms['EDIT_DROIDS']()) {
+if(!($_SESSION['permissions'] & $perms['EDIT_DROIDS'])) {
 	die();
 }
 
@@ -41,7 +41,6 @@ if ($_REQUEST['name'] != "") {
         $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
     }
-
 
     $stmt->close();
 }

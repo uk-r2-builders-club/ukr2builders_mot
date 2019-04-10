@@ -134,21 +134,17 @@ th.rotate > div > span {
 /* Comments Section */
 .comments {
 	position: relative;
+	border: 0px;
 	float: right;
 	width: 550px;
 	padding: 5px;
 	margin: 5px;
 }
 #officer {
-	position: relative;
-	float: left;
-	width: 350px;
 	background-color: grey;
 }
 #time {
-	position: relative;
 	float: right;
-	width: 200px;
 }
 
 .item.grayout {

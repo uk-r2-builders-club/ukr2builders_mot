@@ -10,6 +10,7 @@ if ($conn->connect_error) {
 } 
 
 function imageUpload($box) {
+	global $perms;
 	if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
 	    echo "<form method=POST enctype=\"multipart/form-data\">";
 	    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
@@ -207,32 +208,33 @@ $comments_result = $conn->query($sql);
 echo "<div class=comments>";
 if ($comments_result->num_rows > 0) {
     // output data of each row
-    echo "<div id=comment>";
+    echo "<table id=comment>";
     while($row = $comments_result->fetch_assoc()) {
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$row["added_by"];
         $officer = $conn->query($sql)->fetch_assoc();
         $officer_name = $officer['forename']." ".$officer['surname'];
-        echo "<div id=officer>$officer_name</div>";
-        echo "<div id=time>".$row['added_on']."</div>";
-        echo "<div id=text>".$row['comment'];
+        echo "<tr><td id=officer>$officer_name</td>";
+        echo "<td id=time>".$row['added_on']."</td></tr>";
+        echo "<tr><td colspan=2 id=text>".$row['comment'];
 	if ($_SESSION['admin'] == 1) {
 		echo "<br/> <a href=droid.php?droid_uid=".$row['droid_uid']."&uid=".$row['uid']."&delete_comment=yes>Delete comment</a>";
 	} 
-	echo "</div>";
+	echo "</td></tr>";
     }
-    echo "</div>";
+    if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
+        echo "<tr><td colspan=2><form>";
+        echo "<textarea name=new_comment>New comment</textarea>";
+        echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
+        echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
+        echo "<input type=submit value=Add>";
+        echo "</form></td></tr>";
+    }
+
+    echo "</table>";
 } else {
     echo "No Comments";
 }
 
-if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
-    echo "<form>";
-    echo "<textarea name=new_comment>New comment</textarea>";
-    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-    echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
-    echo "<input type=submit value=Add>";
-    echo "</form>";
-}
 echo "</div>";
 
 echo "</div>";
