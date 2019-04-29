@@ -11,14 +11,27 @@ if ($conn->connect_error) {
 
 function imageUpload($box) {
 	global $perms;
+	global $member;
 	if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
 	    echo "<form method=POST enctype=\"multipart/form-data\">";
 	    echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
+	    echo "<input type=hidden name=member_uid value=".$member['member_uid'].">";
 	    echo "<input type=file name=$box>";
 	    echo "<input type=submit name=upload value=$box>";
 	    echo "</form>";
 	}
 }
+
+
+$sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
+$droid = $conn->query($sql)->fetch_assoc();
+if (($_SESSION['role'] == "user") && ( $droid['member_uid'] != $_SESSION['user'] )) {
+        echo "Oi, stop trying to look at other peoples droids!";
+        die();
+}
+$sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
+$member = $conn->query($sql)->fetch_assoc();
+
 
 # Image uploads
 if (($_REQUEST['upload'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
@@ -26,6 +39,13 @@ if (($_REQUEST['upload'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
 	$imagetype=$_FILES[$_REQUEST['upload']]["type"];
 	echo "Upload: ".$_REQUEST['upload'] ."<br />";
 	echo "Image Name: $imagename | Image Type: $imagetype <br />";
+	list($orig_width, $orig_height) = getimagesize($_FILES[$_REQUEST['upload']]['tmp_name']);
+        $width = 640; // max size of image to upload
+        $path = "uploads/members/".$_REQUEST['member_uid']."/".$_REQUEST['droid_uid']."/".$_REQUEST['upload'].".jpg";
+        $height = (($orig_height * $width) / $orig_width);
+
+        imagejpeg($thumb, $path, 75);
+
 	$exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
 	if( isset($exif['Orientation']) )
             $orientation = $exif['Orientation'];
@@ -61,12 +81,12 @@ if (($_REQUEST['upload'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
 	    $newimg = $img;
 	    break;
         }
-	ob_start();
-	imagejpeg($newimg);
-	$contents = ob_get_contents();
-	ob_end_clean();
-	$insert_image="UPDATE droids SET ".$_REQUEST['upload']."='".addslashes($contents)."' WHERE droid_uid=".$_REQUEST['droid_uid'];
-	$result=$conn->query($insert_image);
+        $thumb = imagecreatetruecolor($width, $height);
+        imagecopyresampled($thumb, $newimg, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
+        if (!file_exists("uploads/members/".$_REQUEST['member_uid']."/".$_REQUEST['droid_uid'])) {
+                mkdir("uploads/members/".$_REQUEST['member_uid']."/".$_REQUEST['droid_uid']);
+        }
+        imagejpeg($thumb, $path, 75);
 
 }
 
@@ -78,8 +98,8 @@ if (($_REQUEST['delete_comment'] == "yes") && ( $_SESSION['permissions'] & $perm
 
 if (($_REQUEST['delete_image'] != "") && ( $_SESSION['permissions'] & $perms['DELETE_IMAGES'] )) {
     echo "Deleting image";
-    $sql = "UPDATE droids SET ".$_REQUEST['delete_image']."='' WHERE droid_uid=".$_REQUEST['droid_uid'];
-    $result = $conn->query($sql);
+    unlink("uploads/members/".$member['member_uid']."/".$_REQUEST['droid_uid']."/".$_REQUEST['delete_image'].".jpg");
+
 }
 
 if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
@@ -108,15 +128,6 @@ if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
 echo "<div class=main>";
 
 echo "<div class=droid_column_left>";
-
-$sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
-$droid = $conn->query($sql)->fetch_assoc();
-if (($_SESSION['role'] == "user") && ( $droid['member_uid'] != $_SESSION['user'] )) {
-	echo "Oi, stop trying to look at other peoples droids!";
-	die();
-}
-$sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
-$member = $conn->query($sql)->fetch_assoc();
 
 echo "<div class=info>";
 echo "<form>";
@@ -245,34 +256,25 @@ echo "<div class=\"droid_column_right\">";
 echo "<table>";
 echo "<tr>\n";
 echo "<td>";
-if ($droid['photo_front'] != "") {
-	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=data:image/jpeg;base64,".base64_encode( $droid['photo_front'] )." width=240>";
+	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-} else {
 	echo "<div id=image_front class=\"droid_image w3-cell image_upload\">";
 	imageUpload('photo_front');
 	echo "</div>";
-}
 
 echo "</td><td>";
-if ($droid['photo_side'] != "") {
-	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=data:image/jpeg;base64,".base64_encode( $droid['photo_side'] )." width=240>";
+	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_side&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_side&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-} else {
 	echo "<div id=image_side class=\"droid_image w3-cell image_upload\">";
 	imageUpload('photo_side');
         echo "</div>";
-}
 
 echo "</td><td>";
-if ($droid['photo_rear'] != "") {
-	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=data:image/jpeg;base64,".base64_encode( $droid['photo_rear'] )." width=240>";
+	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_rear&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-} else {
 	echo "<div id=image_rear class=\"droid_image w3-cell image_upload\">";
 	imageUpload('photo_rear');
         echo "</div>";
-}
 echo "</td></tr></table>";
 
 
@@ -280,23 +282,17 @@ echo "</td></tr></table>";
 if ($droid['topps_id'] != "0") {
 	echo "<div class=topps>";
 	echo "<table><tr><td>";
-	if ($droid['topps_front'] != "") {
-        	echo "<div id=topps_front class=droid_image><img id=topps_front src=data:image/jpeg;base64,".base64_encode( $droid['topps_front'] )." width=240>";
+        	echo "<div id=topps_front class=droid_image><img id=topps_front src=\"uploads/topps/".$droid['topps_id']."/front.jpg\">";
 		echo "<a href=\"droid.php?delete_image=topps_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-	} else {
 	        echo "<div id=topps_front class=image_upload>";
 	        imageUpload('topps_front');
 	        echo "</div>";
-	}
 	echo "</td><td>";
-	if ($droid['topps_rear'] != "") {
-	        echo "<div id=topps_rear class=droid_image><img id=topps_rear src=data:image/jpeg;base64,".base64_encode( $droid['topps_rear'] )." width=240>";
+	        echo "<div id=topps_rear class=droid_image><img id=topps_rear src=\"uploads/topps/".$droid['topps_id']."/rear.jpg\">";
 		echo "<a href=\"droid.php?delete_image=topps_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-	} else {
         	echo "<div id=image_side class=image_upload>";
         	imageUpload('topps_rear');
         	echo "</div>";
-	}
 	echo "</td></tr></table>";
 	echo "</div>";
 }

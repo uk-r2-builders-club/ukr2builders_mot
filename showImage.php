@@ -1,5 +1,6 @@
 <?
 
+include "includes/config.php";
 include "includes/session.php";
 
 $member_id = $_REQUEST['member_id'];
@@ -10,17 +11,17 @@ if (isset($_REQUEST['droid_id'])) {
 	$droid_id = $_REQUEST['droid_id'];
 }
 
-if ( !($_SESSION['permissions'] & $perms['VIEW_MEMBERS']) ) {
+if ( !$_SESSION['permissions'] & $perms['VIEW_MEMBERS'] ) {
 	$member_id = $_SESSION['user'];
 }
 
-if ( !($_SESSION['permissions'] & $perms['VIEW_DROIDS'] )) {
+if ( !$_SESSION['permissions'] & $perms['VIEW_DROIDS'] ) {
         $member_id = $_SESSION['user'];
 }
 
 
 if ($type == "droid") {
-	$image = "uploads/members/$member_id/droid/$droid_id/$name.jpg";
+	$image = "uploads/members/$member_id/$droid_id/$name.jpg";
 } elseif ($type == "member") {
 	$image = "uploads/members/$member_id/$name.jpg";
 }
