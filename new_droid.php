@@ -47,20 +47,20 @@ if ($_REQUEST['name'] != "") {
 
 echo "<form>";
 echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
-echo "<h2>Droid Name: <input type=text name=name size=50></h2>";
 echo "<ul>";
-echo " <li>Primary Droid: <select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select></li>";
+echo " <li>Droid Name: <input type=text name=name size=50> (eg. R2-D2, C5-S4, etc.)</li>";
+echo " <li>Primary Droid: <select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select> Is this their primary droid (for PLI payment reasons)</li>";
 echo " <li>Type: <select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=other>Other</option></select></li>";
-echo " <li>Style: <input type=text name=style size=50></li>";
-echo " <li>Radio Controlled?: <select name=radio_controlled><option value=Yes>Yes</option><option value=No selected>No</option></select></li>";
-echo " <li>Transmitter Type: <input type=text name=transmitter_type size=50></li>";
-echo " <li>Material: <input type=text name=material size=50></li>";
-echo " <li>Approx Weight: <input type=text name=weight size=10></li>";
-echo " <li>Battery Type: <input type=text name=battery size=10></li>";
-echo " <li>Drive Voltage: <input type=text name=drive_voltage size=10></li>";
-echo " <li>Sound System: <input type=text name=sound_system size=50></li>";
-echo " <li>Approx Value: <input type=text name=value size=10></li>";
-echo " <li>Topps Number: <input type=text name=topps_id size=10></li>";
+echo " <li>Style: <input type=text name=style size=50> Is it a specific style, eg New Hope, TFA, etc.</li>";
+echo " <li>Radio Controlled?: <select name=radio_controlled><option value=Yes>Yes</option><option value=No selected>No</option></select> Does it use a standard RC controller?</li>";
+echo " <li>Transmitter Type: <input type=text name=transmitter_type size=50> Specktrum, PS3, Xbox360, etc.</li>";
+echo " <li>Material: <input type=text name=material size=50> Main build materials</li>";
+echo " <li>Approx Weight: <input type=text name=weight size=10> Leave empty if you don't know, otherwise weight in kg</li>";
+echo " <li>Battery Type: <input type=text name=battery size=10> SLA, Li-Ion, LiPo, etc.</li>";
+echo " <li>Drive Voltage: <input type=text name=drive_voltage size=10> 12V, 24V, 36V, etc.</li>";
+echo " <li>Sound System: <input type=text name=sound_system size=50> Amp wattage, MP3 trigger, etc.</li>";
+echo " <li>Approx Value: <input type=text name=value size=10> Only enter if owner is OK</li>";
+echo " <li>Topps Number: <input type=text name=topps_id size=10> Will be filled in later if they opt to join the Topps club</li>";
 echo "</ul>";
 echo "<input type=submit name=add value=Add>";
 

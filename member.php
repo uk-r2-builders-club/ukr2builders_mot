@@ -30,6 +30,13 @@ function imageUpload($box) {
 # Image uploads
 if (($_REQUEST['upload'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS'])) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
+        list($orig_width, $orig_height) = getimagesize($_FILES[$_REQUEST['upload']]['tmp_name']);
+	$width = 640; // max size of image to upload
+	$path = "uploads/members/".$_REQUEST['member_uid']."/mug_shot.jpg";
+        $height = (($orig_height * $width) / $orig_width);
+
+        imagejpeg($thumb, $path, 75);
+
         $exif = exif_read_data($_FILES[$_REQUEST['upload']]['tmp_name']);
         if( isset($exif['Orientation']) )
             $orientation = $exif['Orientation'];
@@ -61,18 +68,17 @@ if (($_REQUEST['upload'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMB
 	    $newimg = $img;
 	    break;
         }
-        ob_start();
-        imagejpeg($newimg);
-        $contents = ob_get_contents();
-        ob_end_clean();
-        $insert_image="UPDATE members SET ".$_REQUEST['upload']."='".addslashes($contents)."' WHERE member_uid=".$_REQUEST['member_uid'];
-        $result=$conn->query($insert_image);
-
+	$thumb = imagecreatetruecolor($width, $height);
+	imagecopyresampled($thumb, $newimg, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
+	if (!file_exists("uploads/members/".$_REQUEST['member_uid'])) {
+		mkdir("uploads/members/".$_REQUEST['member_uid']);
+	}
+	imagejpeg($thumb, $path, 75);
 }
 
 
 if (($_REQUEST['delete_mug'] == 1) && ($_SESSION['permissions'] & $perms['DELETE_IMAGES'])) {
-	$conn->query("UPDATE members SET mug_shot='' WHERE member_uid=".$_REQUEST['member_uid']);
+	unlink("uploads/members/".$_REQUEST['member_uid']."/mug_shot.jpg");
 	echo "Image deleted";
 }
 
@@ -207,17 +213,16 @@ echo "</form>";
 echo "</div>";
 
 echo "<div class=mug_shot>";
-if ($member['mug_shot'] != "") {
-	echo "<div class=\"mug_shot\"><img id=mug_shot src=data:image/jpeg;base64,".base64_encode( $member['mug_shot'] )." width=240>";
+	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">";
         if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
         }
 	echo "</div>";
-} else {
+//} else {
         echo "<div id=mug_shot class=image_upload>";
         imageUpload('mug_shot');
         echo "</div>";
-}
+//}
 
 echo "</div>";
 
