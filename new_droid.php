@@ -50,7 +50,7 @@ echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
 echo "<ul>";
 echo " <li>Droid Name: <input type=text name=name size=50> (eg. R2-D2, C5-S4, etc.)</li>";
 echo " <li>Primary Droid: <select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select> Is this their primary droid (for PLI payment reasons)</li>";
-echo " <li>Type: <select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=other>Other</option></select></li>";
+echo " <li>Type: <select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=A-LT>A-LT</option><option value=other>Other</option></select></li>";
 echo " <li>Style: <input type=text name=style size=50> Is it a specific style, eg New Hope, TFA, etc.</li>";
 echo " <li>Radio Controlled?: <select name=radio_controlled><option value=Yes>Yes</option><option value=No selected>No</option></select> Does it use a standard RC controller?</li>";
 echo " <li>Transmitter Type: <input type=text name=transmitter_type size=50> Specktrum, PS3, Xbox360, etc.</li>";

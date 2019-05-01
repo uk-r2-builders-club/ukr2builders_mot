@@ -29,8 +29,8 @@ if ($result->num_rows > 0) {
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$row['member_uid'];
 	    $owner = $conn->query($sql)->fetch_assoc();
 	    echo "<div class=flip-container><div class=flipper>";
-            echo "<div class=front><img src=data:image/jpeg;base64,".base64_encode( $row['topps_front'] )." width=240></div>";
-	    echo "<div class=back><img src=data:image/jpeg;base64,".base64_encode( $row['topps_rear'] )." width=240></div>";
+	    echo "<div class=front><img width=240 src=\"uploads/members/".$row['member_uid']."/".$row['droid_uid']."/topps_front.jpg\"></div>";
+	    echo "<div class=back><img width=240 src=\"uploads/members/".$row['member_uid']."/".$row['droid_uid']."/topps_rear.jpg\"></div>";
 	    echo "</div></div>";
     }
     echo "</div>";

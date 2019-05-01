@@ -1,1 +1,5 @@
-deny from all
+Deny from all
+<FilesMatch "^topps*">
+Order deny,allow
+allow from all
+</FilesMatch>

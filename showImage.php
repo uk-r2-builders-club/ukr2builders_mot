@@ -24,16 +24,14 @@ if ($type == "droid") {
 	$image = "uploads/members/$member_id/$droid_id/$name.jpg";
 } elseif ($type == "member") {
 	$image = "uploads/members/$member_id/$name.jpg";
+} elseif ($type == "topps") {
+	$image = "uploads/members/$member_id/$droid_id/$name.jpg";
 }
 
 if (file_exists($image)) {
 	$file = $image;
 } else {
-	if ($type == "droid" ) {
-		$file = "images/blank_droid.jpg";
-	} elseif ($type == "member" ) {
-		$file = "images/blank_member.jpg";
-	}
+	$file = "images/blank_$name.jpg";
 }
 	
 header('Content-Type: image/jpeg');

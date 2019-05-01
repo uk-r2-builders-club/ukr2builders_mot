@@ -44,10 +44,14 @@ if ($conn->connect_error) {
 
 if ($_REQUEST['member_uid'] == "" ) {
     $sql = "SELECT * FROM droids";
+    $stmt = $conn->prepare($sql);
 } else {
     $sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid'];
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $_REQUEST['member_uid']);
 }
-$result = $conn->query($sql);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     // output data of each row

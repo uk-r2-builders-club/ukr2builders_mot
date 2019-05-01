@@ -31,8 +31,11 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['login'] == "Go") {
-	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted,permissions FROM members WHERE (email='".$_REQUEST['username']."' OR username='".$_REQUEST['username']."') AND password=PASSWORD('".$_REQUEST['password']."') LIMIT 1";
-	$result = $conn->query($sql);
+	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted,permissions FROM members WHERE (email=? OR username=?) AND password=PASSWORD(?) LIMIT 1";
+	$stmt = $conn->prepare($sql);
+	$stmt->bind_param("sss", $_REQUEST['username'], $_REQUEST['username'], $_REQUEST['password']);
+	$stmt->execute();
+	$result = $stmt->get_result();
 	if ($result->num_rows == 1) {
 		$row = $result->fetch_assoc();
 		$_SESSION['user']=$row['member_uid'];
