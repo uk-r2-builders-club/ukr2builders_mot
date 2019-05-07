@@ -14,27 +14,15 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-function generateQR($id) {
-    global $config;
-    $link = $config->site_base."/id.php?id=".$id;
-    $url = "https://chart.googleapis.com/chart?cht=qr&chld=H|1&chs=200x200&chl=".urlencode($link);
+function generateQR($id, $member_uid) {
+    $path = "uploads/members/$member_uid/qr_code.jpg";
+    $link = "http://mot.astromech.info/id.php?id=".$id;
+    $url = "https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=100x100&chl=".urlencode($link);
+    echo "Generating QR Code: $url<br />";
+    echo "Writing to path: $path<br />";
     $image = imagecreatefrompng($url);
-    ob_start();
-    imagepng($image);
-    $contents = ob_get_contents();
-    ob_end_clean();
-    return $contents;
-}
-
-function generateID($length) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-
+    imagejpeg($image, $path, 75);
+    return "Ok";
 }
 
 function calcLocation($postcode) {
@@ -67,15 +55,14 @@ if ($result->num_rows > 0) {
 			printf("Error: %s.\n", $stmt->sqlstate);
 			printf("Error: %s.\n", $stmt->error);
     		}	
-		if (($row['badge_id'] == "")) {
-			echo "Updating Badge ID and QR Code for ".$row['forename']." ".$row['surname']."<br/>";
-			$badge_id = generateID(60);
-                        $qr = addslashes(generateQR($badge_id));
-			$sql = "UPDATE members SET badge_id='".$badge_id."', qr_code='".$qr."' WHERE member_uid = ".$row['member_uid'];
-			$result=$conn->query($sql);
 
-
+		if (!file_exists("uploads/members/".$row['member_uid'])) {
+                	mkdir("uploads/members/".$row['member_uid']);
+        	}
+		if (!file_exists("uploads/members/".$row['member_uid']."/qr_code.jpg")) {
+			generateQR($row[badge_id], $row['member_uid']);
 		}
+
 
 	}
 }

@@ -31,7 +31,7 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['login'] == "Go") {
-	$sql="SELECT active,email,member_uid,role,admin,force_password,gdpr_accepted,permissions FROM members WHERE (email=? OR username=?) AND password=PASSWORD(?) LIMIT 1";
+	$sql="SELECT active,email,member_uid,role,force_password,gdpr_accepted,permissions FROM members WHERE (email=? OR username=?) AND password=PASSWORD(?) LIMIT 1";
 	$stmt = $conn->prepare($sql);
 	$stmt->bind_param("sss", $_REQUEST['username'], $_REQUEST['username'], $_REQUEST['password']);
 	$stmt->execute();
@@ -41,7 +41,6 @@ if ($_REQUEST['login'] == "Go") {
 		$_SESSION['user']=$row['member_uid'];
 		$_SESSION['username']=$row['email'];
 		$_SESSION['enabled']=$row['active'];
-		$_SESSION['admin']=$row['admin'];
 		$_SESSION['role']=$row['role'];
 		$_SESSION['force_password']=$row['force_password'];
 		$_SESSION['gdpr_accepted']=$row['gdpr_accepted'];

@@ -227,7 +227,7 @@ if ($comments_result->num_rows > 0) {
         echo "<tr><td id=officer>$officer_name</td>";
         echo "<td id=time>".$row['added_on']."</td></tr>";
         echo "<tr><td colspan=2 id=text>".$row['comment'];
-	if ($_SESSION['admin'] == 1) {
+	if ($_SESSION['permissions'] & $perms['DELETE_COMMENTS']) {
 		echo "<br/> <a href=droid.php?droid_uid=".$row['droid_uid']."&uid=".$row['uid']."&delete_comment=yes>Delete comment</a>";
 	} 
 	echo "</td></tr>";

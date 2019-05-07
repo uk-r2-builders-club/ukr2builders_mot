@@ -24,27 +24,20 @@ if ($conn->connect_error) {
 <html>
  <head>
   <title>UK R2 Builders MOT Database</title>
-  <link rel="stylesheet" href="main.css">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="id.css">
  </head>
 
  <body>
-
-<div name=menu>
- <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
-</div>
 
 <div id=id_badge>
 <?
 
 if (isset($_REQUEST['id'])) {
-   $sql = "SELECT member_uid, mug_shot, pli_date FROM members WHERE badge_id=\"".$_REQUEST['id']."\"";
+   $sql = "SELECT forename, surname, member_uid, pli_date FROM members WHERE badge_id=\"".$_REQUEST['id']."\"";
    $member = $conn->query($sql)->fetch_assoc();
    if($member) { 
-       if ($member['mug_shot'] != "") {
-           echo "<div class=\"id_badge_photo\"><img id=mug_shot src=data:image/jpeg;base64,".base64_encode( $member['mug_shot'] )." width=240>";
-           echo "</div>";
-       }
+       echo "<div class=\"id_badge_photo\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">";
+       echo "</div>";
        echo "PLI Status: ";
        if ( strtotime($member['pli_date'])+31556952 > strtotime('now') ) {
 	       echo "<font color=green>ACTIVE</font>";

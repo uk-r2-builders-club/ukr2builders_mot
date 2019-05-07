@@ -91,7 +91,7 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 	    echo "<tr class=\"item\">";
 	    echo " <td class=achievements_list>".$row['achievement_uid']."</td>";
-	    if ($_SESSION['role'] == "admin") {
+	    if ($_SESSION['permissions'] & $perms['EDIT_ACHIEVEMENTS']) {
 		echo " <td class=achievements_list><a href=achievements.php?achievement_uid=".$row['achievement_uid'].">".$row['name']."</a></td>";
 	    } else {
 	        echo " <td class=achievements_list>".$row['name']."</td>";

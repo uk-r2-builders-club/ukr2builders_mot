@@ -180,7 +180,8 @@ if (strtotime($member['pli_date']) > strtotime('-1 year')) {
 }
 echo "</td></tr>";
 echo " <tr><th>Last Updated: </th><td>".$member['last_updated']."</td></tr>";
-echo " <tr><th>ID Link: </th><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br /><img id=qr_code src=data:image/png;base64,".base64_encode( $member['qr_code'] )." width=200></td></tr>";
+echo " <tr><th>ID Link: </th><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br />";
+echo "<img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=qr_code&width=240\"></td></tr>";
 echo " <tr><th>Active?: </th><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";
