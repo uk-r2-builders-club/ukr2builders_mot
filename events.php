@@ -51,7 +51,7 @@ if (($_REQUEST['update'] == "Update") && ($_SESSION['permissions'] & $perms['EDI
     printf("Error: %s.\n", $stmt->error);
 }
 
-if (isset($_REQUEST['event_uid'])) {
+if (isset($_REQUEST['event_uid']) ) {
     $sql = "SELECT * FROM events WHERE event_uid=".$_REQUEST['event_uid'];
     $event=$conn->query($sql)->fetch_assoc();
     echo "<form>";
@@ -64,7 +64,9 @@ if (isset($_REQUEST['event_uid'])) {
     echo "<tr><td>Report Link</td><td><input type=text size=50 name=report_link value=\"".$event['report_link']."\"></td></tr>";
     echo "<tr><td>Charity Raised</td><td>£<input type=text size=50 name=charity_raised value=\"".$event['charity_raised']."\"></td></tr>";
     echo "</table>";
-    echo "<input type=submit name=update value=Update>";
+    if ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) {
+        echo "<input type=submit name=update value=Update>";
+    }
     echo "<br />";
     echo "Members in attendance: <br />";
     $sql = "SELECT members.forename, members.surname, members.member_uid, members_events.event_uid FROM members_events RIGHT JOIN members ON members.member_uid = members_events.member_uid WHERE members_events.event_uid = ".$_REQUEST['event_uid'];

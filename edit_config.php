@@ -15,15 +15,36 @@ if ($conn->connect_error) {
 
 
 if ($_REQUEST['update'] != "") {
-    $sql = "UPDATE config SET email_treasurer=?, email_mot=?, site_base=?, paypal_link=?, paypal_email=?, primary_cost=?, other_cost=?, google_map_api=?, course_api=?, from_email=? WHERE config_uid = 1";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssiisss", $_REQUEST['email_treasurer'], $_REQUEST['email_mot'], $_REQUEST['site_base'], $_REQUEST['paypal_link'], $_REQUEST['paypal_email'], $_REQUEST['primary_cost'], $_REQUEST['other_cost'], $_REQUEST['google_map_api'], $_REQUEST['course_api'], $_REQUEST['from_email']);
-    $stmt->execute();
-    printf("Error: %s.\n", $stmt->sqlstate);
-    printf("Error: %s.\n", $stmt->error);
-    $sql = "SELECT * FROM config";
-    $config = $conn->query($sql)->fetch_object();
+	$sql = "SELECT name FROM site_config";
+	$result = $conn->query($sql);
+        while($row = $result->fetch_assoc()) {
+		if ($row['name'] != "site_options") {
+		    $sql = "UPDATE site_config SET value=? WHERE name=?";
+		    $stmt = $conn->prepare($sql);
+		    $stmt->bind_param("ss", $_REQUEST[$row['name']], $row['name']); 
+		    $stmt->execute();
+		} else {
+   	            $new_options = 0;
+                    for ($i=0 ; $i < $_REQUEST['num_options'] ; $i++ ) {
+                        $option = strval(2**$i);
+                        if ($_REQUEST[$option] == "on") {
+                            $new_options = $new_options + 2**$i;
+                        }
+                    }
+		    $sql = "UPDATE site_config SET value=? WHERE name=\"site_options\"";
+		    $stmt = $conn->prepare($sql);
+		    $stmt->bind_param("s", $new_options);
+		    $stmt->execute();
+		}
+	}
 
+        # Reread new config values into $config
+        $sql = "SELECT * FROM site_config";
+        $result = $conn->query($sql);
+            while($row = $result->fetch_assoc()) {
+            $lines[$row['name']] = $row['value'];
+        }
+        $config = (object) $lines;
 
 }
 
@@ -33,16 +54,36 @@ echo "<div class=main>";
 echo "<h2>Config</h2>";
 echo "<form>";
 echo "<table class=config>";
-echo "<tr><td>Treasurer Email</td><td><input type=text size=50 name=email_treasurer value=\"".$config->email_treasurer."\"></td></tr>";
-echo "<tr><td>MOT Email</td><td><input type=text size=50 name=email_mot value=\"".$config->email_mot."\"></td></tr>";
-echo "<tr><td>Site Base URL</td><td><input type=text size=50 name=site_base value=\"".$config->site_base."\"></td></tr>";
-echo "<tr><td>Paypal.me Link</td><td><input type=text size=50 name=paypal_link value=\"".$config->paypal_link."\"></td></tr>";
-echo "<tr><td>Paypal Email</td><td><input type=text size=50 name=paypal_email value=\"".$config->paypal_email."\"></td></tr>";
-echo "<tr><td>Main PLI Cost</td><td><input type=text size=50 name=primary_cost value=\"".$config->primary_cost."\"></td></tr>";
-echo "<tr><td>Extra droid PLI Cost</td><td><input type=text size=50 name=other_cost value=\"".$config->other_cost."\"></td></tr>";
-echo "<tr><td>From Email</td><td><input type=text size=50 name=from_email value=\"".$config->from_email."\"></td></tr>";
-echo "<tr><td>Google Maps API key</td><td><input type=text size=50 name=google_map_api value=\"".$config->google_map_api."\"></td></tr>";
-echo "<tr><td>Driving Course API key</td><td><input type=text size=50 name=course_api value=\"".$config->course_api."\"></td></tr>";
+$sql = "SELECT * FROM site_config";
+$result = $conn->query($sql);
+while($row = $result->fetch_assoc()) {
+	if ($row['name'] != "site_options") {
+	    echo "<tr>";
+	    echo "<td>".$row['description']."</td>";
+	    echo "<td><input type=text size=50 name=".$row['name']." value=\"".$row['value']."\"></td>";
+	    echo "</tr>";
+	}
+}
+echo "<tr><th>Site Options:</th>";
+echo "<td>";
+echo "<table><tr>";
+$sql = "SELECT * FROM site_options";
+$options = $conn->query($sql);
+while($row = $options->fetch_assoc()) {
+    echo "<th class=rotate_permission><div><span>".$row['name']."</span></div></th>";
+    $num_options++;
+}
+echo "</tr><tr>";
+for ($i=0 ; $i < $num_options ; $i++) {
+    $option = 2**$i;
+    echo "<td class=permission><input type=checkbox name=$option ";
+    echo ($config->site_options & $option) ? "checked" : "";
+    echo "></td>";
+}
+echo "</tr></table>";
+echo "<input type=hidden name=num_options value=".$num_options.">";
+echo "</td></tr>";
+
 echo "</table>";
 echo "<input type=submit name=update value=Update>";
 echo "</form>";

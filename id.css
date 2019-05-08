@@ -1,0 +1,15 @@
+
+@font-face {
+    font-family: StarWars;
+    src: url(./fonts/Rebellion.otf);
+}
+
+@font-face {
+    font-family: AureBesh;
+    src: url(./fonts/Aurebesh.otf);
+}
+
+body {
+	font-family: StarWars;
+}
+

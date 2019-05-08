@@ -22,6 +22,19 @@ function imageUpload($box) {
 	}
 }
 
+if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=? WHERE droid_uid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssssssssii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
+            $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
+    $stmt->close();
+}
 
 $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
 $droid = $conn->query($sql)->fetch_assoc();
@@ -107,20 +120,10 @@ if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDI
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isi", $_REQUEST['droid_uid'], $_REQUEST['new_comment'], $_REQUEST['officer']);
     $stmt->execute();
-    printf("Error: %s.\n", $stmt->sqlstate);
-    printf("Error: %s.\n", $stmt->error);
-
-    $stmt->close();
-}
-
-if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=? WHERE droid_uid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'], 
-	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['droid_uid']);
-    $stmt->execute();
-    printf("Error: %s.\n", $stmt->sqlstate);
-    printf("Error: %s.\n", $stmt->error);
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
 
     $stmt->close();
 }
@@ -165,7 +168,11 @@ if ($droid['tier_two'] == Yes) {
 	echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
 }
 echo "</select></td></tr>";
-echo " <tr><td>Topps Number: </td><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
+if ($config->site_options & $options['TOPPS']) {
+    echo " <tr><td>Topps Number: </td><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
+} else {
+    echo "<input type=hidden name=topps_id size=50 value=0>";
+}
 echo " <tr><td>Last Updated: </td><td>".$droid['last_updated']."</td></tr>";
 echo "</table>";
 if ($_SESSION['role'] != "user") {
@@ -278,8 +285,7 @@ echo "</td><td>";
 echo "</td></tr></table>";
 
 
-
-if ($droid['topps_id'] != "0") {
+if (($droid['topps_id'] != "0") &&  ($config->site_options & $options['TOPPS'])) {
 	echo "<div class=topps>";
 	echo "<table><tr><td>";
         	echo "<div id=topps_front class=droid_image><img id=topps_front src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=topps&name=topps_front&width=240\">";

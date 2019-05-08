@@ -2,8 +2,8 @@
 
 include "includes/header.php";
 
-if ($_SESSION['permissions'] & $perms['EDIT_PLI']) {
-	echo "<h1>Permission Denied</h1>";
+if (!($_SESSION['permissions'] & $perms['EDIT_PLI'])) {
+	die();
 } else {
 
 // Create connection
@@ -13,11 +13,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-
-$sql = "SELECT * FROM pli_cover_details";
-$pli = $conn->query($sql)->fetch_object();
-
-if ($_REQUEST['update'] != "") {
+if (($_REQUEST['update'] != "") && ($_SESSION['permissions'] & $perms['EDIT_PLI'])) {
     $sql = "UPDATE pli_cover_details SET details=?, body=?, contact1=?, contact2=?, footer_text=?, header_text=? WHERE uid = 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssss", $_REQUEST['details'], $_REQUEST['body'], $_REQUEST['contact1'], $_REQUEST['contact2'], $_REQUEST['footer_text'], $_REQUEST['header_text']);
@@ -29,6 +25,9 @@ if ($_REQUEST['update'] != "") {
 
 
 }
+
+$sql = "SELECT * FROM pli_cover_details";
+$pli = $conn->query($sql)->fetch_object();
 
 echo "<div class=main>";
 

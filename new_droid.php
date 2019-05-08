@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['name'] != "") {
-    $sql = "INSERT INTO droids(member_uid, name, primary_droid, type, style, radio_controlled, transmitter_type, material, weight, battery, drive_voltage, sound_system, value, topps_id, date_added) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?, NOW())";
+    $sql = "INSERT INTO droids(member_uid, name, primary_droid, type, style, radio_controlled, transmitter_type, material, weight, battery, drive_voltage, sound_system, value, date_added) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, NOW())";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("isssssssssssss", $member_uid, $name, $_REQUEST['primary_droid'], $_REQUEST['type'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'],
                                 $_REQUEST['material'], $_REQUEST['weight'], $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['topps_id']);
@@ -22,8 +22,11 @@ if ($_REQUEST['name'] != "") {
     $name=$_REQUEST['name'];
     $stmt->execute();
     $droid_uid = $stmt->insert_id;
-    printf("Error: %s.\n", $stmt->sqlstate);
-    printf("Error: %s.\n", $stmt->error);
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
     if ($stmt->error == "") {
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$_SESSION["user"];
         $officer = $conn->query($sql)->fetch_object();
@@ -47,21 +50,20 @@ if ($_REQUEST['name'] != "") {
 
 echo "<form>";
 echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
-echo "<ul>";
-echo " <li>Droid Name: <input type=text name=name size=50> (eg. R2-D2, C5-S4, etc.)</li>";
-echo " <li>Primary Droid: <select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select> Is this their primary droid (for PLI payment reasons)</li>";
-echo " <li>Type: <select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=A-LT>A-LT</option><option value=other>Other</option></select></li>";
-echo " <li>Style: <input type=text name=style size=50> Is it a specific style, eg New Hope, TFA, etc.</li>";
-echo " <li>Radio Controlled?: <select name=radio_controlled><option value=Yes>Yes</option><option value=No selected>No</option></select> Does it use a standard RC controller?</li>";
-echo " <li>Transmitter Type: <input type=text name=transmitter_type size=50> Specktrum, PS3, Xbox360, etc.</li>";
-echo " <li>Material: <input type=text name=material size=50> Main build materials</li>";
-echo " <li>Approx Weight: <input type=text name=weight size=10> Leave empty if you don't know, otherwise weight in kg</li>";
-echo " <li>Battery Type: <input type=text name=battery size=10> SLA, Li-Ion, LiPo, etc.</li>";
-echo " <li>Drive Voltage: <input type=text name=drive_voltage size=10> 12V, 24V, 36V, etc.</li>";
-echo " <li>Sound System: <input type=text name=sound_system size=50> Amp wattage, MP3 trigger, etc.</li>";
-echo " <li>Approx Value: <input type=text name=value size=10> Only enter if owner is OK</li>";
-echo " <li>Topps Number: <input type=text name=topps_id size=10> Will be filled in later if they opt to join the Topps club</li>";
-echo "</ul>";
+echo "<table>";
+echo " <tr><td><a href='#'>Droid Name: <div class='tooltipcontainer'><div class='tooltip'>eg. R2-D2, C5-S4, etc.</div></div></a></td><td><input type=text name=name size=50></td></tr>";
+echo " <tr><td><a href='#'>Primary Droid: <div class='tooltipcontainer'><div class='tooltip'>Is this their primary droid (for PLI payment reasons)</div></div></a></td><td><select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select></td></tr>";
+echo " <tr><td><a href='#'>Type: <div class='tooltipcontainer'><div class='tooltip'></div></div></a></td><td><select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=A-LT>A-LT</option><option value=other>Other</option></select></td></tr>";
+echo " <tr><td><a href='#'>Style: <div class='tooltipcontainer'><div class='tooltip'>Is it a specific style, eg New Hope, TFA, etc.</div></div></a></td><td><input type=text name=style size=50></td></tr>";
+echo " <tr><td><a href='#'>Radio Controlled?: <div class='tooltipcontainer'><div class='tooltip'>Does it use a standard RC controller?</div></div></a></td><td><select name=radio_controlled><option value=Yes>Yes</option><option value=No selected>No</option></select></td></tr>";
+echo " <tr><td><a href='#'>Transmitter Type: <div class='tooltipcontainer'><div class='tooltip'>Specktrum, PS3, Xbox360, etc.</div></div></a></td><td><input type=text name=transmitter_type size=50></td></tr>";
+echo " <tr><td><a href='#'>Material: <div class='tooltipcontainer'><div class='tooltip'>Main build materials</div></div></a></td><td><input type=text name=material size=50></td></tr>";
+echo " <tr><td><a href='#'>Approx Weight: <div class='tooltipcontainer'><div class='tooltip'>Leave empty if you don't know, otherwise weight in kg</div></div></a></td><td><input type=text name=weight size=10></td></tr>";
+echo " <tr><td><a href='#'>Battery Type: <div class='tooltipcontainer'><div class='tooltip'>SLA, Li-Ion, LiPo, etc.</div></div></a></td><td><input type=text name=battery size=10></td></tr>";
+echo " <tr><td><a href='#'>Drive Voltage: <div class='tooltipcontainer'><div class='tooltip'>12V, 24V, 36V, etc.</div></div></a></td><td><input type=text name=drive_voltage size=10></td></tr>";
+echo " <tr><td><a href='#'>Sound System: <div class='tooltipcontainer'><div class='tooltip'>Amp wattage, MP3 trigger, etc.</div></div></a></td><td><input type=text name=sound_system size=50></td></tr>";
+echo " <tr><td><a href='#'>Approx Value: <div class='tooltipcontainer'><div class='tooltip'>Only enter if owner is OK</div></div></a></td><td><input type=text name=value size=10></td></tr>";
+echo "</table>";
 echo "<input type=submit name=add value=Add>";
 
 include "includes/footer.php";

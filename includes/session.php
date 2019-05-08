@@ -1,7 +1,7 @@
 <?
 
 // Start the session with a timeout of 10 minutes
-$timeout = 10 * 60; // 10 minutes
+$timeout = $config->timeout; // 10 minutes
 $fingerprint = md5('SECRET-SALT'.$_SERVER['HTTP_USER_AGENT']);
 session_start();
 

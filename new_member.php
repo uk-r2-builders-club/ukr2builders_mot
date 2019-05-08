@@ -19,13 +19,10 @@ if ($conn->connect_error) {
 function generateQR($id) {
     global $config;
     $link = $config->site_base."/id.php?id=".$id;
-    $url = "https://chart.googleapis.com/chart?cht=qr&chld=H|1&chs=200x200&chl=".urlencode($link);
+    $url = "https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=100x100&chl=".urlencode($link);
     $image = imagecreatefrompng($url);
-    ob_start();
-    imagejpeg($image);
-    $contents = ob_get_contents();
-    ob_end_clean();
-    return $contents; 
+    imagejpeg($image, $path, 75);
+    return "Ok";
 }
 
 function generateID($length) {
@@ -52,17 +49,19 @@ function calcLocation($postcode) {
 
 
 if (isset($_REQUEST['email'])) {
-    $sql = "INSERT INTO members(forename, surname, email, county, postcode, latitude, longitude, badge_id, qr_code, created_on, created_by, username) VALUES (?,?,?,?,?,?,?,?,?, NOW(), ?, ?)";
+    $sql = "INSERT INTO members(forename, surname, email, county, postcode, latitude, longitude, badge_id, created_on, created_by, username) VALUES (?,?,?,?,?,?,?,?, NOW(), ?, ?)";
     list($latitude, $longitude) = calcLocation($_REQUEST['postcode']);
     $badge_id = generateID(60);
-    $qr = addslashes(generateQR($badge_id));
+    generateQR($badge_id);
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssssssssis", $_REQUEST['forename'], $_REQUEST['surname'], $_REQUEST['email'], $_REQUEST['county'], $_REQUEST['postcode'], $latitude, $longitude, $badge_id, $qr, $_SESSION['user'], $_REQUEST['username']);
     $stmt->execute();
     if ($stmt->error == "") {
 	    echo "User created";
     } else {
-	    echo "There was an error, please check the input and if it still looks ok, contact an admin";
+	    echo "There was an error, please check the input and if it still looks ok, contact an admin <br />";
+	    printf("Error: %s.\n", $stmt->sqlstate);
+            printf("Error: %s.\n", $stmt->error);
     }
     $stmt->close();
 }

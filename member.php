@@ -282,6 +282,7 @@ echo "</div>";
 echo "<hr />";
 
 # Achievements
+if ($config->site_options & $options['ACHIEVEMENTS']) {
 echo "<h4>Achievements</h4>";
 echo "<div class=achievements_list>";
 $sql = "SELECT * FROM members_achievements WHERE member_uid=".$member['member_uid'];
@@ -298,7 +299,7 @@ if ($result->num_rows > 0) {
 	$achievement = $conn->query($sql)->fetch_assoc();
 	echo "<td class=achievements_list><a href='#'>".$achievement['name']."<div class='tooltipcontainer'>";
 	echo "<div class='tooltip'>".$achievement['description']."</div>";
-	echo "</td>";
+	echo "</div></a></td>";
 	echo "<td class=achievements_list>".$row['notes']."</td>";
 	echo "<td class=achievements_list>".$row['date_added']."</td>";
 	echo "<td class=achievements_list>";
@@ -333,10 +334,12 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
 }
 echo "</div>";
 echo "<hr />";
+}
 # End of Achievements
 
 
 # Official Events
+if ($config->site_options & $options['EVENTS']) {
 echo "<h4>Official Events</h4>";
 echo "<div class=events_list>";
 $sql = "SELECT * FROM members_events, events WHERE events.event_uid = members_events.event_uid AND member_uid=".$member['member_uid']." ORDER BY events.date";
@@ -393,10 +396,12 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
 }
 echo "</div>";
 echo "<hr />";
+}
 # End of Official Events
 
 
 # Course runs
+if ($config->site_options & $options['DRIVING_COURSE']) {
 echo "<h4>Driving Course Runs</h4>";
 echo "<div class=course_list>";
 $sql = "SELECT * FROM course_runs WHERE member_uid=".$member['member_uid']." ORDER BY final_time ASC";
@@ -430,6 +435,7 @@ if ($runs->num_rows > 0) {
 }
 echo "</table>";
 echo "</div>";
+}
 # End of Course Runs
 
 
