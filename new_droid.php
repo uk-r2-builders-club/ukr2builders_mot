@@ -16,8 +16,8 @@ if ($conn->connect_error) {
 if ($_REQUEST['name'] != "") {
     $sql = "INSERT INTO droids(member_uid, name, primary_droid, type, style, radio_controlled, transmitter_type, material, weight, battery, drive_voltage, sound_system, value, date_added) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, NOW())";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssssssssssss", $member_uid, $name, $_REQUEST['primary_droid'], $_REQUEST['type'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'],
-                                $_REQUEST['material'], $_REQUEST['weight'], $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['topps_id']);
+    $stmt->bind_param("issssssssssss", $member_uid, $name, $_REQUEST['primary_droid'], $_REQUEST['type'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'],
+                                $_REQUEST['material'], $_REQUEST['weight'], $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value']);
     $member_uid=$_REQUEST['member_uid'];
     $name=$_REQUEST['name'];
     $stmt->execute();
@@ -26,6 +26,10 @@ if ($_REQUEST['name'] != "") {
         printf("Error: %s.\n", $stmt->sqlstate);
         printf("Error: %s.\n", $stmt->error);
     }
+    if (!file_exists("uploads/members/".$row['member_uid']."/".$droid_uid)) {
+        mkdir("uploads/members/".$row['member_uid']."/".$droid_uid);
+    }
+
 
     if ($stmt->error == "") {
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$_SESSION["user"];

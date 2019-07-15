@@ -172,11 +172,14 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
 echo " <tr><th>Forum Username: </th><td><input type=text size=50 name=username value=\"".$member['username']."\"></td></tr>";
 echo " <tr><th>Created On: </th><td>".$member['created_on']."</td></tr>";
 echo " <tr><th>Created By: </th><td>".$officer_name."</td></tr>";
-echo " <tr><th>PLI Cover Last Paid: </th><td><input type=date name=pli_date value=".$member['pli_date']."> BID Sent <input type=checkbox name=pli_active";
-echo ($member['pli_active'] == "on") ? " checked" : "";
-echo ">";
+echo " <tr><th>PLI Cover Last Paid: </th><td><input type=date name=pli_date value=".$member['pli_date'].">";
+if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
+    echo "BID Sent <input type=checkbox name=pli_active";
+    echo ($member['pli_active'] == "on") ? " checked" : "";
+    echo ">";
+}
 if (strtotime($member['pli_date']) > strtotime('-1 year')) {
-	echo "<a target=_blank href=cover_note.php?member_uid=".$member['member_uid'].">Cover Note</a>";
+    echo "<a target=_blank href=cover_note.php?member_uid=".$member['member_uid'].">Cover Note</a>";
 }
 echo "</td></tr>";
 echo " <tr><th>Last Updated: </th><td>".$member['last_updated']."</td></tr>";

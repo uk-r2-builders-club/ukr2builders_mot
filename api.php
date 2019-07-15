@@ -37,18 +37,45 @@ function getUids($conn, $table) {
 }
 
 function getMugShot($conn, $member_uid) {
-        $sql = "SELECT mug_shot FROM members WHERE member_uid = ". $member_uid;
-        $result = $conn->query($sql);
-        $member = $result->fetch_assoc();
-	//echo "<img id=mug_shot src=data:image/jpeg;base64,".base64_encode( $member['mug_shot'] )." width=240>";
-        return $member['mug_shot'];
+	$width = 300;
+	$image = "uploads/members/$member_uid/mug_shot.jpg";
+	if (file_exists($image)) {
+            $file = $image;
+        } else {
+            $file = "images/blank_mug_shot.jpg";
+        }
+	header('Content-Length: ' . filesize($file));
+        list($orig_width, $orig_height) = getimagesize($file);
+        $source = imagecreatefromjpeg($file);
+        $height = (($orig_height * $width) / $orig_width);
+
+        $thumb = imagecreatetruecolor($width, $height);
+        imagecopyresampled($thumb, $source, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
+        // save new thumb with quality 75
+        imagejpeg($thumb, $path, 75);
 }
 
 function getDroidShot($conn, $droid_uid) {
-        $sql = "SELECT photo_side FROM droids WHERE droid_uid = ". $droid_uid;
+        $sql = "SELECT member_uid FROM droids WHERE droid_uid = ". $droid_uid;
         $result = $conn->query($sql);
-        $droid = $result->fetch_assoc();
-        return $droid['photo_side'];
+        $member = $result->fetch_assoc();
+
+        $width = 300;
+        $image = "uploads/members/".$member['member_uid']."/$droid_uid/photo_front.jpg";
+        if (file_exists($image)) {
+            $file = $image;
+        } else {
+            $file = "images/blank_photo_front.jpg";
+        }
+        header('Content-Length: ' . filesize($file));
+        list($orig_width, $orig_height) = getimagesize($file);
+        $source = imagecreatefromjpeg($file);
+        $height = (($orig_height * $width) / $orig_width);
+
+        $thumb = imagecreatetruecolor($width, $height);
+        imagecopyresampled($thumb, $source, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
+        // save new thumb with quality 75
+        imagejpeg($thumb, $path, 75);
 }
 
 function insertRun($conn, $data) {
@@ -80,13 +107,11 @@ if ($api == $config->course_api) {
 	    case "mug_shot": // Request member mug shot
             	$mug_shot = getMugShot($conn, $id);
 	    	header("Content-Type: image/jpeg");
-	    	echo imagejpeg(imagecreatefromstring($mug_shot));
 	    	break;
 
             case "droid_shot": // Request droid mug shot
             	$droid_shot = getDroidShot($conn, $id);
 	    	header("Content-Type: image/jpeg");
-            	echo imagejpeg(imagecreatefromstring($droid_shot));
             	break;
 
 	    case "list_droid_uid": // List all droid uids

@@ -38,13 +38,15 @@ function generateID($length) {
 
 function calcLocation($postcode) {
 	global $config;
-       	$address = str_replace(' ','+',$postcode);
-	$url = 'https://maps.google.com/maps/api/geocode/json?key='.$config->google_map_api.'&address='.$address.'&sensor=false';
-       	$geocode=file_get_contents($url);
-       	$output= json_decode($geocode);
-       	$latitude = $output->results[0]->geometry->location->lat;
-       	$longitude = $output->results[0]->geometry->location->lng;
-	return array($latitude, $longitude);
+	if (!empty($postcode)) {
+       	    $address = str_replace(' ','+',$postcode);
+	    $url = 'https://maps.google.com/maps/api/geocode/json?key='.$config->google_map_api.'&address='.$address.'&sensor=false';
+       	    $geocode=file_get_contents($url);
+       	    $output= json_decode($geocode);
+       	    $latitude = $output->results[0]->geometry->location->lat;
+       	    $longitude = $output->results[0]->geometry->location->lng;
+	    return array($latitude, $longitude);
+	}
 }
 
 
@@ -52,9 +54,15 @@ if (isset($_REQUEST['email'])) {
     $sql = "INSERT INTO members(forename, surname, email, county, postcode, latitude, longitude, badge_id, created_on, created_by, username) VALUES (?,?,?,?,?,?,?,?, NOW(), ?, ?)";
     list($latitude, $longitude) = calcLocation($_REQUEST['postcode']);
     $badge_id = generateID(60);
-    generateQR($badge_id);
+    //generateQR($badge_id);
+    if (!file_exists("uploads/members/".$row['member_uid'])) {
+         mkdir("uploads/members/".$row['member_uid']);
+    }
+    if (!file_exists("uploads/members/".$row['member_uid']."/qr_code.jpg")) {
+         generateQR($row[badge_id], $row['member_uid']);
+    }
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssis", $_REQUEST['forename'], $_REQUEST['surname'], $_REQUEST['email'], $_REQUEST['county'], $_REQUEST['postcode'], $latitude, $longitude, $badge_id, $qr, $_SESSION['user'], $_REQUEST['username']);
+    $stmt->bind_param("ssssssssis", $_REQUEST['forename'], $_REQUEST['surname'], $_REQUEST['email'], $_REQUEST['county'], $_REQUEST['postcode'], $latitude, $longitude, $badge_id, $_SESSION['user'], $_REQUEST['username']);
     $stmt->execute();
     if ($stmt->error == "") {
 	    echo "User created";
