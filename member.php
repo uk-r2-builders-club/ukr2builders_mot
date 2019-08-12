@@ -27,6 +27,19 @@ function imageUpload($box) {
 	}
 }
 
+function formatMilliseconds($milliseconds) {
+    $seconds = floor($milliseconds / 1000);
+    $minutes = floor($seconds / 60);
+    $milliseconds = $milliseconds % 1000;
+    $seconds = $seconds % 60;
+    $minutes = $minutes % 60;
+
+    $format = '%02u:%02u.%03u';
+    $time = sprintf($format, $minutes, $seconds, $milliseconds);
+    //return rtrim($time, '0');
+    return $time;
+}
+
 # Image uploads
 if (($_REQUEST['upload'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMBERS'])) {
         $imagename=$_FILES[$_REQUEST['upload']]["name"];
@@ -418,20 +431,39 @@ if ($runs->num_rows > 0) {
     echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(4)')\">Second Half</th>";
     echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(5)')\">Clock Time</th>";
     echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(6)')\">Penalties</th>";
-    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(7)')\">Final Time</th></tr>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(7)')\">Final Time</th>";
+    echo "<th onclick=\"w3.sortHTML('#course_list','.item', 'td:nth-child(7)')\"></th></tr>";
     while($row = $runs->fetch_assoc()) {
-	echo "<tr>";
-        echo "<td class=course_list>".$row['run_timestamp']."</td>";
-	$sql = "SELECT name FROM droids WHERE droid_uid = ".$row['droid_uid'];
-	$droid_name = $conn->query($sql)->fetch_assoc();
-        echo "<td class=course_list>".$droid_name['name']."</td>";
-	echo "<td class=course_list>".$row['first_half']."</td>";
-	echo "<td class=course_list>".$row['second_half']."</td>";
-	echo "<td class=course_list>".$row['clock_time']."</td>";
-	echo "<td class=course_list>".$row['num_penalties']."</td>";
-	echo "<td class=course_list>".$row['final_time']."</td>";
+
+        echo "<tr class=course_list>";
+        echo "<td>".substr($row['run_timestamp'],0,10)."</td>";
+        $sql = "SELECT name FROM droids WHERE droid_uid = ".$row['droid_uid'];
+        $droid_name = $conn->query($sql)->fetch_assoc();
+        echo "<td>".$droid_name['name']."</td>";
+        if ($row['first_half'] == 0) {
+                echo "<td></td>";
+        } else {
+                echo "<td>".formatMilliseconds($row['first_half'])."</td>";
+        }
+        if ($row['second_half'] == 0) {
+                echo "<td></td>";
+        } else {
+                echo "<td>".formatMilliseconds($row['second_half'])."</td>";
+        }
+        echo "<td>".formatMilliseconds($row['clock_time'])."</td>";
+
+        echo "<td>".$row['num_penalties']."</td>";
+        echo "<td>".formatMilliseconds($row['final_time'])."</td>";
+
+
+        echo "<td>";
+        if ($row['dribble'] == "1") {
+                echo "<img src=images/soccer-ball.png>";
+        }
+        echo "</td>";
         echo "</tr>";
     }
+
 
 } else {
     echo "No runs";

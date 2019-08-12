@@ -46,6 +46,19 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
+function formatMilliseconds($milliseconds) {
+    $seconds = floor($milliseconds / 1000);
+    $minutes = floor($seconds / 60);
+    $milliseconds = $milliseconds % 1000;
+    $seconds = $seconds % 60;
+    $minutes = $minutes % 60;
+
+    $format = '%02u:%02u.%03u';
+    $time = sprintf($format, $minutes, $seconds, $milliseconds);
+    //return rtrim($time, '0');
+    return $time;
+}
+
 echo "<div class=leaderboard>";
 $sql = "SELECT * FROM course_runs ORDER BY final_time ASC";
 $runs = $conn->query($sql);
@@ -78,16 +91,19 @@ if ($runs->num_rows > 0) {
 	if ($row['first_half'] == 0) {
 		echo "<td></td>";
 	} else {
-                echo "<td>".gmdate("H:i:s", $row['first_half'])."</td>";
+		echo "<td>".formatMilliseconds($row['first_half'])."</td>";
 	}
 	if ($row['second_half'] == 0) {
 		echo "<td></td>";
 	} else {
-                echo "<td>".gmdate("H:i:s", $row['second_half'])."</td>";
+		echo "<td>".formatMilliseconds($row['second_half'])."</td>";
 	}
-        echo "<td>".gmdate("H:i:s", $row['clock_time'])."</td>";
+        echo "<td>".formatMilliseconds($row['clock_time'])."</td>";
+
         echo "<td>".$row['num_penalties']."</td>";
-        echo "<td>".gmdate("H:i:s", $row['final_time'])."</td>";
+        echo "<td>".formatMilliseconds($row['final_time'])."</td>";
+	
+
 	echo "<td>";
 	if ($row['dribble'] == "1") {
 		echo "<img src=images/soccer-ball.png>";

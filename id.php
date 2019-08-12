@@ -36,7 +36,8 @@ if (isset($_REQUEST['id'])) {
    $sql = "SELECT forename, surname, member_uid, pli_date FROM members WHERE badge_id=\"".$_REQUEST['id']."\"";
    $member = $conn->query($sql)->fetch_assoc();
    if($member) { 
-       echo "<div class=\"id_badge_photo\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">";
+       $imageData = base64_encode(file_get_contents("uploads/members/".$member['member_uid']."/mug_shot.jpg"));
+       echo "<div class=\"id_badge_photo\"><img id=mug_shot width=240 src=data:image/jpeg;base64,$imageData>";
        echo "</div>";
        echo "PLI Status: ";
        if ( strtotime($member['pli_date'])+31556952 > strtotime('now') ) {
