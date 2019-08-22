@@ -9,6 +9,19 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
+// Lets grab the droid details into memory, they're getting used a lot on this page
+$sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
+$droid = $conn->query($sql)->fetch_assoc();
+
+// Make sure the user is allowed to view this droid
+if (($_SESSION['role'] == "user") && ( ($droid['member_uid'] != $_SESSION['user']) || ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] ) )) {
+        echo "Oi, stop trying to look at other peoples droids!";
+        die();
+}
+// And load in the member details for this droid
+$sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
+$member = $conn->query($sql)->fetch_assoc();
+
 function imageUpload($box) {
 	global $perms;
 	global $member;
@@ -36,12 +49,6 @@ if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
     $stmt->close();
 }
 
-$sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
-$droid = $conn->query($sql)->fetch_assoc();
-if (($_SESSION['role'] == "user") && ( $droid['member_uid'] != $_SESSION['user'] )) {
-        echo "Oi, stop trying to look at other peoples droids!";
-        die();
-}
 $sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
 $member = $conn->query($sql)->fetch_assoc();
 
@@ -128,6 +135,20 @@ if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDI
     $stmt->close();
 }
 
+if ($_REQUEST['member_notes'] != "") {
+    $sql = "UPDATE droids SET notes=? WHERE droid_uid=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $_REQUEST['member_notes'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
+    $stmt->close();
+}
+
+
 echo "<div class=main>";
 
 echo "<div class=droid_column_left>";
@@ -135,6 +156,7 @@ echo "<div class=droid_column_left>";
 echo "<div class=info>";
 echo "<form>";
 echo "<h2>". $droid['name'] ."</h2>";
+echo "<a href=display_sheet.php?droid_uid=".$_REQUEST['droid_uid'].">Get Droid Info Sheet</a>";
 echo "<table style=droid>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
 echo " <tr><td>Owner: </td><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
@@ -185,6 +207,8 @@ $sql = "SELECT * FROM mot WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER B
 $mot_result = $conn->query($sql);
 
 echo "<div class=mot>";
+echo "<hr>";
+echo "<h2>MOT Details</h2>";
 if ($mot_result->num_rows > 0) {
     // output data of each row
     echo "<table>";
@@ -224,9 +248,9 @@ $sql = "SELECT * FROM droid_comments WHERE droid_uid = " .$_REQUEST["droid_uid"]
 $comments_result = $conn->query($sql);
 
 echo "<div class=comments>";
+echo "<table id=comment>";
 if ($comments_result->num_rows > 0) {
     // output data of each row
-    echo "<table id=comment>";
     while($row = $comments_result->fetch_assoc()) {
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$row["added_by"];
         $officer = $conn->query($sql)->fetch_assoc();
@@ -239,24 +263,33 @@ if ($comments_result->num_rows > 0) {
 	} 
 	echo "</td></tr>";
     }
-    if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
+} else {
+    echo "No Comments";
+}
+if ($_SESSION['permissions'] & $perms['EDIT_DROIDS']) {
         echo "<tr><td colspan=2><form>";
         echo "<textarea name=new_comment>New comment</textarea>";
         echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
         echo "<input type=hidden name=officer value=".$_SESSION['user']."><br />";
         echo "<input type=submit value=Add>";
         echo "</form></td></tr>";
-    }
-
-    echo "</table>";
-} else {
-    echo "No Comments";
 }
 
-echo "</div>";
+echo "</table>";
 
 echo "</div>";
 
+echo "<div class=notes>";
+echo "<hr>";
+echo "<h2>Member Notes</h2>";
+echo "<form>";
+echo "<textarea rows=10 cols=60 name=member_notes>".$droid['notes']."</textarea>";
+echo "<input type=hidden name=droid_uid value=".$droid['droid_uid'].">";
+echo "<input type=submit value=Add>";
+echo "</form>";
+echo "</div>";
+
+echo "</div>"; // End of Column Left
 
 echo "<div class=\"droid_column_right\">";
 

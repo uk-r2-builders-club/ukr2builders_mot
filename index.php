@@ -68,9 +68,9 @@ if ($_REQUEST['logout'] == yes) {
  <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
 <?
 
-if (isset($_SESSION['username'])) {
-   echo "Logged in as ".$_SESSION['username'];
-}
+#if (isset($_SESSION['username'])) {
+#   echo "Logged in as ".$_SESSION['username'];
+#}
 
 echo "</div>";
 
@@ -103,6 +103,7 @@ if (!isset($_SESSION['username'])) {
 	if ($config->site_options & $options['TOPPS']) echo " <li><a href=topps.php>View the Topps Droids</a></li>";
 	echo " <li><a href=stats.php>Current Droid statistics</a></li>";
 	echo " <li><a href=gdpr.php>Privacy Policy</a></li>";
+	echo " <li><a href=https://github.com/uk-r2-builders-club/ukr2builders_mot/wiki/Members-Manual>Instruction Manual</a></li>";
 	echo " <li><a href=?logout=yes>Logout</a></li>";
 	echo "</ul>";
 }

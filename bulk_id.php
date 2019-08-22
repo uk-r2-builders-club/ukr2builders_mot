@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 function generateQR($id, $member_uid) {
     $path = "uploads/members/$member_uid/qr_code.jpg";
     $link = "http://mot.astromech.info/id.php?id=".$id;
-    $url = "https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=100x100&chl=".urlencode($link);
+    $url = "https://chart.googleapis.com/chart?cht=qr&chld=L|1&chs=500x500&chl=".urlencode($link);
     echo "Generating QR Code: $url<br />";
     echo "Writing to path: $path<br />";
     $image = imagecreatefrompng($url);

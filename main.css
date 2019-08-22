@@ -177,6 +177,7 @@ th.rotate > div > span {
         float: left;
         width: 600px;
 }
+
 .mot table {
 	width: 95%;
 }
@@ -190,6 +191,13 @@ p.mot_na {
 p.mot_fail {
 	color: red;
 }
+
+.notes {
+        position: relative;
+        float: left;
+        width: 600px;
+}
+
 table.members {
         border: 1px solid black;
 	border-collapse: collapse;
