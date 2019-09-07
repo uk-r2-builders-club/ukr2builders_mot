@@ -31,7 +31,7 @@ if ($_REQUEST['name'] != "") {
     }
 
 
-    if ($stmt->error == "") {
+    if (($stmt->error == "") && ($config->site_options & $options['SEND_EMAILS'])){
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$_SESSION["user"];
         $officer = $conn->query($sql)->fetch_object();
         $officer_name = $officer->forename." ".$officer->surname;

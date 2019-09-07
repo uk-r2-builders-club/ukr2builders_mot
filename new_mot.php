@@ -109,7 +109,7 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
     if ($stmt->error != "") {
             printf("<br />Error code: %s.\n", $stmt->sqlstate);
             printf("<br />Error code: %s.\n", $stmt->error);
-    } else {
+    } elseif ($config->site_options & $options['SEND_EMAILS']) {
 	    # Get some MOT details for emails
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$_SESSION["user"];
             $officer = $conn->query($sql)->fetch_object();

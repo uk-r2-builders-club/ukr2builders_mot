@@ -127,7 +127,7 @@ if (($_REQUEST['update'] != "") && ($_SESSION['permissions'] & $perms['EDIT_MEMB
     $stmt->execute();
     printf("Error: %s.\n", $stmt->sqlstate);
     printf("Error: %s.\n", $stmt->error);
-    if ($original_pli != $_REQUEST['pli_date']) {
+    if (($original_pli != $_REQUEST['pli_date']) && ($config->site_options & $options['SEND_EMAILS'])) {
 	    # PLI Change, send email
    	    # Get some MOT details for emails
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$_SESSION["user"];
