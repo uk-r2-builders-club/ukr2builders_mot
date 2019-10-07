@@ -36,10 +36,10 @@ function imageUpload($box) {
 }
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=? WHERE droid_uid = ?";
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
-            $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['droid_uid']);
+    $stmt->bind_param("sssssssssssisi", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
+            $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'], $_REQUEST['droid_uid']);
     $stmt->execute();
     if ($stmt->sqlstate != "00000") {
         printf("Error: %s.\n", $stmt->sqlstate);
@@ -159,31 +159,31 @@ echo "<h2>". $droid['name'] ."</h2>";
 echo "<a href=display_sheet.php?droid_uid=".$_REQUEST['droid_uid'].">Get Droid Info Sheet</a>";
 echo "<table style=droid>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
-echo " <tr><td>Owner: </td><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
-echo " <tr><td>Primary Droid: </td><td><select name=primary_droid>";
+echo " <tr><th>Owner: </th><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
+echo " <tr><th>Primary Droid: </th><td><select name=primary_droid>";
 if ($droid['primary_droid'] == No) {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
 } else {
         echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
 }
 echo "</select></td></tr>";
-echo " <tr><td>Type:</td><td> ".$droid['type']."</td></tr>";
-echo " <tr><td>Style: </td><td><input type=text name=style size=50 value=\"".$droid['style']."\"></td></tr>";
-echo " <tr><td>Radio Controlled?: </td><td><select name=radio_controlled>";
+echo " <tr><th>Type:</th><td> ".$droid['type']."</td></tr>";
+echo " <tr><th>Style: </th><td><input type=text name=style size=50 value=\"".$droid['style']."\"></td></tr>";
+echo " <tr><th>Radio Controlled?: </th><td><select name=radio_controlled>";
 if ($droid['radio_controlled'] == Yes) {
         echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
 } else {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
 }
 echo "</select></td></tr>";
-echo " <tr><td>Transmitter Type: </td><td><input type=text name=transmitter_type size=50 value=\"".$droid['transmitter_type']."\"></td></tr>";
-echo " <tr><td>Material: </td><td><input type=text name=material size=50 value=\"".$droid['material']."\"></td></tr>";
-echo " <tr><td>Approx Weight: </td><td><input type=text name=weight size=50 value=\"".$droid['weight']."\"></td></tr>";
-echo " <tr><td>Battery Type: </td><td><input type=text name=battery size=50 value=\"".$droid['battery']."\"></td></tr>";
-echo " <tr><td>Drive Voltage: </td><td><input type=text name=drive_voltage size=50 value=\"".$droid['drive_voltage']."\"></td></tr>";
-echo " <tr><td>Sound System: </td><td><input type=text name=sound_system size=50 value=\"".$droid['sound_system']."\"></td></tr>";
-echo " <tr><td>Approx Value: </td><td><input type=text name=value size=50 value=\"".$droid['value']."\"></td></tr>";
-echo " <tr><td>Tier 2 Approved: </td><td><select name=tier_two>";
+echo " <tr><th>Transmitter Type: </th><td><input type=text name=transmitter_type size=50 value=\"".$droid['transmitter_type']."\"></td></tr>";
+echo " <tr><th>Material: </th><td><input type=text name=material size=50 value=\"".$droid['material']."\"></td></tr>";
+echo " <tr><th>Approx Weight: </th><td><input type=text name=weight size=50 value=\"".$droid['weight']."\"></td></tr>";
+echo " <tr><th>Battery Type: </th><td><input type=text name=battery size=50 value=\"".$droid['battery']."\"></td></tr>";
+echo " <tr><th>Drive Voltage: </th><td><input type=text name=drive_voltage size=50 value=\"".$droid['drive_voltage']."\"></td></tr>";
+echo " <tr><th>Sound System: </th><td><input type=text name=sound_system size=50 value=\"".$droid['sound_system']."\"></td></tr>";
+echo " <tr><th>Approx Value: </th><td><input type=text name=value size=50 value=\"".$droid['value']."\"></td></tr>";
+echo " <tr><th>Tier 2 Approved: </th><td><select name=tier_two>";
 if ($droid['tier_two'] == Yes) {
 	echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
 } else {
@@ -191,11 +191,14 @@ if ($droid['tier_two'] == Yes) {
 }
 echo "</select></td></tr>";
 if ($config->site_options & $options['TOPPS']) {
-    echo " <tr><td>Topps Number: </td><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
+    echo " <tr><th>Topps Number: </th><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
 } else {
     echo "<input type=hidden name=topps_id size=50 value=0>";
 }
-echo " <tr><td>Last Updated: </td><td>".$droid['last_updated']."</td></tr>";
+echo " <tr><th>Active?: </th><td><input name=active type=checkbox";
+echo ($droid['active'] == "on") ? " checked" : "";
+echo "></td></tr>";
+echo " <tr><th>Last Updated: </th><td>".$droid['last_updated']."</td></tr>";
 echo "</table>";
 if ($_SESSION['role'] != "user") {
     echo "<input type=submit value=Update name=update>";

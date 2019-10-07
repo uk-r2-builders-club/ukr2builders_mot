@@ -95,6 +95,7 @@ if (!isset($_SESSION['username'])) {
 	if ($_SESSION['permissions'] & $perms['VIEW_MAP']) echo " <li><a href=map.php>Members Map</a></li>";
 	if ($_SESSION['permissions'] & $perms['EDIT_CONFIG']) echo " <li><a href=edit_config.php>Edit Config</a></li>";
 	if ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS']) echo " <li><a href=edit_permissions.php>Edit Permissions</a></li>";
+	if ($_SESSION['permissions'] & $perms['DUMP_DATA']) echo " <li><a href=dump_id.php>Dump ID info</a></li>";
 	if (($_SESSION['permissions'] & $perms['EDIT_PLI']) && ($config->site_options & $options['INSURANCE'])) echo " <li><a href=edit_pli.php>Edit PLI</a></li>";
 	if (($_SESSION['permissions'] & $perms['EDIT_ACHIEVEMENTS']) && ($config->site_options & $options['ACHIEVEMENTS'])) echo " <li><a href=achievements.php>Edit Achievements</a></li>";
 	if ($config->site_options & $options['EVENTS']) echo " <li><a href=events.php>Events</a></li>";

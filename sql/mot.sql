@@ -152,6 +152,9 @@ CREATE TABLE `members` (
   `badge_id` text
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+INSERT INTO `members` (`forename`, `surname`, `email`, `password`, `permissions`, `gdpr_accepted`) VALUES
+('Admin', 'User', 'mot@astromech.net', '*3FAD01939F0EFB00A9E54DE376B4209C4396C808', 65535, 1);
+
 -- --------------------------------------------------------
 
 --

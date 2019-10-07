@@ -60,7 +60,7 @@ if ($result->num_rows > 0) {
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(7)')\">Droids</th>";
     echo "</tr>";
     while($row = $result->fetch_assoc()) {
-        $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
+        $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"]. " AND active='on'";
 	$droids = $conn->query($sql);
         $num_droids = $droids->num_rows;
 	echo "<tr class=\"item\">";
@@ -143,7 +143,7 @@ if ($result->num_rows > 0) {
 	echo "<th class=members>Droids</th>";
 	echo "</tr>";
 	while($row = $result->fetch_assoc()) {
-	        $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"];
+	        $sql = "SELECT * FROM droids WHERE member_uid = " .$row["member_uid"]. " AND active='on'";
         	$droids = $conn->query($sql);
         	$num_droids = $droids->num_rows;
         	echo "<tr class=\"item\">";

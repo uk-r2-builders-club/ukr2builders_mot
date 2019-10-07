@@ -43,10 +43,10 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['member_uid'] == "" ) {
-    $sql = "SELECT * FROM droids";
+    $sql = "SELECT * FROM droids WHERE active = 'on'";
     $stmt = $conn->prepare($sql);
 } else {
-    $sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid'];
+    $sql = "SELECT * FROM droids WHERE active = 'on' AND member_uid = ". $_REQUEST['member_uid'];
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $_REQUEST['member_uid']);
 }

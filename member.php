@@ -171,9 +171,18 @@ $officer_name = $officer->forename." ".$officer->surname;
 
 # Member details
 echo "<div class=info>";
+echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
+if (strtotime($member['pli_date']) < strtotime('-1 year')) {
+    echo "<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">";
+    echo "<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">";
+    echo "<input type=\"hidden\" name=\"hosted_button_id\" value=\"ZCS24FNLVDBDA\">";
+    echo "<input type=\"hidden\" name=\"member_uid\" value=\"".$member[member_uid]."\">";
+    echo "<input type=\"image\" src=\"https://www.paypalobjects.com/en_GB/i/btn/btn_paynow_SM.gif\" border=\"0\" name=\"submit\" alt=\"PayPal – The safer, easier way to pay online!\">";
+    echo "<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_GB/i/scr/pixel.gif\" width=\"1\" height=\"1\">";
+    echo "</form>";
+}
 echo "<form>";
 echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
-echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
 echo "<table class=member>";
 echo " <tr><th>email: </th><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
 echo " <tr><th>County: </th><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
@@ -246,7 +255,7 @@ echo "</div>";
 # Droid list
 echo "<div class=droid_list>";
 
-$sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid'];
+$sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid']. " AND active='on'";
 $droids = $conn->query($sql);
 
 if ($droids->num_rows > 0) {
