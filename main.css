@@ -55,7 +55,7 @@ th.rotate_permission > div {
     /* 45 is really 360 - 45 */
     rotate(270deg);
   width: 25px;
-  font-size: 75%;
+  font-size: 70%;
 }
 th.rotate > div > span {
   border-bottom: 1px solid #ccc;
@@ -102,7 +102,7 @@ th.rotate > div > span {
 	height: 50px;
 	width: 240px;
 	position: relative;
-	float: left;
+	float: right;
 }
 #banner {
 	height: 100px;
@@ -287,19 +287,16 @@ td .tooltip {
 td a:hover .tooltip {
     display: block;
 }
-
 .mug_shot {
 	width:240px;
 	position:relative;
 	float: right;
 	margin: 5px;
 }
-
 .mug_shot img {
 	max-width:100%;
 	max-height:100%;
 }
-
 .mug_shot a {
 	display:block;
 	width:20px;
@@ -311,6 +308,7 @@ td a:hover .tooltip {
 	overflow:hidden;
 	text-indent:-9999px;
 }
+
 /* entire container, keeps perspective */
 .flip-container{
 /*perspective*/
@@ -374,3 +372,102 @@ z-index:2;
         transform:rotateY(180deg);
 }
 
+/* The side navigation menu */
+.sidenav {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #111; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 10px;
+  font-family: StarWars;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s;
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+/*******
+ * Member profile page
+ *
+ ******/
+.member-container {
+  display: grid;
+  grid-template-columns: auto 300px;
+  grid-template-rows: auto auto auto auto auto;
+  grid-template-areas: "Member-Info Mug-Shot" "Droid-List Droid-List" "Achievements Achievements" "Events Events" "Course-Times Course-Times";
+}
+
+.Mug-Shot { grid-area: Mug-Shot; }
+
+.Member-Info { grid-area: Member-Info; }
+
+.Droid-List { grid-area: Droid-List; }
+
+.Achievements { grid-area: Achievements; }
+
+.Events { grid-area: Events; }
+
+.Course-Times { grid-area: Course-Times; }
+
+/*******
+ * Droid data page
+ *
+ *******/
+.droid-container {
+  display: grid;
+  grid-template-columns: auto 800px;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas: "Droid-Info Droid-Images" "Droid-Info Droid-Images" "Comments MOT-List" "Back-Story Builders-Notes";
+}
+
+.Back-Story { grid-area: Back-Story; }
+
+.Builders-Notes { grid-area: Builders-Notes; }
+
+.Droid-Info { grid-area: Droid-Info; }
+
+.Comments { grid-area: Comments; }
+
+.MOT-List { grid-area: MOT-List; }
+
+.Droid-Images { 
+	grid-area: Droid-Images; 
+	align: right;
+}

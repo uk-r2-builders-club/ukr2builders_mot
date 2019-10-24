@@ -12,7 +12,7 @@ include "includes/session.php";
  </head>
 
  <body>
-
+ <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
 <?
 
 include "includes/menu.php";

@@ -1,4 +1,4 @@
-<?php namespace Listener;
+<?php 
 
 include "includes/config.php";
 
@@ -18,7 +18,13 @@ foreach ($_POST as $key => $value) {
     $data_text .= $key . " = " . $value . "\r\n";
 }
 
+$fp = fopen('data.txt', 'a');//opens file in append mode
+fwrite($fp, $data_text);
+
 if ($verified) {
+	fwrite($fp, "--------------------------------");
+	fwrite($fp, "Verified");
+	fwrite($fp, $_POST['custom']);
     $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
     // Check connection
     if ($conn->connect_error) {
@@ -44,10 +50,12 @@ if ($verified) {
             $message .= "Member: ".$member->forename." ".$member->surname."\r\n";
             $message .= "PLI Date: ".$_REQUEST['pli_date']."\r\n";
             $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
-            $success = mail($to, $subject, $message, $headers);
+//            $success = mail($to, $subject, $message, $headers);
     }
 
 }
+fclose($fp);
+
 // Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
 header("HTTP/1.1 200 OK");
 

@@ -46,7 +46,7 @@ if ($_REQUEST['member_uid'] == "" ) {
     $sql = "SELECT * FROM droids WHERE active = 'on'";
     $stmt = $conn->prepare($sql);
 } else {
-    $sql = "SELECT * FROM droids WHERE active = 'on' AND member_uid = ". $_REQUEST['member_uid'];
+    $sql = "SELECT * FROM droids WHERE active = 'on' AND member_uid = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $_REQUEST['member_uid']);
 }
@@ -94,6 +94,8 @@ if ($result->num_rows > 0) {
             } else { 
 		echo "<td class=droid_list bgcolor=orange><a href=mot.php?mot_uid=".$mot_details['mot_uid'].">Advisory</a></td>";
             }
+        } elseif (!$club_config[$row['club_uid']]['options'] & $club_options['MOT']) {
+            echo "<td>N/A</td>";
         } else { 
 	    echo "<td class=droid_list bgcolor=red>Not Valid</td>";
 	}	
@@ -102,7 +104,7 @@ if ($result->num_rows > 0) {
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$row['member_uid'];
 	    $owner = $conn->query($sql)->fetch_assoc();
 	    echo "<td class=droid_list><a href=member.php?member_uid=" . $owner["member_uid"].">".$owner["forename"]. " " . $owner["surname"]. "</a></td>";
-	    if (strtotime($owner[pli_date]) > strtotime('-1 year')) {
+	    if (strtotime($owner['pli_date']) > strtotime('-1 year')) {
                 echo "<td class=droid_list bgcolor=green>Yes</td>";
             } else {
                 echo "<td class=droid_list bgcolor=red>No</td>";

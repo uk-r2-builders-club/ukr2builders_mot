@@ -70,17 +70,18 @@ if ($result->num_rows > 0) {
 	echo "</td>";
 	echo "<td class=members>" . $row["email"]. "</td>";
 	# Display PLI information and colour code to expiry date
-	if (strtotime($row[pli_date]) > strtotime('-11 months')) {
-	    echo "<td class=members bgcolor=green>".$row[pli_date]."</td>";
-	} elseif ((strtotime($row[pli_date]) < strtotime('-11 months')) && (strtotime($row[pli_date]) > strtotime('-1 year'))) {
-	    echo "<td class=members bgcolor=orange>".$row[pli_date]."</td>";
+	if (strtotime($row['pli_date']) > strtotime('-11 months')) {
+	    echo "<td class=members bgcolor=green>".$row['pli_date']."</td>";
+	} elseif ((strtotime($row['pli_date']) < strtotime('-11 months')) && (strtotime($row['pli_date']) > strtotime('-1 year'))) {
+	    echo "<td class=members bgcolor=orange>".$row['pli_date']."</td>";
 	} else {
-	    echo "<td class=members bgcolor=red>".$row[pli_date]."</td>";
+	    echo "<td class=members bgcolor=red>".$row['pli_date']."</td>";
 	}
 	# Display valid MOT information and colour code to expiry date
         $date = "No Valid MOT";
         $advisory = "";
         $color = "red";
+	$mot_enable = 0;
 	while ($droid = $droids->fetch_object()) {
 		if ($droid->primary_droid == "Yes") {
 			$sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$droid->droid_uid. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
@@ -104,9 +105,14 @@ if ($result->num_rows > 0) {
 			$advisory = "($advisories Advisories)";
 			$color = "orange";
 		}
+		if ($club_config[$droid->club_uid]['options'] & $club_options['MOT']) {
+			$mot_enable++;
+		}
 	}
 	if ($num_droids == 0) {
 		echo "<td class=members>No Droids</td>";
+	} elseif ($mot_enable == 0) {
+		echo "<td class=members>N/A</td>";
 	} else {
 		echo "<td bgcolor=$color>$date $advisory</td>";
 	}

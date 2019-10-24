@@ -7,7 +7,7 @@ if (!($_SESSION['permissions'] & $perms['VIEW_MEMBERS'])) {
 }
 
 echo "<script src=\"https://www.w3schools.com/lib/w3.js\"></script>";
-echo "<div id=main>";
+echo "<div id=main class=\"member-container\">";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -168,21 +168,83 @@ $member = $result->fetch_assoc();
 $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$member["created_by"];
 $officer = $conn->query($sql)->fetch_object();
 $officer_name = $officer->forename." ".$officer->surname;
+$sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid']. " AND active='on'";
+$droids = $conn->query($sql);
+$valid_mot = 0;
+
+################################################
+# Droid list
+echo "<div class=\"Droid-List\">";
+
+echo "<table class=droid_list id=droid_list>";
+echo "<tr><th colspan=7>Droid info</th></tr>";
+
+if ($droids->num_rows > 0) {
+    // output data of each row
+    echo "<tr>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(1)')\">Valid MOT</th>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(2)')\">Droid</th>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(3)')\">Primary</th>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(4)')\">Type</th>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(5)')\">Style</th>";
+    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(8)')\">Tier Two</th>";
+    echo "<th></th>";
+    echo "</tr>";
+    while($row = $droids->fetch_assoc()) {
+	# Pull the latest MOT for the droid that is a pass
+        $sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$row["droid_uid"]. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
+	$mot_result = $conn->query($sql);
+	echo "<tr class=\"item\">";
+	if ($mot_result->num_rows > 0) {
+	    $mot_details=$mot_result->fetch_object();
+	    if ($mot_details->approved == "Yes") {
+	        echo "<td bgcolor=green><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Valid (".$mot_details->date.")</a></td>";
+		$valid_mot = 1;
+	    } elseif ($mot_details->approved == "WIP") {
+		echo "<td bgcolor=blue><a href=mot.php?mot_uid=".$mot_details->mot_uid.">WIP (".$mot_details->date.")</a></td>";
+            } else {
+		echo "<td bgcolor=orange><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Advisory (".$mot_details->date.")</a></td>";
+            }
+	} elseif (!$club_config[$row['club_uid']]['options'] & $club_options['MOT']) {
+	    echo "<td></td>";
+        } else {
+	    echo "<td bgcolor=red>Not Valid</td>";
+	}
+	echo "<td>" . $row["name"]. "</td>";
+	echo "<td>" . $row["primary_droid"]."</td>";
+	echo "<td>" . $row["type"]. "</td>";
+	echo "<td>" . $row["style"]. "</td>";
+	echo "<td align=center>". $row['tier_two']. "</td>";
+	echo "<td><a href=droid.php?droid_uid=". $row["droid_uid"]. ">View Droid</a></td>";
+	echo "</tr>";
+    }
+} else {
+        echo "<tr><td colspan=7>No Droids</td></tr>";
+}
+echo "</table>";
+if ($_SESSION['role'] != "user" ) {
+    echo "<a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
+}
+echo "</div>";
+
 
 # Member details
-echo "<div class=info>";
+echo "<div class=\"Member-Info\">";
 echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
-if (strtotime($member['pli_date']) < strtotime('-1 year')) {
-    echo "<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">";
-    echo "<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">";
-    echo "<input type=\"hidden\" name=\"hosted_button_id\" value=\"ZCS24FNLVDBDA\">";
-    echo "<input type=\"hidden\" name=\"member_uid\" value=\"".$member[member_uid]."\">";
-    echo "<input type=\"image\" src=\"https://www.paypalobjects.com/en_GB/i/btn/btn_paynow_SM.gif\" border=\"0\" name=\"submit\" alt=\"PayPal – The safer, easier way to pay online!\">";
-    echo "<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_GB/i/scr/pixel.gif\" width=\"1\" height=\"1\">";
-    echo "</form>";
+if ($config->site_options & $options['PAYPAL']) {
+    if (strtotime($member['pli_date']) < strtotime('-1 year') && $valid_mot == 1) {
+	echo "Your PLI is due. Click here to pay it via PayPal : ";
+        echo "<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" target=\"_top\">";
+        echo "<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">";
+        echo "<input type=\"hidden\" name=\"hosted_button_id\" value=\"".$config->paypal_button."\">";
+        echo "<input type=\"hidden\" name=\"custom\" value=\"".$member['member_uid']."\">";
+        echo "<input type=\"image\" src=\"https://www.paypalobjects.com/en_GB/i/btn/btn_paynow_SM.gif\" border=\"0\" name=\"submit\" alt=\"PayPal – The safer, easier way to pay online!\">";
+        echo "<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_GB/i/scr/pixel.gif\" width=\"1\" height=\"1\">";
+        echo "</form>";
+    }
 }
 echo "<form>";
-echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
+echo "<input type=hidden name=member_uid value=".$member['member_uid'].">";
 echo "<table class=member>";
 echo " <tr><th>email: </th><td><input type=email size=50 name=email value=".$member['email']."></td></tr>";
 echo " <tr><th>County: </th><td><input type=text size=50 name=county value=\"".$member['county']."\"></td></tr>";
@@ -238,78 +300,22 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
 echo "</form>";
 echo "</div>";
 
-echo "<div class=mug_shot>";
+echo "<div class=\"Mug-Shot\">";
 	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">";
         if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
         }
 	echo "</div>";
-//} else {
         echo "<div id=mug_shot class=image_upload>";
         imageUpload('mug_shot');
         echo "</div>";
-//}
 
 echo "</div>";
-
-# Droid list
-echo "<div class=droid_list>";
-
-$sql = "SELECT * FROM droids WHERE member_uid = ". $_REQUEST['member_uid']. " AND active='on'";
-$droids = $conn->query($sql);
-
-if ($droids->num_rows > 0) {
-    // output data of each row
-    echo "<table class=droid_list id=droid_list>";
-    echo "<tr><th colspan=7>Droid info</th></tr>";
-    echo "<tr>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(1)')\">Valid MOT</th>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(2)')\">Droid</th>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(3)')\">Primary</th>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(4)')\">Type</th>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(5)')\">Style</th>";
-    echo "<th onclick=\"w3.sortHTML('#droid_list','.item', 'td:nth-child(8)')\">Tier Two</th>";
-    echo "<th></th>";
-    echo "</tr>";
-    while($row = $droids->fetch_assoc()) {
-	# Pull the latest MOT for the droid that is a pass
-        $sql = "SELECT * FROM mot WHERE (approved='Yes' OR approved='WIP' OR approved='Advisory') AND droid_uid = " .$row["droid_uid"]. " AND date >= DATE_SUB(NOW(), INTERVAL 1 YEAR) ORDER BY date DESC LIMIT 1";
-	$mot_result = $conn->query($sql);
-	echo "<tr class=\"item\">";
-	if ($mot_result->num_rows > 0) {
-	    $mot_details=$mot_result->fetch_object();
-	    if ($mot_details->approved == "Yes") {
-	        echo "<td bgcolor=green><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Valid (".$mot_details->date.")</a></td>";
-	    } elseif ($mot_details->approved == "WIP") {
-		echo "<td bgcolor=blue><a href=mot.php?mot_uid=".$mot_details->mot_uid.">WIP (".$mot_details->date.")</a></td>";
-            } else {
-		echo "<td bgcolor=orange><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Advisory (".$mot_details->date.")</a></td>";
-            }
-        } else {
-	    echo "<td bgcolor=red>Not Valid</td>";
-	}
-	echo "<td>" . $row["name"]. "</td>";
-	echo "<td>" . $row["primary_droid"]."</td>";
-	echo "<td>" . $row["type"]. "</td>";
-	echo "<td>" . $row["style"]. "</td>";
-	echo "<td align=center>". $row['tier_two']. "</td>";
-	echo "<td><a href=droid.php?droid_uid=". $row["droid_uid"]. ">View Droid</a></td>";
-	echo "</tr>";
-    }
-    echo "</table>";
-} else {
-    echo "No Droids";
-}
-if ($_SESSION['role'] != "user" ) {
-    echo "<a href=new_droid.php?member_uid=". $_REQUEST["member_uid"]. ">Add Droid</a>";
-}
-echo "</div>";
-echo "<hr />";
 
 # Achievements
 if ($config->site_options & $options['ACHIEVEMENTS']) {
+echo "<div class=\"Achievements\">";
 echo "<h4>Achievements</h4>";
-echo "<div class=achievements_list>";
 $sql = "SELECT * FROM members_achievements WHERE member_uid=".$member['member_uid'];
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -347,7 +353,7 @@ $result=$conn->query($sql);
 if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<form>";
     echo "Add achievement<br />";
-    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
+    echo "<input type=hidden name=member_uid value=".$member['member_uid'].">";
     echo "Notes: <input type=text size=50 name=notes>";
     echo "<select name=achievement_uid>";
     while($row = $result->fetch_assoc()) {
@@ -365,8 +371,8 @@ echo "<hr />";
 
 # Official Events
 if ($config->site_options & $options['EVENTS']) {
+echo "<div class=\"Events\">";
 echo "<h4>Official Events</h4>";
-echo "<div class=events_list>";
 $sql = "SELECT * FROM members_events, events WHERE events.event_uid = members_events.event_uid AND member_uid=".$member['member_uid']." ORDER BY events.date";
 $result = $conn->query($sql);
 $charity_raised = 0;
@@ -409,7 +415,7 @@ $result=$conn->query($sql);
 if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
     echo "<form>";
     echo "Add event<br />";
-    echo "<input type=hidden name=member_uid value=".$member[member_uid].">";
+    echo "<input type=hidden name=member_uid value=".$member['member_uid'].">";
     echo "<select name=event_uid>";
     while($row = $result->fetch_assoc()) {
         echo "<option value=".$row['event_uid'].">(".$row['date'].") ".$row['name']."</option>";
@@ -427,8 +433,8 @@ echo "<hr />";
 
 # Course runs
 if ($config->site_options & $options['DRIVING_COURSE']) {
+echo "<div class=\"Course-Times\">";
 echo "<h4>Driving Course Runs</h4>";
-echo "<div class=course_list>";
 $sql = "SELECT * FROM course_runs WHERE member_uid=".$member['member_uid']." ORDER BY final_time ASC";
 $runs = $conn->query($sql);
 if ($runs->num_rows > 0) {

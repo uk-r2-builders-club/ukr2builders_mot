@@ -14,10 +14,10 @@ if ($conn->connect_error) {
 } 
 
 if ($_REQUEST['name'] != "") {
-    $sql = "INSERT INTO droids(member_uid, name, primary_droid, type, style, radio_controlled, transmitter_type, material, weight, battery, drive_voltage, sound_system, value, date_added) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, NOW())";
+    $sql = "INSERT INTO droids(member_uid, name, primary_droid, type, style, radio_controlled, transmitter_type, material, weight, battery, drive_voltage, sound_system, value, date_added, club_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, NOW(), ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issssssssssss", $member_uid, $name, $_REQUEST['primary_droid'], $_REQUEST['type'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'],
-                                $_REQUEST['material'], $_REQUEST['weight'], $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value']);
+    $stmt->bind_param("issssssssssssi", $member_uid, $name, $_REQUEST['primary_droid'], $_REQUEST['type'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'],
+                                $_REQUEST['material'], $_REQUEST['weight'], $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['club_uid']);
     $member_uid=$_REQUEST['member_uid'];
     $name=$_REQUEST['name'];
     $stmt->execute();
@@ -56,6 +56,14 @@ echo "<form>";
 echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
 echo "<table>";
 echo " <tr><td><a href='#'>Droid Name: <div class='tooltipcontainer'><div class='tooltip'>eg. R2-D2, C5-S4, etc.</div></div></a></td><td><input type=text name=name size=50></td></tr>";
+echo " <tr><td><a href='#'>Club: <div class='tooltipcontainer'><div class='tooltip'>Which club does this droid belong to?</div></div></a></td><td><select name=club_uid>";
+$sql = "SELECT club_uid, name FROM club_config";
+$clubs = $conn->query($sql);
+while($row = $clubs->fetch_assoc()) {
+        echo "<option value=".$row['club_uid'].">".$row['name']."</option>";
+}
+echo " </select></td></tr>";
+
 echo " <tr><td><a href='#'>Primary Droid: <div class='tooltipcontainer'><div class='tooltip'>Is this their primary droid (for PLI payment reasons)</div></div></a></td><td><select name=primary_droid><option value=Yes selected>Yes</option><option value=No>No</option></select></td></tr>";
 echo " <tr><td><a href='#'>Type: <div class='tooltipcontainer'><div class='tooltip'></div></div></a></td><td><select name=type><option value=R2>R2</option><option value=R3>R3</option><option value=R4>R4</option><option value=R5>R5</option><option value=R6>R6</option><option value=R1>R1</option><option value=R0>R0</option><option value=BB>BB</option><option value=C1>C1</option><option value=A-LT>A-LT</option><option value=other>Other</option></select></td></tr>";
 echo " <tr><td><a href='#'>Style: <div class='tooltipcontainer'><div class='tooltip'>Is it a specific style, eg New Hope, TFA, etc.</div></div></a></td><td><input type=text name=style size=50></td></tr>";

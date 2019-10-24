@@ -1,0 +1,178 @@
+
+@font-face {
+    font-family: StarWars;
+    src: url(../fonts/Rebellion.otf);
+}
+
+@font-face {
+    font-family: AureBesh;
+    src: url(../fonts/Aurebesh.otf);
+}
+
+body, html {
+  height: 100%;
+  color: #ffffff;
+}
+
+.bg {
+  /* The image used */
+  background-image: url("BGimage.png");
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: repeat-y;
+  background-size: cover;
+}
+
+.footer {
+	color:grey;
+	font-size: 75%;
+}
+
+/* droid image section */
+.images {
+        position: relative;
+        float: left;
+}
+.droid_image {
+	width:240px;
+	position:relative;
+}
+
+.droid_image img {
+	max-width:100%;
+	max-height:100%;
+}
+
+.droid_image a {
+	display:block;
+	width:20px;
+	height:20px;
+	position:absolute;
+	top:3px;
+	right:3px;
+	overflow:hidden;
+	text-indent:-9999px;
+}
+
+.droid_details th,h2,h1 {
+	font-family: StarWars;
+}
+
+.droid_details h1 {
+	font-family: StarWars;
+	margin: auto;
+	width: 50%;
+	padding: 10px;
+	font-size: 150%;
+}
+
+.droid_details table,tbody {
+	width: 90%;
+}
+
+
+/* Topps cards */
+.droid_grid {
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 30px;
+}
+
+}
+/* entire container, keeps perspective */
+.flip-container{
+/*perspective*/
+-webkit-perspective:1000;
+   -moz-perspective:1000;
+    -ms-perspective:1000;
+     -o-perspective:1000;
+        perspective:1000;
+}
+/* flip the pane when hovered */
+	.flip-container:hover .flipper, .flip-container.hover .flipper{
+/*transform*/
+-webkit-transform:rotateY(180deg);
+   -moz-transform:rotateY(180deg);
+    -ms-transform:rotateY(180deg);
+     -o-transform:rotateY(180deg);
+        transform:rotateY(180deg);
+}
+.flip-container, .front, .back{
+width:240px;
+height:332px;
+}
+/* flip speed goes here */
+.flipper{
+/*transition*/
+-webkit-transition:0.6s;
+   -moz-transition:0.6s;
+     -o-transition:0.6s;
+        transition:0.6s;
+/*transform-style*/
+-webkit-transform-style:preserve-3d;
+   -moz-transform-style:preserve-3d;
+    -ms-transform-style:preserve-3d;
+     -o-transform-style:preserve-3d;
+        transform-style:preserve-3d;
+position:relative;
+}
+/* hide back of pane during swap */
+.front, .back{
+/*backface-visibility*/
+-webkit-backface-visibility:hidden;
+   -moz-backface-visibility:hidden;
+    -ms-backface-visibility:hidden;
+     -o-backface-visibility:hidden;
+        backface-visibility:hidden;
+position:absolute;
+top:0;
+left:0;
+}
+/* front pane, placed above back */
+.front{
+z-index:2;
+}
+/* back, initially hidden pane */
+.back{
+/*transform*/
+-webkit-transform:rotateY(180deg);
+   -moz-transform:rotateY(180deg);
+    -ms-transform:rotateY(180deg);
+     -o-transform:rotateY(180deg);
+        transform:rotateY(180deg);
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 255px 255px auto;
+  grid-template-rows: auto auto auto;
+  grid-template-areas: "Front-Photo Front-Photo Main-Info" "Front-Photo Front-Photo Main-Info" "Rear-Photo Side-Photo Main-Info";
+}
+
+.Main-Info { 
+	grid-area: Main-Info; 
+	margin: 20px;
+}
+
+.Front-Photo { 
+	grid-area: Front-Photo; 
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+
+}
+
+.Rear-Photo { 
+	grid-area: Rear-Photo; 
+	margin: 10px;
+}
+
+.Side-Photo { 
+	grid-area: Side-Photo; 
+	margin: 10px;
+}
+

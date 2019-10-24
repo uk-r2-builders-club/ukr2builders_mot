@@ -50,10 +50,11 @@ if ($_REQUEST['login'] == "Go") {
 	}
 }
 
-if ($_REQUEST['logout'] == yes) {
+if ($_REQUEST['logout'] == 'yes') {
 	session_destroy();
 }
 
+if (!isset($_SESSION['username'])) {
 ?>
 <html>
  <head>
@@ -66,50 +67,30 @@ if ($_REQUEST['logout'] == yes) {
 
 <div name=menu>
  <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
+
+</div>
+
+<form method=post>
+<h1>Login:</h1>
+Use email address<br />
+<table border=0>
+<tr><th>Email Address:</th><td><input type=text name=username size=25></td></tr>
+<tr><th>Password:</th><td><input type=password name=password size=25></td></tr>
+</table>
+<input type=submit name=login value=Go>
+<a href=\"reset.php\">Reset password</a>
+<hr />
+<a href=topps.php>View the Topps Droids</a> |
+<a href=stats.php>Current UK Droid statistics</a>
+
 <?
 
-#if (isset($_SESSION['username'])) {
-#   echo "Logged in as ".$_SESSION['username'];
-#}
-
-echo "</div>";
-
-if (!isset($_SESSION['username'])) {
-	echo "<form method=post>";
-	echo "<h1>Login:</h1>";
-	echo "Use email address<br />";
-	echo "<table border=0>";
-	echo "<tr><th>Email Address:</th><td><input type=text name=username size=25></td></tr>";
-	echo "<tr><th>Password:</th><td><input type=password name=password size=25></td></tr>";
-	echo "</table>";
-	echo "<input type=submit name=login value=Go>";
-	echo "<a href=\"reset.php\">Reset password</a>";
-	echo "<hr />";
-	echo "<a href=topps.php>View the Topps Droids</a> | ";
-	echo "<a href=stats.php>Current UK Droid statistics</a>";
-} else {
-	echo "<ul>";
-	echo " <li><a href='member.php?member_uid=".$_SESSION['user']."'>Your Profile</a></li>";
-	if ($_SESSION['permissions'] & $perms['VIEW_MEMBERS']) echo " <li><a href=members.php>List Members</a></li>";
-	if ($_SESSION['permissions'] & $perms['VIEW_DROIDS']) echo " <li><a href=list_droids.php>List Droids</a></li>";
-	if ($_SESSION['permissions'] & $perms['VIEW_MAP']) echo " <li><a href=map.php>Members Map</a></li>";
-	if ($_SESSION['permissions'] & $perms['EDIT_CONFIG']) echo " <li><a href=edit_config.php>Edit Config</a></li>";
-	if ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS']) echo " <li><a href=edit_permissions.php>Edit Permissions</a></li>";
-	if ($_SESSION['permissions'] & $perms['DUMP_DATA']) echo " <li><a href=dump_id.php>Dump ID info</a></li>";
-	if (($_SESSION['permissions'] & $perms['EDIT_PLI']) && ($config->site_options & $options['INSURANCE'])) echo " <li><a href=edit_pli.php>Edit PLI</a></li>";
-	if (($_SESSION['permissions'] & $perms['EDIT_ACHIEVEMENTS']) && ($config->site_options & $options['ACHIEVEMENTS'])) echo " <li><a href=achievements.php>Edit Achievements</a></li>";
-	if ($config->site_options & $options['EVENTS']) echo " <li><a href=events.php>Events</a></li>";
-	if ($config->site_options & $options['DRIVING_COURSE']) echo " <li><a href=leaderboard.php>View the Droid Driving Course Leaderboard</a></li>";
-	if ($config->site_options & $options['TOPPS']) echo " <li><a href=topps.php>View the Topps Droids</a></li>";
-	echo " <li><a href=stats.php>Current Droid statistics</a></li>";
-	echo " <li><a href=gdpr.php>Privacy Policy</a></li>";
-	echo " <li><a href=https://github.com/uk-r2-builders-club/ukr2builders_mot/wiki/Members-Manual>Instruction Manual</a></li>";
-	echo " <li><a href=password.php>Change Password</a></li>";
-	echo " <li><a href=?logout=yes>Logout</a></li>";
-	echo "</ul>";
-}
-
 include "includes/footer.php";
+
+} else {
+	header("Location: member.php?member_uid=".$_SESSION['user']);
+        exit();
+}
 
 ?>
 

@@ -13,6 +13,9 @@ if ($conn->connect_error) {
 $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
 $droid = $conn->query($sql)->fetch_assoc();
 
+$sql = "SELECT * FROM club_config WHERE club_uid = ".$droid['club_uid'];
+$club_config = $conn->query($sql)->fetch_assoc();
+
 // Make sure the user is allowed to view this droid
 if (($_SESSION['role'] == "user") && ( ($droid['member_uid'] != $_SESSION['user']) || ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] ) )) {
         echo "Oi, stop trying to look at other peoples droids!";
@@ -36,10 +39,11 @@ function imageUpload($box) {
 }
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=? WHERE droid_uid = ?";
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=?, public=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssisi", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
-            $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'], $_REQUEST['droid_uid']);
+    $stmt->bind_param("sssssssssssisisi", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
+	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'],
+	    $_REQUEST['club_uid'], $_REQUEST['public'], $_REQUEST['droid_uid']);
     $stmt->execute();
     if ($stmt->sqlstate != "00000") {
         printf("Error: %s.\n", $stmt->sqlstate);
@@ -47,6 +51,9 @@ if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
     }
 
     $stmt->close();
+    $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
+    $droid = $conn->query($sql)->fetch_assoc();
+
 }
 
 $sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
@@ -148,20 +155,48 @@ if ($_REQUEST['member_notes'] != "") {
     $stmt->close();
 }
 
+if ($_REQUEST['back_story'] != "") {
+    $sql = "UPDATE droids SET back_story=? WHERE droid_uid=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $_REQUEST['back_story'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
 
-echo "<div class=main>";
+    $stmt->close();
+}
 
-echo "<div class=droid_column_left>";
 
-echo "<div class=info>";
+echo "<div class=droid-container>";
+
+echo "<div class=\"Droid-Info\">";
 echo "<form>";
 echo "<h2>". $droid['name'] ."</h2>";
 echo "<a href=display_sheet.php?droid_uid=".$_REQUEST['droid_uid'].">Get Droid Info Sheet</a>";
 echo "<table style=droid>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
 echo " <tr><th>Owner: </th><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
+echo " <tr><th>Club: </th><td><select name=club_uid>";
+$sql = "SELECT club_uid, name FROM club_config";
+$clubs = $conn->query($sql);
+while($row = $clubs->fetch_assoc()) {
+        echo "<option ";
+	echo ($row['club_uid'] == $droid['club_uid']) ? "selected" : "";
+        echo " value=".$row['club_uid'].">".$row['name']."</option>";
+}
+echo " </select></td></tr>";
+echo " <tr><th>Profile is Public: </th><td><select name=public>";
+if ($droid['public'] == 'No') {
+        echo "<option value=Yes>Yes</option><option value=No selected>No</option></select>";
+} else {
+        echo "<option value=Yes selected>Yes</option><option value=No>No</option></select>";
+	echo " <a target=\"_blank\" href=\"public/display.php?droid_uid=".$droid['droid_uid']."\"> View Public Profile</a>";
+}
+echo "</td></tr>";
 echo " <tr><th>Primary Droid: </th><td><select name=primary_droid>";
-if ($droid['primary_droid'] == No) {
+if ($droid['primary_droid'] == 'No') {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
 } else {
         echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
@@ -170,7 +205,7 @@ echo "</select></td></tr>";
 echo " <tr><th>Type:</th><td> ".$droid['type']."</td></tr>";
 echo " <tr><th>Style: </th><td><input type=text name=style size=50 value=\"".$droid['style']."\"></td></tr>";
 echo " <tr><th>Radio Controlled?: </th><td><select name=radio_controlled>";
-if ($droid['radio_controlled'] == Yes) {
+if ($droid['radio_controlled'] == 'Yes') {
         echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
 } else {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
@@ -183,14 +218,16 @@ echo " <tr><th>Battery Type: </th><td><input type=text name=battery size=50 valu
 echo " <tr><th>Drive Voltage: </th><td><input type=text name=drive_voltage size=50 value=\"".$droid['drive_voltage']."\"></td></tr>";
 echo " <tr><th>Sound System: </th><td><input type=text name=sound_system size=50 value=\"".$droid['sound_system']."\"></td></tr>";
 echo " <tr><th>Approx Value: </th><td><input type=text name=value size=50 value=\"".$droid['value']."\"></td></tr>";
-echo " <tr><th>Tier 2 Approved: </th><td><select name=tier_two>";
-if ($droid['tier_two'] == Yes) {
-	echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
-} else {
+if ($club_config['options'] & $club_options['TIER_TWO']) {
+    echo " <tr><th>Tier 2 Approved: </th><td><select name=tier_two>";
+    if ($droid['tier_two'] == 'Yes') {
+    	echo "<option value=Yes selected>Yes</option><option value=No>No</option>";
+    } else {
 	echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
+    }
+    echo "</select></td></tr>";
 }
-echo "</select></td></tr>";
-if ($config->site_options & $options['TOPPS']) {
+if ($config->site_options & $options['TOPPS'] && $club_config['options'] & $club_options['TOPPS']) {
     echo " <tr><th>Topps Number: </th><td><input type=text name=topps_id size=50 value=\"".$droid['topps_id']."\"></td></tr>";
 } else {
     echo "<input type=hidden name=topps_id size=50 value=0>";
@@ -206,11 +243,11 @@ if ($_SESSION['role'] != "user") {
 echo "</form>";
 echo "</div>";
 
+if ($club_config['options'] & $club_options['MOT']) {
 $sql = "SELECT * FROM mot WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER BY date DESC";
 $mot_result = $conn->query($sql);
 
-echo "<div class=mot>";
-echo "<hr>";
+echo "<div class=\"MOT-List\">";
 echo "<h2>MOT Details</h2>";
 if ($mot_result->num_rows > 0) {
     // output data of each row
@@ -244,13 +281,13 @@ if ($_SESSION['permissions'] & $perms['ADD_MOT']) {
 }
 
 echo "</div>";
-
+}
 # Comments
 
 $sql = "SELECT * FROM droid_comments WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER BY added_on";
 $comments_result = $conn->query($sql);
 
-echo "<div class=comments>";
+echo "<div class=\"Comments\">";
 echo "<table id=comment>";
 if ($comments_result->num_rows > 0) {
     // output data of each row
@@ -282,8 +319,7 @@ echo "</table>";
 
 echo "</div>";
 
-echo "<div class=notes>";
-echo "<hr>";
+echo "<div class=\"Builders-Notes\">";
 echo "<h2>Member Notes</h2>";
 echo "<form>";
 echo "<textarea rows=10 cols=60 name=member_notes>".$droid['notes']."</textarea>";
@@ -292,28 +328,36 @@ echo "<input type=submit value=Add>";
 echo "</form>";
 echo "</div>";
 
-echo "</div>"; // End of Column Left
+echo "<div class=\"Back-Story\">";
+echo "<h2>Back Story</h2>";
+echo "<form>";
+echo "<textarea rows=10 cols=60 name=back_story>".$droid['back_story']."</textarea>";
+echo "<input type=hidden name=droid_uid value=".$droid['droid_uid'].">";
+echo "<input type=submit value=Add>";
+echo "</form>";
+echo "</div>";
 
-echo "<div class=\"droid_column_right\">";
+
+echo "<div class=\"Droid-Images\">";
 
 echo "<table>";
 echo "<tr>\n";
 echo "<td>";
-	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
+	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_front class=\"w3-cell image_upload\">";
 	imageUpload('photo_front');
 	echo "</div>";
 
 echo "</td><td>";
-	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_side&width=240\">";
+	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_side&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_side&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_side class=\"w3-cell image_upload\">";
 	imageUpload('photo_side');
         echo "</div>";
 
 echo "</td><td>";
-	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_rear&width=240\">";
+	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_rear&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_rear class=\"w3-cell image_upload\">";
 	imageUpload('photo_rear');

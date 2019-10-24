@@ -9,6 +9,13 @@ $api = $_REQUEST['api'];
 $request = $_REQUEST['request'];
 $id = $_REQUEST['id'];
 
+
+function ytdCharity($conn) {
+	$sql = "SELECT ROUND(SUM(charity_raised), 2) FROM events WHERE YEAR(date) = YEAR(CURRENT_DATE)";
+	$result = $conn->query($sql)->fetch_row();
+	return $result[0];
+}
+
 function getDriver($conn, $member_uid) {
 	$sql = "SELECT member_uid, forename, surname, email FROM members WHERE member_uid = ". $member_uid;
 	$result = $conn->query($sql);
@@ -127,6 +134,11 @@ if ($api == $config->course_api) {
 	    case "insert_course_run": // Insert a course run
 		$insert = insertRun($conn, $id);
 		echo $insert;
+		break;
+
+	    case "ytd_charity":
+		$amount = ytdCharity($conn);
+		echo $amount;
 		break;
 
     }
