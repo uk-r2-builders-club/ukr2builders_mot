@@ -25,6 +25,51 @@ if (($_SESSION['role'] == "user") && ( ($droid['member_uid'] != $_SESSION['user'
 $sql = "SELECT * FROM members WHERE member_uid=".$droid['member_uid'];
 $member = $conn->query($sql)->fetch_assoc();
 
+$update = 0;
+if ($_REQUEST['member_notes'] != "") {
+    $sql = "UPDATE droids SET notes=? WHERE droid_uid=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $_REQUEST['member_notes'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
+    $stmt->close();
+    $update = 1;
+}
+
+if ($_REQUEST['back_story'] != "") {
+    $sql = "UPDATE droids SET back_story=? WHERE droid_uid=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $_REQUEST['back_story'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
+    $stmt->close();
+    $update = 1;
+}
+
+if ($_REQUEST['public'] != "") {
+    $sql = "UPDATE droids SET public=? WHERE droid_uid=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $_REQUEST['public'], $_REQUEST['droid_uid']);
+    $stmt->execute();
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
+    }
+
+    $stmt->close();
+    $update = 1;
+}
+
+
+
 function imageUpload($box) {
 	global $perms;
 	global $member;
@@ -39,11 +84,11 @@ function imageUpload($box) {
 }
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=?, public=? WHERE droid_uid = ?";
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=?, WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssisisi", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
+    $stmt->bind_param("sssssssssssisii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
 	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'],
-	    $_REQUEST['club_uid'], $_REQUEST['public'], $_REQUEST['droid_uid']);
+	    $_REQUEST['club_uid'], $_REQUEST['droid_uid']);
     $stmt->execute();
     if ($stmt->sqlstate != "00000") {
         printf("Error: %s.\n", $stmt->sqlstate);
@@ -51,8 +96,7 @@ if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DRO
     }
 
     $stmt->close();
-    $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
-    $droid = $conn->query($sql)->fetch_assoc();
+    $update = 1;
 
 }
 
@@ -121,12 +165,12 @@ if (($_REQUEST['delete_comment'] == "yes") && ( $_SESSION['permissions'] & $perm
     echo "Deleting comment";
     $sql = "DELETE from droid_comments WHERE uid=".$_REQUEST['uid'];
     $result = $conn->query($sql);
+    $update = 1;
 }
 
 if (($_REQUEST['delete_image'] != "") && ( $_SESSION['permissions'] & $perms['DELETE_IMAGES'] )) {
     echo "Deleting image";
     unlink("uploads/members/".$member['member_uid']."/".$_REQUEST['droid_uid']."/".$_REQUEST['delete_image'].".jpg");
-
 }
 
 if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
@@ -140,38 +184,25 @@ if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDI
     }
 
     $stmt->close();
+    $update = 1;
 }
 
-if ($_REQUEST['member_notes'] != "") {
-    $sql = "UPDATE droids SET notes=? WHERE droid_uid=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $_REQUEST['member_notes'], $_REQUEST['droid_uid']);
-    $stmt->execute();
-    if ($stmt->sqlstate != "00000") {
-        printf("Error: %s.\n", $stmt->sqlstate);
-        printf("Error: %s.\n", $stmt->error);
-    }
-
-    $stmt->close();
-}
-
-if ($_REQUEST['back_story'] != "") {
-    $sql = "UPDATE droids SET back_story=? WHERE droid_uid=?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $_REQUEST['back_story'], $_REQUEST['droid_uid']);
-    $stmt->execute();
-    if ($stmt->sqlstate != "00000") {
-        printf("Error: %s.\n", $stmt->sqlstate);
-        printf("Error: %s.\n", $stmt->error);
-    }
-
-    $stmt->close();
-}
-
+// If database has been altered, refresh the droid object
+//
+$sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
+$droid = $conn->query($sql)->fetch_assoc();
 
 echo "<div class=droid-container>";
 
 echo "<div class=\"Droid-Info\">";
+echo "This profile is currently: ";
+if ($droid['public'] == 'No') {
+        echo "Private [<a href=\"?droid_uid=".$droid['droid_uid']."&public=Yes\">Toggle</a>]";
+} else {
+	echo "Public [<a href=\"?droid_uid=".$droid['droid_uid']."&public=No\">Toggle</a>]";
+	echo "<br />";
+        echo " <a target=\"_blank\" href=\"public/display.php?droid_uid=".$droid['droid_uid']."\"> View Public Profile</a>";
+}
 echo "<form>";
 echo "<h2>". $droid['name'] ."</h2>";
 echo "<a href=display_sheet.php?droid_uid=".$_REQUEST['droid_uid'].">Get Droid Info Sheet</a>";
@@ -187,14 +218,6 @@ while($row = $clubs->fetch_assoc()) {
         echo " value=".$row['club_uid'].">".$row['name']."</option>";
 }
 echo " </select></td></tr>";
-echo " <tr><th>Profile is Public: </th><td><select name=public>";
-if ($droid['public'] == 'No') {
-        echo "<option value=Yes>Yes</option><option value=No selected>No</option></select>";
-} else {
-        echo "<option value=Yes selected>Yes</option><option value=No>No</option></select>";
-	echo " <a target=\"_blank\" href=\"public/display.php?droid_uid=".$droid['droid_uid']."\"> View Public Profile</a>";
-}
-echo "</td></tr>";
 echo " <tr><th>Primary Droid: </th><td><select name=primary_droid>";
 if ($droid['primary_droid'] == 'No') {
         echo "<option value=Yes>Yes</option><option value=No selected>No</option>";
