@@ -5,8 +5,23 @@ include "includes/session.php";
 
 $member_id = $_REQUEST['member_id'];
 $type = $_REQUEST['type'];
-$name = $_REQUEST['name'];
 $width = $_REQUEST['width'];
+$noresize = 0;
+
+switch ($width) {
+case 240:
+	$name = "240-".$_REQUEST['name'];
+	$noresize = 1;
+	break;
+case 480:
+	$name = "480-".$_REQUEST['name'];
+	$noresize = 1;
+	break;
+default:
+	$name = $_REQUEST['name'];
+	break;
+}
+
 if (isset($_REQUEST['droid_id'])) {
 	$droid_id = $_REQUEST['droid_id'];
 }
@@ -39,21 +54,25 @@ if (file_exists($image)) {
 	if ($type == "droid") {
 	    $file = "uploads/clubs/".$club_uid."/blank_$name.jpg";
 	} else {
-	    $file = "images/blank_$name.jpg";
+	    $file = "images/blank_".$_REQUEST['name'].".jpg";
 	}
 }
 	
 header('Content-Type: image/jpeg');
 header('Content-Length: ' . filesize($file));
-list($orig_width, $orig_height) = getimagesize($file);
-$source = imagecreatefromjpeg($file);
-$height = (($orig_height * $width) / $orig_width);
+if ($noresize == 1 ) {
+	$source = imagecreatefromjpeg($file);
+	imagejpeg($source, $path, 75);
+} else {
+	list($orig_width, $orig_height) = getimagesize($file);
+	$source = imagecreatefromjpeg($file);
+	$height = (($orig_height * $width) / $orig_width);
 
-$thumb = imagecreatetruecolor($width, $height);
-imagecopyresampled($thumb, $source, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
-// save new thumb with quality 75
-imagejpeg($thumb, $path, 75);
-
+	$thumb = imagecreatetruecolor($width, $height);
+	imagecopyresampled($thumb, $source, 0, 0, 0, 0, $width, $height, $orig_width, $orig_height);
+	// save new thumb with quality 75
+	imagejpeg($thumb, $path, 75);
+}
 
 
 ?>

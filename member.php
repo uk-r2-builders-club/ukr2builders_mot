@@ -1,6 +1,7 @@
 <?
 
 include "includes/header.php";
+include "includes/image_upload.php";
 
 if (!($_SESSION['permissions'] & $perms['VIEW_MEMBERS'])) {
         $_REQUEST['member_uid'] = $_SESSION['user'];
@@ -16,6 +17,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
+/*
 function imageUpload($box) {
 	global $perms;
 	if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
@@ -26,6 +28,8 @@ function imageUpload($box) {
             echo "</form>";
 	}
 }
+
+ */
 
 function formatMilliseconds($milliseconds) {
     $seconds = floor($milliseconds / 1000);
@@ -268,7 +272,7 @@ if (strtotime($member['pli_date']) > strtotime('-1 year')) {
 echo "</td></tr>";
 echo " <tr><th>Last Updated: </th><td>".$member['last_updated']."</td></tr>";
 echo " <tr><th>ID Link: </th><td><a href=\"id.php?id=".$member['badge_id']."\">".$config->site_base."/id.php?id=".$member['badge_id']."</a><br />";
-echo "<img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=qr_code&width=240\"></td></tr>";
+echo "<img id=qr_code src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=qr_code&width=260\"></td></tr>";
 echo " <tr><th>Active?: </th><td><input name=active type=checkbox";
 echo ($member['active'] == "on") ? " checked" : "";
 echo "></td></tr>";
@@ -300,15 +304,17 @@ if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
 echo "</form>";
 echo "</div>";
 
+# Mug Shot
 echo "<div class=\"Mug-Shot\">";
-	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">";
+	imageUpload('mug_shot');
+	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">\r\n";
         if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
-                echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>";
+                echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>\r\n";
         }
-	echo "</div>";
-        echo "<div id=mug_shot class=image_upload>";
-        imageUpload('mug_shot');
-        echo "</div>";
+	echo "</div>\r\n";
+        echo "<div id=mug_shot class=image_upload>\r\n";
+	echo "<a type=\"button\" class=\"btn btn-primary\" id=\"change-pic\">Change Profile Picture</a>\r\n";
+        echo "</div>\r\n";
 
 echo "</div>";
 
