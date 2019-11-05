@@ -17,20 +17,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-/*
-function imageUpload($box) {
-	global $perms;
-	if ($_SESSION['permissions'] & $perms['EDIT_MEMBERS']) {
-            echo "<form method=POST enctype=\"multipart/form-data\">";
-            echo "<input type=hidden name=member_uid value=".$_REQUEST['member_uid'].">";
-            echo "<input type=file name=$box>";
-            echo "<input type=submit name=upload value=$box>";
-            echo "</form>";
-	}
-}
-
- */
-
 function formatMilliseconds($milliseconds) {
     $seconds = floor($milliseconds / 1000);
     $minutes = floor($seconds / 60);
@@ -306,15 +292,13 @@ echo "</div>";
 
 # Mug Shot
 echo "<div class=\"Mug-Shot\">";
-	imageUpload('mug_shot');
 	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">\r\n";
         if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>\r\n";
         }
 	echo "</div>\r\n";
-        echo "<div id=mug_shot class=image_upload>\r\n";
-	echo "<a type=\"button\" class=\"btn btn-primary\" id=\"change-pic\">Change Profile Picture</a>\r\n";
-        echo "</div>\r\n";
+	imageUpload('mug_shot');
+
 
 echo "</div>";
 
