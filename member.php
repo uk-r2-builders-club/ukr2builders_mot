@@ -297,7 +297,7 @@ echo "<div class=\"Mug-Shot\">";
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>\r\n";
         }
 	echo "</div>\r\n";
-	imageUpload('mug_shot');
+	imageUpload('mug_shot', $member['member_uid']);
 
 
 echo "</div>";

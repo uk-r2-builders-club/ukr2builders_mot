@@ -1,6 +1,7 @@
 <?
 
 include "includes/header.php";
+include "includes/image_upload.php";
 
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -68,7 +69,7 @@ if ($_REQUEST['public'] != "") {
     $update = 1;
 }
 
-
+/*
 
 function imageUpload($box) {
 	global $perms;
@@ -81,7 +82,7 @@ function imageUpload($box) {
 	    echo "<input type=submit name=upload value=$box>";
 	    echo "</form>";
 	}
-}
+} */
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
     $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=?, WHERE droid_uid = ?";
@@ -369,21 +370,21 @@ echo "<td>";
 	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_front class=\"w3-cell image_upload\">";
-	imageUpload('photo_front');
+	imageUpload('photo_front', $droid['member_uid'], $droid['droid_uid']);
 	echo "</div>";
 
 echo "</td><td>";
 	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_side&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_side&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_side class=\"w3-cell image_upload\">";
-	imageUpload('photo_side');
+	imageUpload('photo_side', $droid['member_uid'], $droid['droid_uid']);
         echo "</div>";
 
 echo "</td><td>";
 	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_rear&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_rear class=\"w3-cell image_upload\">";
-	imageUpload('photo_rear');
+	imageUpload('photo_rear', $droid['member_uid'], $droid['droid_uid']);
         echo "</div>";
 echo "</td></tr></table>";
 
@@ -394,13 +395,13 @@ if (($droid['topps_id'] != "0") &&  ($config->site_options & $options['TOPPS']))
         	echo "<div id=topps_front class=droid_image><img id=topps_front src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=topps&name=topps_front&width=240\">";
 		echo "<a href=\"droid.php?delete_image=topps_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	        echo "<div id=topps_front class=image_upload>";
-	        imageUpload('topps_front');
+	        imageUpload('topps_front', $droid['member_uid'], $droid['droid_uid']);
 	        echo "</div>";
 	echo "</td><td>";
 	        echo "<div id=topps_rear class=droid_image><img id=topps_rear src=\"showImage.php?member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=topps&name=topps_rear&width=240\">";
 		echo "<a href=\"droid.php?delete_image=topps_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
         	echo "<div id=image_side class=image_upload>";
-        	imageUpload('topps_rear');
+        	imageUpload('topps_rear', $droid['member_uid'], $droid['droid_uid']);
         	echo "</div>";
 	echo "</td></tr></table>";
 	echo "</div>";
