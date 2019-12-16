@@ -29,7 +29,7 @@ if (($_REQUEST['update'] != "") && ($_SESSION['permissions'] & $perms['EDIT_PLI'
 $sql = "SELECT * FROM pli_cover_details";
 $pli = $conn->query($sql)->fetch_object();
 
-echo "<div class=main>";
+echo "<div id=main>";
 
 
 echo "<h2>PLI Cover Details</h2>";
@@ -61,7 +61,7 @@ This page will update the text on the PLI cover PDF that is available for member
 
 
 <?
-
+echo "</div>";
 include "includes/footer.php";
 
 ?>

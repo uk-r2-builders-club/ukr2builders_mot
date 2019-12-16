@@ -228,6 +228,9 @@ if ($config->site_options & $options['PAYPAL']) {
         echo "<input type=\"hidden\" name=\"cmd\" value=\"_s-xclick\">";
         echo "<input type=\"hidden\" name=\"hosted_button_id\" value=\"".$config->paypal_button."\">";
         echo "<input type=\"hidden\" name=\"custom\" value=\"".$member['member_uid']."\">";
+	echo "<input type=\"hidden\" name=\"on0\" value=\"MOT Type\">";
+	echo "<input type=\"hidden\" name=\"os0\" value=\"Initial/Renewal\">";
+	echo "<input type=\"hidden\" name=\"currency_code\" value=\"GBP\">";
         echo "<input type=\"image\" src=\"https://www.paypalobjects.com/en_GB/i/btn/btn_paynow_SM.gif\" border=\"0\" name=\"submit\" alt=\"PayPal – The safer, easier way to pay online!\">";
         echo "<img alt=\"\" border=\"0\" src=\"https://www.paypalobjects.com/en_GB/i/scr/pixel.gif\" width=\"1\" height=\"1\">";
         echo "</form>";
@@ -292,12 +295,14 @@ echo "</div>";
 
 # Mug Shot
 echo "<div class=\"Mug-Shot\">";
-	echo "<div class=\"mug_shot\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">\r\n";
+        echo "<div class=\"mug_shot_container\">";
+	echo "<div class=\"mug_shot w3-cell\"><img id=mug_shot src=\"showImage.php?member_id=".$member['member_uid']."&type=member&name=mug_shot&width=240\">\r\n";
         if ($_SESSION['permissions'] & $perms['DELETE_IMAGES']) {
                 echo "<a href=\"member.php?delete_mug=1&member_uid=".$member['member_uid']."\">Delete</a>\r\n";
         }
 	echo "</div>\r\n";
 	imageUpload('mug_shot', $member['member_uid']);
+	echo "</div>";
 
 
 echo "</div>";

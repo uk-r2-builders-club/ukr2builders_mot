@@ -27,7 +27,7 @@ function myFunction() {
   }
 }
 </script>
-
+<div id=main>
 <?
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -133,6 +133,7 @@ if ($_SESSION['permissions'] & $perms['EDIT_EVENTS']) {
    echo "</form>";
 }
 
+echo "</div>";
 include "includes/footer.php";
 ?>
 

@@ -18,9 +18,9 @@ function closeNav() {
         echo "<ul>";
         echo " <li><a href='member.php?member_uid=".$_SESSION['user']."'>Your Profile</a></li>";
         if ($config->site_options & $options['EVENTS']) echo " <li><a href=events.php>Events</a></li>";
-        if ($config->site_options & $options['DRIVING_COURSE']) echo " <li><a target='_blank' href=leaderboard.php>Droid Driving Course Leaderboard</a></li>";
+        if ($config->site_options & $options['DRIVING_COURSE']) echo " <li><a target='_blank' href=leaderboard.php>Droid Leaderboard</a></li>";
         if ($config->site_options & $options['TOPPS']) echo " <li><a target='_blank' href=topps.php>Topps Droids</a></li>";
-        echo " <li><a target='_blank' href=stats.php>Current Droid statistics</a></li>";
+        echo " <li><a target='_blank' href=stats.php>Droid statistics</a></li>";
         echo " <li><a target='_blank' href=gdpr.php>Privacy Policy</a></li>";
         echo " <li><a target='_blank' href=https://github.com/uk-r2-builders-club/ukr2builders_mot/wiki/Members-Manual>Instruction Manual</a></li>";
         echo " <li><a href=password.php>Change Password</a></li>";

@@ -81,5 +81,5 @@ $pdf->Write(7, $details);
 $pdf->Ln(10);
 $pdf->SetFont('Arial','',12);
 $pdf->Write(5, $body);
-$pdf->Output(I, $member['forename']." ".$member['surname']." R2D2 Builders PLI Cover Details.pdf");
+$pdf->Output('I', $member['forename']." ".$member['surname']." R2D2 Builders PLI Cover Details.pdf");
 ?>

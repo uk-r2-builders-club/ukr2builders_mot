@@ -7,21 +7,6 @@
 
  <body>
 
-<?
-
-
-include "includes/menu.php";
-include "includes/config.php";
-
-// Create connection
-$conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-} 
-
-?>
-
 <h3>Data Protection Policy: UK R2D2 Builders Club</h3>
 <h4>1) Definitions</h4>
 <ol>
@@ -111,12 +96,5 @@ if ($conn->connect_error) {
 <h4>8) Review</h4>
 <p>These procedures will be reviewed every two years</p>
 <p>&nbsp;</p>
-
-
-<?
-
-$conn->close();
-
-?>
 
 

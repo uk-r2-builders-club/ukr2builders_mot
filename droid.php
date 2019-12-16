@@ -85,7 +85,7 @@ function imageUpload($box) {
 } */
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=?, WHERE droid_uid = ?";
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssssssssssisii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
 	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'],
@@ -193,7 +193,7 @@ if (($_REQUEST['new_comment'] != "") && ( $_SESSION['permissions'] & $perms['EDI
 $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
 $droid = $conn->query($sql)->fetch_assoc();
 
-echo "<div class=droid-container>";
+echo "<div id=main class=droid-container>";
 
 echo "<div class=\"Droid-Info\">";
 echo "This profile is currently: ";
@@ -366,7 +366,7 @@ echo "<div class=\"Droid-Images\">";
 
 echo "<table>";
 echo "<tr>\n";
-echo "<td>";
+echo "<td class=droid_images>";
 	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
 	echo "<a href=\"droid.php?delete_image=photo_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=image_front class=\"w3-cell image_upload\">";

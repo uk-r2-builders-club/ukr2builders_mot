@@ -33,6 +33,7 @@ function myFunction() {
 </script>
 
 
+<div id=main>
 <?
 
 
@@ -173,6 +174,6 @@ if ($result->num_rows > 0) {
 	echo "No inactive members";
 }
 
+echo "</div>";
 include "includes/footer.php";
 ?>
-

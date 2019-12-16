@@ -14,30 +14,34 @@ function imageUpload($image_type, $member, $droid=0) {
 
 ?> 
 
-<button id="button_<? echo $image_type; ?>">Change Image</button>
+<button id="button_<? echo $image_type; ?>">Change Image (<? echo $image_type; ?>)</button>
 
 <div id="image_upload_popup_<? echo $image_type; ?>" class="modal">
   <div class="modal-content">
-    <span class="close_<? echo $image_type; ?>">&times;</span>
+    <span class="close_<? echo $image_type; ?>">&times; Close</span>
       <div class="demo-wrap upload-demo image_class_<? echo $image_type; ?>">
         <div class="container">
           <div class="grid">
             <div>
              <div class="actions">
                <a class="btn file-btn">
-                 <span>Upload</span>
+                 <span>Open File</span>
                  <input type="file" id="upload_<? echo $image_type; ?>" value="Choose a file" accept="image/*" />
                </a>
-               <button class="upload-result_<? echo $image_type; ?>">Save</button>
              </div>
            </div>
            <div>
              <div class="upload-msg">
-               Upload a file to start cropping
+               Crop an image
              </div>
              <div class="upload-demo-wrap">
                <div id="image_area_<? echo $image_type; ?>"></div>
              </div>
+<!---
+             <button class="rotate_<? echo $image_type; ?>" data-deg="-90">Rotate Left</button>
+             <button class="rotate_<? echo $image_type; ?>" data-deg="90">Rotate Right</button>
+-->
+             <button class="upload-result_<? echo $image_type; ?>">Save</button>
            </div>
          </div>
        </div>
@@ -119,6 +123,13 @@ $(function(){
     readFile(this); 
   });
 
+  $('.rotate_<? echo $image_type; ?>').on('click', function(ev) {
+	  console.log("Degrees: " + parseInt($(this).data('deg')));
+	  $uploadCrop.croppie('rotate', {
+	  	degrees: parseInt($(this).data('deg'))
+          });
+  });
+
   $('.upload-result_<? echo $image_type; ?>').on('click', function (ev) {
     $uploadCrop.croppie('result', {
       type: 'canvas',
@@ -135,8 +146,25 @@ $(function(){
                "image":resp
           }
       });
-    modal_<? echo $image_type; ?>.style.display = "none";  
     });
+    $uploadCrop.croppie('result', {
+      type: 'canvas',
+      format: 'jpeg',
+      size: 'original'
+    }).then(function (resp) {
+      $.ajax({
+        url: "save_image.php",
+        type: "POST",
+        data: {
+               "type":"<? echo $image_type; ?>",
+               "member":"<? echo $member; ?>",
+               "droid":"<? echo $droid; ?>",
+	       "orig":"true",
+               "image":resp
+          }
+      });
+    });
+    modal_<? echo $image_type; ?>.style.display = "none";  
   });
 
 });

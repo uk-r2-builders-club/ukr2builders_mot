@@ -15,7 +15,9 @@ $width = $_REQUEST['width'];
 $sql = "SELECT * FROM droids WHERE droid_uid = ". $_REQUEST['droid_uid'];
 $droid = $conn->query($sql)->fetch_assoc();
 
-$image = "../uploads/members/".$droid['member_uid']."/".$droid['droid_uid']."/$name.jpg";
+$image = "../uploads/members/".$droid['member_uid']."/".$droid['droid_uid']."/480-".$name.".jpg";
+if (!file_exists($image)) 
+	$image = "../uploads/members/".$droid['member_uid']."/".$droid['droid_uid']."/".$name.".jpg";
 
 if (file_exists($image)) {
 	$file = $image;

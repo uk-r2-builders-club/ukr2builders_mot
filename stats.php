@@ -9,7 +9,6 @@
 
 <?
 
-include "includes/menu.php";
 include "includes/config.php";
 
 // Create connection

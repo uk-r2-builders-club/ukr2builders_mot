@@ -96,7 +96,7 @@ th.rotate > div > span {
 /* Topps cards */
 .topps {
   max-width: 1200px;
-  margin: 0 auto 30px;
+  margin: 10px auto 30px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   grid-gap: 30px;
@@ -271,6 +271,18 @@ table.leaderboard tr,td,th{
         border: 1px solid black;
 }
 
+table.droid_images {
+	border: 0px;
+}
+
+table.droid_images tr,td,th {
+	border: 0px;
+}
+
+table.droid tr,td,th {
+	border: 1px solid black;
+}
+
 
 /* Container is necessary because td cannot be positioned relative */
 td .tooltipcontainer {
@@ -294,7 +306,6 @@ td a:hover .tooltip {
 .mug_shot {
 	width:240px;
 	position:relative;
-	float: right;
 	margin: 5px;
 }
 .mug_shot img {
@@ -311,6 +322,10 @@ td a:hover .tooltip {
 	background-image: url('images/delete_button.png');
 	overflow:hidden;
 	text-indent:-9999px;
+}
+
+.mug_shot_container {
+	width: 240px;
 }
 
 /* entire container, keeps perspective */
@@ -392,13 +407,17 @@ z-index:2;
 
 /* The navigation menu links */
 .sidenav a {
-  padding: 8px 8px 8px 32px;
+  padding: 2px 2px 2px 2px;
   text-decoration: none;
-  font-size: 10px;
+  font-size: 12px;
   font-family: StarWars;
   color: #818181;
   display: block;
   transition: 0.3s;
+}
+
+.sidenav ul {
+	margin-top: 55px;
 }
 
 /* When you mouse over the navigation links, change their color */
@@ -411,7 +430,7 @@ z-index:2;
   position: absolute;
   top: 0;
   right: 25px;
-  font-size: 36px;
+  font-size: 28px;
   margin-left: 50px;
 }
 
@@ -438,7 +457,10 @@ z-index:2;
   grid-template-areas: "Member-Info Mug-Shot" "Droid-List Droid-List" "Achievements Achievements" "Events Events" "Course-Times Course-Times";
 }
 
-.Mug-Shot { grid-area: Mug-Shot; }
+.Mug-Shot { 
+  grid-area: Mug-Shot; 
+  padding-top: 50px;
+}
 
 .Member-Info { grid-area: Member-Info; }
 

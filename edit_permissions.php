@@ -15,12 +15,12 @@ function myFunction() {
   var input, filter, table, tr, td, i;
   input = document.getElementById("nameSearch");
   filter = input.value.toUpperCase();
-  table = document.getElementById("achievements_list");
+  table = document.getElementById("members_list");
   tr = table.getElementsByTagName("tr");
 
   // Loop through all table rows, and hide those who don't match the search query
   for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[2];
+    td = tr[i].getElementsByTagName("td")[1];
     if (td) {
       if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
@@ -31,7 +31,7 @@ function myFunction() {
   }
 }
 </script>
-
+<div id=main>
 <?
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -123,7 +123,7 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
-
+echo "</div>";
 include "includes/footer.php";
 
 ?>

@@ -31,7 +31,7 @@ function myFunction() {
   }
 }
 </script>
-
+<div id=main>
 <?
 // Create connection
 $conn = new mysqli($database_host, $database_user, $database_pass, $database_name);
@@ -113,7 +113,7 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
-
+echo "</div>";
 include "includes/footer.php";
 
 ?>

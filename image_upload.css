@@ -83,14 +83,6 @@ section.who {
     padding: 5px 0;
 }
 
-input[type="number"],
-input[type="text"] {
-    border: 1px solid #aaa;
-    padding: 5px;
-    font-size: 18px;
-    width: 100px;
-}
-
 button,
 a.btn {
     background-color: #189094;
@@ -98,12 +90,14 @@ a.btn {
     padding: 10px 15px;
     border-radius: 3px;
     border: 1px solid rgba(255, 255, 255, 0.5);
-    font-size: 16px;
+    font-size: 12px;
     cursor: pointer;
     text-decoration: none;
     text-shadow: none;
     display: inline-block;
+    width: 100%;
     cursor: pointer;
+    margin-top: 7px;
 }
 input[type="file"] {
     cursor: pointer;
@@ -138,26 +132,12 @@ pre[class*="language"] {
 }
 
 .container,
-.section-header h2 {
-    position: relative;
-    max-width: 1000px;
-    margin: 0 auto;
-    min-width: 500px;
-    padding: 0 10px;
-}
-
 .hero p {
     font-size: 16px;
 }
 
 .hero .grid {
     padding-top: 50px;
-}
-
-h2 {
-    color: white;
-    font-size: 23px;
-    font-weight: 300;
 }
 
 .demo-wrap {

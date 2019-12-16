@@ -48,7 +48,7 @@ if ($_REQUEST['update'] != "") {
 
 }
 
-echo "<div class=main>";
+echo "<div id=main>";
 
 
 echo "<h2>Config</h2>";
@@ -89,7 +89,7 @@ echo "<input type=submit name=update value=Update>";
 echo "</form>";
 
 }
-
+echo "</div>";
 include "includes/footer.php";
 ?>
 

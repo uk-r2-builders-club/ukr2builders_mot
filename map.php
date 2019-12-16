@@ -7,7 +7,7 @@ if(!($_SESSION['permissions'] & $perms['VIEW_MAP'])) {
 }
 
 ?>
-
+<div id=main>
   <script src="https://maps.google.com/maps/api/js?key=<? echo $config->google_map_api; ?>&sensor=false" 
           type="text/javascript"></script>
   <div id="map" style="width: 1024px; height: 800px;"></div>
@@ -64,8 +64,7 @@ echo "['blank', 0,0]";
     }
   </script>
 <?
+echo "</div>";
 include "includes/footer.php";
 ?>
-</body>
-</html>
 

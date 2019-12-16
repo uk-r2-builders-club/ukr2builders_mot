@@ -6,10 +6,10 @@
  </head>
 
  <body>
+ <h2 id=banner><a id=logo href="http://astromech.info"></a></h2>
 
 <?
 
-include "includes/menu.php";
 include "includes/config.php";
 
 // Create connection

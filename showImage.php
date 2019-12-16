@@ -42,17 +42,23 @@ if ( !$_SESSION['permissions'] & $perms['VIEW_DROIDS'] ) {
 
 if ($type == "droid") {
 	$image = "uploads/members/$member_id/$droid_id/$name.jpg";
+	if(!file_exists($image)) 
+		$image = "uploads/members/$member_id/$droid_id/".$_REQUEST['name'].".jpg";
 } elseif ($type == "member") {
 	$image = "uploads/members/$member_id/$name.jpg";
+	if(!file_exists($image))
+		$image = "uploads/members/$member_id/".$_REQUEST['name'].".jpg";
 } elseif ($type == "topps") {
 	$image = "uploads/members/$member_id/$droid_id/$name.jpg";
+	if(!file_exists($image))
+		$image = "uploads/members/$member_id/$droid_id/".$_REQUEST['name'].".jpg";
 }
 
 if (file_exists($image)) {
 	$file = $image;
 } else {
 	if ($type == "droid") {
-	    $file = "uploads/clubs/".$club_uid."/blank_$name.jpg";
+	    $file = "uploads/clubs/".$club_uid."/blank_".$_REQUEST['name'].".jpg";
 	} else {
 	    $file = "images/blank_".$_REQUEST['name'].".jpg";
 	}
