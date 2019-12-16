@@ -12,17 +12,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-function colouriseMOT($mot_result, $field) {
-	if ($mot_result[$field] == "Pass") {
-		$s = "<p class=mot_pass>Pass</p>";
-	} elseif ($mot_result[$field] == "NA") {
-		$s = "<p class=mot_na>NA</p>";
-	} else {
-		$s = "<p class=mot_fail>Fail</p>";
-	}
-	return $s;
-}
-
 if ($_REQUEST['new_comment'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])) {
     $sql = "INSERT INTO mot_comments(mot_uid, comment, added_by) VALUES (?,?,?)";
     $stmt = $conn->prepare($sql);
@@ -77,6 +66,8 @@ echo "</div>";
 $sql = "SELECT * FROM mot WHERE mot_uid = ". $_REQUEST['mot_uid'];
 $result = $conn->query($sql);
 $mot = $result->fetch_assoc();
+$sql = "SELECT mot_test,mot_test_result FROM mot_details WHERE mot_uid = ". $_REQUEST['mot_uid'];
+$mot_details = $conn->query($sql);
 $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$mot["user"];
 $officer = $conn->query($sql)->fetch_object();
 $officer_name = $officer->forename." ".$officer->surname;
@@ -84,6 +75,9 @@ $sql = "SELECT * FROM droids WHERE droid_uid = ".$mot["droid_uid"];
 $droid = $conn->query($sql)->fetch_object();
 $sql = "SELECT * FROM members WHERE member_uid = $droid->member_uid";
 $member = $conn->query($sql)->fetch_object();
+$sql = "SELECT * FROM mot_sections WHERE club_uid = $droid->club_uid";
+$sections = $conn->query($sql);
+
 
 echo "<div id=info>";
 echo "<ul>";
@@ -100,77 +94,41 @@ echo "</div>";
 echo "</div>";
 
 echo "<div id=mot_test>";
-echo "<div id=mot_block>";
-echo "<h3>Structural</h3>";
-echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
-echo "<tr><td>Overall Structural Worry?</td><td>".colouriseMOT($mot, 'struct_overall')."</td></tr>";
-echo "<tr><td>Left Leg</td><td>".colouriseMOT($mot, 'struct_left_leg')."</td></tr>";
-echo "<tr><td>Left Foot/Ankle Joint</td><td>".colouriseMOT($mot, 'struct_left_foot_ankle')."</td></tr>";
-echo "<tr><td>Left Shoulder Joint</td><td>".colouriseMOT($mot, 'struct_left_shoulder')."</td></tr>";
-echo "<tr><td>Right Leg</td><td>".colouriseMOT($mot, 'struct_right_leg')."</td></tr>";
-echo "<tr><td>Right Foot/Ankle Joint</td><td>".colouriseMOT($mot, 'struct_right_foot_ankle')."</td></tr>";
-echo "<tr><td>Right Shoulder Joint</td><td>".colouriseMOT($mot, 'struct_right_shoulder')."</td></tr>";
-echo "<tr><td>Center Foot/Ankle Joint</td><td>".colouriseMOT($mot, 'struct_center_foot')."</td></tr>";
-echo "<tr><td>Center Leg to Body Joint</td><td>".colouriseMOT($mot, 'struct_center_ankle')."</td></tr>";
-echo "<tr><td>Body/Frame/Skirt</td><td>".colouriseMOT($mot, 'struct_body_skirt_frame')."</td></tr>";
-echo "<tr><td>Dome Rotation Mechanism</td><td>".colouriseMOT($mot, 'struct_dome_mech')."</td></tr>";
-echo "<tr><td>Dome</td><td>".colouriseMOT($mot, 'struct_dome')."</td></tr>";
-echo "<tr><td>Details</td><td>".colouriseMOT($mot, 'struct_details')."</td></tr>";
-echo "</table>";
-echo "</div>";
 
-echo "<div id=mot_block>";
-echo "<h3>Mechanical</h3>";
-echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
-echo "<tr><td>Center Wheel Setup</td><td>".colouriseMOT($mot, 'mech_center_wheel')."</td></tr>";
-echo "<tr><td>Drive Setup</td><td>".colouriseMOT($mot, 'mech_drive')."</td></tr>";
-echo "<tr><td>2-3-2? - Discuss</td><td>".colouriseMOT($mot, 'mech_two_three_two')."</td></tr>";
-echo "<tr><td>Dome Spin</td><td>".colouriseMOT($mot, 'mech_dome')."</td></tr>";
-echo "<tr><td>Utility Arms</td><td>".colouriseMOT($mot, 'mech_utility_arms')."</td></tr>";
-echo "<tr><td>Rear Door/Skins Access</td><td>".colouriseMOT($mot, 'mech_rear_door_skins')."</td></tr>";
-echo "<tr><td>Doors</td><td>".colouriseMOT($mot, 'mech_doors')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
-echo "<div id=mot_block>";
-echo "<h3>Electrical</h3>";
-echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
-echo "<tr><td>Overall Setup</td><td>".colouriseMOT($mot, 'elec_overall')."</td></tr>";
-echo "<tr><td>Control System Transmitter</td><td>".colouriseMOT($mot, 'elec_transmitter')."</td></tr>";
-echo "<tr><td>Control System Receiver</td><td>".colouriseMOT($mot, 'elec_receiver')."</td></tr>";
-echo "<tr><td>Feet Speed Controller and motors</td><td>".colouriseMOT($mot, 'elec_feet')."</td></tr>";
-echo "<tr><td>Dome Speed Controller and motor</td><td>".colouriseMOT($mot, 'elec_dome')."</td></tr>";
-echo "<tr><td>Audio</td><td>".colouriseMOT($mot, 'elec_audio')."</td></tr>";
-echo "<tr><td>Other Electronics</td><td>".colouriseMOT($mot, 'elec_other')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
-echo "<div id=mot_block>";
-echo "<h3>Gadgets</h3>";
-echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
-echo "<tr><td>Serious Safety Concern</td><td>".colouriseMOT($mot, 'gadget_danger')."</td></tr>";
-echo "<tr><td>Gadget 1</td><td>".colouriseMOT($mot, 'gadget_1')."</td></tr>";
-echo "<tr><td>Gadget 2</td><td>".colouriseMOT($mot, 'gadget_2')."</td></tr>";
-echo "<tr><td>Gadget 3</td><td>".colouriseMOT($mot, 'gadget_3')."</td></tr>";
-echo "<tr><td>Gadget 4</td><td>".colouriseMOT($mot, 'gadget_4')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
-echo "<div id=mot_block>";
-echo "<h3>Basic Control</h3>";
-echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
-echo "<tr><td>Any Driving Issues</td><td>".colouriseMOT($mot, 'drive_general')."</td></tr>";
-echo "<tr><td>Dizzy</td><td>".colouriseMOT($mot, 'drive_dizzy')."</td></tr>";
-echo "<tr><td>Boomerang</td><td>".colouriseMOT($mot, 'drive_boomerang')."</td></tr>";
-echo "<tr><td>Reverse Boomerang</td><td>".colouriseMOT($mot, 'drive_gnaremoob')."</td></tr>";
-echo "<tr><td>Figure of 8</td><td>".colouriseMOT($mot, 'drive_eight')."</td></tr>";
-echo "<tr><td>0-60 Test</td><td>".colouriseMOT($mot, 'drive_speed')."</td></tr>";
-echo "<tr><td>Emergency Stop</td><td>".colouriseMOT($mot, 'drive_estop')."</td></tr>";
-echo "<tr><td>Dome Spin</td><td>".colouriseMOT($mot, 'drive_dome_spin')."</td></tr>";
-echo "<tr><td>Range exceed test</td><td>".colouriseMOT($mot, 'drive_range')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
+$details = array();
+while($detail = $mot_details->fetch_assoc()) {
+	$details[$detail['mot_test']] = $detail['mot_test_result'];
+}
+# Blocks
+if ($sections->num_rows > 0) {
+	while($row = $sections->fetch_object()) {
+		echo "<div id=mot_block>";
+		echo "<h3>".$row->section_description."</h3>";
+		echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+	        $sql = "SELECT * FROM mot_lines WHERE club_uid = ".$droid->club_uid." AND test_section = '".$row->section_name."'";	
+		$lines = $conn->query($sql);
+		while ($line = $lines->fetch_object()) {
+			echo "<tr>";
+			echo "<td>";
+			echo $line->test_description;
+			echo "</td>";
+			echo "<td>";
+        		if ($details[$line->test_name] == "Pass") {
+				echo "<p class=mot_pass>Pass</p>";
+			} elseif ($details[$line->test_name] == "NA") {
+				echo "<p class=mot_na>NA</p>";
+			} else {
+				echo "<p class=mot_fail>Fail</p>";
+			}
+			echo "</td>";
+			echo "</tr>";
+		}
+		echo "</table>";
+		echo "</div>";
+	}
+} else {
+	echo "No sections defined for this club";
+}
 
 echo "</div>";
 
