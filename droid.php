@@ -85,11 +85,11 @@ function imageUpload($box) {
 } */
 
 if (($_REQUEST['update'] != "") && ( $_SESSION['permissions'] & $perms['EDIT_DROIDS'] )) {
-    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=? WHERE droid_uid = ?";
+    $sql = "UPDATE droids SET primary_droid=?, style=?, radio_controlled=?, transmitter_type=?, material=?, weight=?, battery=?, drive_voltage=?, drive_type=?, top_speed=?, sound_system=?, value=?, tier_two=?, topps_id=?, active=?, club_uid=? WHERE droid_uid = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssssssisii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
-	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], $_REQUEST['topps_id'], $_REQUEST['active'],
-	    $_REQUEST['club_uid'], $_REQUEST['droid_uid']);
+    $stmt->bind_param("sssssssssssssisii", $_REQUEST['primary_droid'], $_REQUEST['style'], $_REQUEST['radio_controlled'], $_REQUEST['transmitter_type'], $_REQUEST['material'], $_REQUEST['weight'],
+	    $_REQUEST['battery'], $_REQUEST['drive_voltage'], $_REQUEST['drive_type'], $_REQUEST['top_speed'], $_REQUEST['sound_system'], $_REQUEST['value'], $_REQUEST['tier_two'], 
+	    $_REQUEST['topps_id'], $_REQUEST['active'], $_REQUEST['club_uid'], $_REQUEST['droid_uid']);
     $stmt->execute();
     if ($stmt->sqlstate != "00000") {
         printf("Error: %s.\n", $stmt->sqlstate);
@@ -237,11 +237,13 @@ if ($droid['radio_controlled'] == 'Yes') {
 echo "</select></td></tr>";
 echo " <tr><th>Transmitter Type: </th><td><input type=text name=transmitter_type size=50 value=\"".$droid['transmitter_type']."\"></td></tr>";
 echo " <tr><th>Material: </th><td><input type=text name=material size=50 value=\"".$droid['material']."\"></td></tr>";
-echo " <tr><th>Approx Weight: </th><td><input type=text name=weight size=50 value=\"".$droid['weight']."\"></td></tr>";
+echo " <tr><th>Approx Weight: </th><td><input type=text name=weight size=4 value=\"".$droid['weight']."\">Kg</td></tr>";
 echo " <tr><th>Battery Type: </th><td><input type=text name=battery size=50 value=\"".$droid['battery']."\"></td></tr>";
-echo " <tr><th>Drive Voltage: </th><td><input type=text name=drive_voltage size=50 value=\"".$droid['drive_voltage']."\"></td></tr>";
+echo " <tr><th>Drive Voltage: </th><td><input type=text name=drive_voltage size=4 value=\"".$droid['drive_voltage']."\">V</td></tr>";
+echo " <tr><th>Drive Type: </th><td><input type=text name=drive_type size=50 value=\"".$droid['drive_type']."\"></td></tr>";
+echo " <tr><th>Top Speed: </th><td><input type=text name=top_speed size=4 value=\"".$droid['top_speed']."\">km/h</td></tr>";
 echo " <tr><th>Sound System: </th><td><input type=text name=sound_system size=50 value=\"".$droid['sound_system']."\"></td></tr>";
-echo " <tr><th>Approx Value: </th><td><input type=text name=value size=50 value=\"".$droid['value']."\"></td></tr>";
+echo " <tr><th>Approx Value: </th><td>£<input type=text name=value size=49 value=\"".$droid['value']."\"></td></tr>";
 if ($club_config['options'] & $club_options['TIER_TWO']) {
     echo " <tr><th>Tier 2 Approved: </th><td><select name=tier_two>";
     if ($droid['tier_two'] == 'Yes') {
@@ -366,28 +368,18 @@ echo "<div class=\"Droid-Images\">";
 
 echo "<table>";
 echo "<tr>\n";
-echo "<td class=droid_images>";
-	echo "<div id=image_front class=\"droid_image w3-cell\"><img id=photo_front src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_front&width=240\">";
-	echo "<a href=\"droid.php?delete_image=photo_front&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-	echo "<div id=image_front class=\"w3-cell image_upload\">";
-	imageUpload('photo_front', $droid['member_uid'], $droid['droid_uid']);
+$photos = array("photo_front", "photo_side", "photo_rear");
+foreach($photos as $photo) {
+	echo "<td class=droid_images>";
+	echo "<div id=$photo class=\"droid_image w3-cell\"><img id=$photo src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=$photo&width=240\">";
+	// echo "<a target=_blank href=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=$photo&width=480\">Zoom</a></div>";
+	echo "<a href=\"droid.php?delete_image=$photo&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
+	echo "<div id=$photo class=\"w3-cell image_upload\">";
+	imageUpload($photo, $droid['member_uid'], $droid['droid_uid']);
 	echo "</div>";
-
-echo "</td><td>";
-	echo "<div id=image_side class=\"droid_image w3-cell\"><img id=photo_side src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_side&width=240\">";
-	echo "<a href=\"droid.php?delete_image=photo_side&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-	echo "<div id=image_side class=\"w3-cell image_upload\">";
-	imageUpload('photo_side', $droid['member_uid'], $droid['droid_uid']);
-        echo "</div>";
-
-echo "</td><td>";
-	echo "<div id=image_rear class=\"droid_image w3-cell\"><img id=photo_rear src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=photo_rear&width=240\">";
-	echo "<a href=\"droid.php?delete_image=photo_rear&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
-	echo "<div id=image_rear class=\"w3-cell image_upload\">";
-	imageUpload('photo_rear', $droid['member_uid'], $droid['droid_uid']);
-        echo "</div>";
-echo "</td></tr></table>";
-
+	echo "</td>";
+}
+echo "</tr></table>";
 
 if (($droid['topps_id'] != "0") &&  ($config->site_options & $options['TOPPS'])) {
 	echo "<div class=topps>";

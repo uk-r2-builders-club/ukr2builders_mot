@@ -82,6 +82,7 @@ $(function(){
   var file_upload = document.getElementById("upload_<? echo $image_type; ?>");
   var image_class = document.getElementsByClassName("image_class_<? echo $image_type; ?>");
   var image_area = document.getElementById("image_area_<? echo $image_type; ?>");
+  var display_image = document.getElementById("<? echo $image_type; ?>");
 
   console.log("loaded function");
 
@@ -165,6 +166,8 @@ $(function(){
       });
     });
     modal_<? echo $image_type; ?>.style.display = "none";  
+    console.log("Reloading image");
+    display_image.src="showImage.php?member_id=<? echo $member; ?>&droid_id=<? echo $droid; ?>&type=droid&name=<? echo $image_type; ?>&width=240&<? echo rand(); ?>";
   });
 
 });

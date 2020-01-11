@@ -29,6 +29,8 @@ if (($_REQUEST['delete'] == "yes") && ($_SESSION['permissions'] & $perms['ADD_MO
 	$result = $conn->query($sql);
 	$sql = "DELETE FROM mot_comments where mot_uid=".$_REQUEST['mot_uid'];
 	$result = $conn->query($sql);
+	$sql = "DELETE FROM mot_details where mot_uid=".$_REQUEST['mot_uid'];
+        $result = $conn->query($sql);
 
 }
 

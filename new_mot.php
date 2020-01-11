@@ -17,62 +17,18 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-function displayMOTRadio($field) {
-	$option = "<input type=radio name=$field value=Pass>Pass";
-	$option .= "<input type=radio name=$field value=Fail checked>Fail";
-	$option .= "<input type=radio name=$field value=NA>NA";
-	return $option;
-}
+$sql = "SELECT forename, surname FROM members WHERE member_uid = ".$_SESSION["user"];
+$officer = $conn->query($sql)->fetch_object();
+$officer_name = $officer->forename." ".$officer->surname;
+
+$sql = "SELECT * FROM droids WHERE droid_uid = ".$_REQUEST['droid_uid'];
+$droid = $conn->query($sql)->fetch_object();
+
+$sql = "SELECT * FROM mot_sections WHERE club_uid = ".$droid->club_uid;
+$sections = $conn->query($sql);
+
 
 if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])) {
-    $fields = array('droid_uid',
-	'date',
-	'location',
-	'mot_type',
-	'struct_overall',
-	'struct_left_leg',
-	'struct_right_leg',
-	'struct_left_foot_ankle',
-	'struct_right_foot_ankle',
-	'struct_left_shoulder',
-	'struct_right_shoulder',
-	'struct_center_foot',
-	'struct_center_ankle',
-	'struct_body_skirt_frame',
-	'struct_dome_mech',
-	'struct_dome',
-	'struct_details',
-	'mech_center_wheel',
-	'mech_drive',
-	'mech_two_three_two',
-	'mech_dome',
-	'mech_utility_arms',
-	'mech_rear_door_skins',
-	'mech_doors',
-	'elec_overall',
-	'elec_transmitter',
-	'elec_receiver',
-	'elec_feet',
-	'elec_dome',
-	'elec_audio',
-	'elec_other',
-	'gadget_danger',
-	'gadget_1',
-	'gadget_2',
-	'gadget_3',
-	'gadget_4',
-	'drive_general',
-	'drive_dizzy',
-	'drive_boomerang',
-	'drive_gnaremoob',
-	'drive_eight',
-	'drive_speed',
-	'drive_estop',
-	'drive_dome_spin',
-	'drive_range',
-	'approved',
-	'user'
-	);
     if ($_REQUEST['mot_type'] == "Retest") {
 	    $sql = "SELECT * FROM mot WHERE droid_uid = " .$_REQUEST["droid_uid"] ." ORDER BY date DESC LIMIT 1";
 	    $mot_result = $conn->query($sql);
@@ -81,34 +37,15 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
 		    $_REQUEST['date'] = $row['date'];
 	    }
     }
-    $sql = "INSERT INTO mot(";
-    $x=0;
-    $bind_params_type="";
-    $bind_params= array();
-    $bind_params[] = & $bind_params_type;
-    while ($x < (sizeof($fields)-1) ) {
-            $sql .= $fields[$x].",";
-	    $bind_params[] = & $_REQUEST[$fields[$x]];
-	    $x++;
-    }
-    $sql .= $fields[$x].") VALUES (";
-    $x=0;
-    while ($x < (sizeof($fields)-1) ) {
-	    $sql .= "?,";
-	    $bind_params_type .= "s";
-	    $x++;
-    }
-    $sql .= "?)";
-    $bind_params_type .= "s";
-    $bind_params[] = & $_REQUEST[$fields[$x]];
 
+    $sql = "INSERT INTO mot(droid_uid, date, location, mot_type, approved, user) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    call_user_func_array(array($stmt, 'bind_param'), $bind_params);
+    $stmt->bind_param("issssi", $_REQUEST['droid_uid'], $_REQUEST['date'], $_REQUEST['location'], $_REQUEST['mot_type'], $_REQUEST['approved'], $_SESSION['user']);
     $stmt->execute();
-    $mot_id = $stmt->insert_id;
-    if ($stmt->error != "") {
-            printf("<br />Error code: %s.\n", $stmt->sqlstate);
-            printf("<br />Error code: %s.\n", $stmt->error);
+    $mot_uid = $stmt->insert_id;
+    if ($stmt->sqlstate != "00000") {
+        printf("Error: %s.\n", $stmt->sqlstate);
+        printf("Error: %s.\n", $stmt->error);
     } elseif ($config->site_options & $options['SEND_EMAILS']) {
 	    # Get some MOT details for emails
 	    $sql = "SELECT * FROM members WHERE member_uid = ".$_SESSION["user"];
@@ -136,7 +73,7 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
             $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion()."\r\n";
 	    $headers .= "MIME-Version: 1.0\r\n";
 	    $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
-            $success = mail($to, $subject, $message, $headers);
+            # $success = mail($to, $subject, $message, $headers);
 	    echo "<br />Email sent to MOT officers ".$success;
 
 	    # Send email to owner
@@ -171,13 +108,24 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
 	            }
 		    $message .= "Or, if you prefer not to follow the links, you can send it via paypal to ".$config->paypal_email."<br />";
 	    }
-	    $success = mail($member->email, $subject, $message, $headers);
+	    # $success = mail($member->email, $subject, $message, $headers);
 	    echo "<br />Email sent to droid owner ".$success;
 
 	    $sql = "UPDATE members SET pli_active='' WHERE member_uid = $droid->member_uid";
 	    $conn->query($sql);
 
     }
+
+    # Save the details of the MOT
+    $sql = "SELECT * FROM mot_lines WHERE club_uid = ".$droid->club_uid;
+    $lines = $conn->query($sql);
+    while ($line = $lines->fetch_object()) {
+	    $sql = "INSERT INTO mot_details(mot_uid, mot_test, mot_test_result) VALUES(?, ?, ?)";
+	    $stmt = $conn->prepare($sql);
+	    $stmt->bind_param("iss", $mot_uid, $line->test_name, $_REQUEST[$line->test_name]);
+            $stmt->execute();
+    }
+
 
     $stmt->close();
 
@@ -195,16 +143,12 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
 
 }
 
-$sql = "SELECT forename, surname FROM members WHERE member_uid = ".$_SESSION["user"];
-$officer = $conn->query($sql)->fetch_object();
-$officer_name = $officer->forename." ".$officer->surname;
-
-
 # Comments
 
 echo "<div class=comments>";
 echo "<form>";
-echo "<textarea name=new_comment rows=20 cols=30>New MOT</textarea>";
+echo "Comments:";
+echo "<textarea name=new_comment rows=20 cols=30></textarea>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
 echo "<input type=hidden name=user value=".$_SESSION['user']."><br />";
 echo "</div>";
@@ -224,76 +168,34 @@ echo "</div>";
 echo "</div>";
 
 echo "<div id=mot_test>";
-echo "<div id=mot_block>";
-echo "<h3>Structural</h3>";
-echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
-echo "<tr><td>Overall Structural Worry?</td><td>".displayMOTRadio('struct_overall')."</td></tr>";
-echo "<tr><td>Left Leg</td><td>".displayMOTRadio('struct_left_leg')."</td></tr>";
-echo "<tr><td>Left Foot/Ankle Joint</td><td>".displayMOTRadio('struct_left_foot_ankle')."</td></tr>";
-echo "<tr><td>Left Shoulder Joint</td><td>".displayMOTRadio('struct_left_shoulder')."</td></tr>";
-echo "<tr><td>Right Leg</td><td>".displayMOTRadio('struct_right_leg')."</td></tr>";
-echo "<tr><td>Right Foot/Ankle Joint</td><td>".displayMOTRadio('struct_right_foot_ankle')."</td></tr>";
-echo "<tr><td>Right Shoulder Joint</td><td>".displayMOTRadio('struct_right_shoulder')."</td></tr>";
-echo "<tr><td>Center Foot/Ankle Joint</td><td>".displayMOTRadio('struct_center_foot')."</td></tr>";
-echo "<tr><td>Center Leg to Body Joint</td><td>".displayMOTRadio('struct_center_ankle')."</td></tr>";
-echo "<tr><td>Body/Frame/Skirt</td><td>".displayMOTRadio('struct_body_skirt_frame')."</td></tr>";
-echo "<tr><td>Dome Rotation Mechanism</td><td>".displayMOTRadio('struct_dome_mech')."</td></tr>";
-echo "<tr><td>Dome</td><td>".displayMOTRadio('struct_dome')."</td></tr>";
-echo "<tr><td>Details</td><td>".displayMOTRadio('struct_details')."</td></tr>";
-echo "</table>";
-echo "</div>";
 
-echo "<div id=mot_block>";
-echo "<h3>Mechanical</h3>";
-echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
-echo "<tr><td>Center Wheel Setup</td><td>".displayMOTRadio('mech_center_wheel')."</td></tr>";
-echo "<tr><td>Drive Setup</td><td>".displayMOTRadio('mech_drive')."</td></tr>";
-echo "<tr><td>2-3-2? - Discuss</td><td>".displayMOTRadio('mech_two_three_two')."</td></tr>";
-echo "<tr><td>Dome Spin</td><td>".displayMOTRadio('mech_dome')."</td></tr>";
-echo "<tr><td>Utility Arms</td><td>".displayMOTRadio('mech_utility_arms')."</td></tr>";
-echo "<tr><td>Rear Door/Skins Access</td><td>".displayMOTRadio('mech_rear_door_skins')."</td></tr>";
-echo "<tr><td>Doors</td><td>".displayMOTRadio('mech_doors')."</td></tr>";
-echo "</table>";
-echo "</div>";
+# Blocks
+if ($sections->num_rows > 0) {
+	while($row = $sections->fetch_object()) {
+		echo "<div id=mot_block>";
+		echo "<h3>".$row->section_description."</h3>";
+		echo "<table class=mot_table><tr><th>Test</th><th width=75px>Pass/Fail</th></tr>";
+	        $sql = "SELECT * FROM mot_lines WHERE club_uid = ".$droid->club_uid." AND test_section = '".$row->section_name."'";
+		$lines = $conn->query($sql);
+		while ($line = $lines->fetch_object()) {
+			echo "<tr>";
+			echo "<td>";
+			echo $line->test_description;
+			echo "</td>";
+			echo "<td>";
+		        echo "<input type=radio name=$line->test_name value=Pass>Pass";
+			echo "<input type=radio name=$line->test_name value=Fail checked>Fail";
+			echo "<input type=radio name=$line->test_name value=NA>NA";
 
-echo "<div id=mot_block>";
-echo "<h3>Electrical</h3>";
-echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
-echo "<tr><td>Overall Setup</td><td>".displayMOTRadio('elec_overall')."</td></tr>";
-echo "<tr><td>Control System Transmitter</td><td>".displayMOTRadio('elec_transmitter')."</td></tr>";
-echo "<tr><td>Control System Receiver</td><td>".displayMOTRadio('elec_receiver')."</td></tr>";
-echo "<tr><td>Feet Speed Controller and motors</td><td>".displayMOTRadio('elec_feet')."</td></tr>";
-echo "<tr><td>Dome Speed Controller and motor</td><td>".displayMOTRadio('elec_dome')."</td></tr>";
-echo "<tr><td>Audio</td><td>".displayMOTRadio('elec_audio')."</td></tr>";
-echo "<tr><td>Other Electronics</td><td>".displayMOTRadio('elec_other')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
-echo "<div id=mot_block>";
-echo "<h3>Gadgets</h3>";
-echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
-echo "<tr><td>Serious Safety Concern</td><td>".displayMOTRadio('gadget_danger')."</td></tr>";
-echo "<tr><td>Gadget 1</td><td>".displayMOTRadio('gadget_1')."</td></tr>";
-echo "<tr><td>Gadget 2</td><td>".displayMOTRadio('gadget_2')."</td></tr>";
-echo "<tr><td>Gadget 3</td><td>".displayMOTRadio('gadget_3')."</td></tr>";
-echo "<tr><td>Gadget 4</td><td>".displayMOTRadio('gadget_4')."</td></tr>";
-echo "</table>";
-echo "</div>";
-
-echo "<div id=mot_block>";
-echo "<h3>Basic Control</h3>";
-echo "<table><tr><th width=250px>Test</th><th width=200px>Pass/Fail</th></tr>";
-echo "<tr><td>Any Driving Issues</td><td>".displayMOTRadio('drive_general')."</td></tr>";
-echo "<tr><td>Dizzy</td><td>".displayMOTRadio('drive_dizzy')."</td></tr>";
-echo "<tr><td>Boomerang</td><td>".displayMOTRadio('drive_boomerang')."</td></tr>";
-echo "<tr><td>Reverse Boomerang</td><td>".displayMOTRadio('drive_gnaremoob')."</td></tr>";
-echo "<tr><td>Figure of 8</td><td>".displayMOTRadio('drive_eight')."</td></tr>";
-echo "<tr><td>0-60 Test</td><td>".displayMOTRadio('drive_speed')."</td></tr>";
-echo "<tr><td>Emergency Stop</td><td>".displayMOTRadio('drive_estop')."</td></tr>";
-echo "<tr><td>Dome Spin</td><td>".displayMOTRadio('drive_dome_spin')."</td></tr>";
-echo "<tr><td>Range exceed test</td><td>".displayMOTRadio('drive_range')."</td></tr>";
-echo "</table>";
-echo "</div>";
+			echo "</td>";
+			echo "</tr>";
+		}
+		echo "</table>";
+		echo "</div>";
+	}
+} else {
+	echo "No sections defined for this club";
+}
 
 echo "<input type=submit value=Submit name=new_mot>";
 echo "</form>";
