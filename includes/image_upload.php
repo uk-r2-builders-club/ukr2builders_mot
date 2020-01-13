@@ -110,10 +110,11 @@ $(function(){
 
 
   $uploadCrop = $('#image_area_<? echo $image_type; ?>').croppie({
-    enableOrientation: true,
+    enableOrientation: false,
+    boundary: { width: 480, height: 640 },
     viewport: {
       width: 480,
-      height: 640
+      height: 640 
     },
     enableExif: true
   });
@@ -133,9 +134,9 @@ $(function(){
 
   $('.upload-result_<? echo $image_type; ?>').on('click', function (ev) {
     $uploadCrop.croppie('result', {
-      type: 'canvas',
+      type: 'base64',
       format: 'jpeg',
-      size: 'viewport'
+      size:{ width:672, height:896 } 
     }).then(function (resp) {
       $.ajax({
         url: "save_image.php",
@@ -148,26 +149,26 @@ $(function(){
           }
       });
     });
-    $uploadCrop.croppie('result', {
-      type: 'canvas',
-      format: 'jpeg',
-      size: 'original'
-    }).then(function (resp) {
-      $.ajax({
-        url: "save_image.php",
-        type: "POST",
-        data: {
-               "type":"<? echo $image_type; ?>",
-               "member":"<? echo $member; ?>",
-               "droid":"<? echo $droid; ?>",
-	       "orig":"true",
-               "image":resp
-          }
-      });
-    });
+//    $uploadCrop.croppie('result', {
+//      type: 'canvas',
+//      format: 'jpeg',
+//      size: 'original'
+//    }).then(function (resp) {
+//      $.ajax({
+//        url: "save_image.php",
+//        type: "POST",
+//        data: {
+//               "type":"<? echo $image_type; ?>",
+//               "member":"<? echo $member; ?>",
+//               "droid":"<? echo $droid; ?>",
+//	       "orig":"true",
+//               "image":resp
+//          }
+//      });
+//    });
     modal_<? echo $image_type; ?>.style.display = "none";  
-    console.log("Reloading image");
-    display_image.src="showImage.php?member_id=<? echo $member; ?>&droid_id=<? echo $droid; ?>&type=droid&name=<? echo $image_type; ?>&width=240&<? echo rand(); ?>";
+    //console.log("Reloading image");
+    //display_image.src="showImage.php?member_id=<? echo $member; ?>&droid_id=<? echo $droid; ?>&type=droid&name=<? echo $image_type; ?>&width=240&<? echo rand(); ?>";
   });
 
 });

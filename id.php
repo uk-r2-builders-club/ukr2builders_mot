@@ -37,14 +37,17 @@ if (isset($_REQUEST['id'])) {
    $member = $conn->query($sql)->fetch_assoc();
    if($member) { 
        $imageData = base64_encode(file_get_contents("uploads/members/".$member['member_uid']."/mug_shot.jpg"));
+       echo "<div class=\"id_badge_title\">UK R2D2 Builders Pass</div>";
        echo "<div class=\"id_badge_photo\"><img id=mug_shot width=240 src=data:image/jpeg;base64,$imageData>";
        echo "</div>";
+       echo "<div class=\"id_badge_status\">";
        echo "PLI Status: ";
        if ( strtotime($member['pli_date'])+31556952 > strtotime('now') ) {
 	       echo "<font color=green>ACTIVE</font>";
        } else {
 	       echo "<font color=red>INACTIVE</font>";
        }
+       echo "</div>";
    } else {
 	   echo "No such ID";
    }

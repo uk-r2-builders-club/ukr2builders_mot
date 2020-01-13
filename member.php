@@ -194,6 +194,7 @@ if ($droids->num_rows > 0) {
 		echo "<td bgcolor=blue><a href=mot.php?mot_uid=".$mot_details->mot_uid.">WIP (".$mot_details->date.")</a></td>";
             } else {
 		echo "<td bgcolor=orange><a href=mot.php?mot_uid=".$mot_details->mot_uid.">Advisory (".$mot_details->date.")</a></td>";
+		$valid_mot = 1;
             }
 	} elseif (!$club_config[$row['club_uid']]['options'] & $club_options['MOT']) {
 	    echo "<td></td>";

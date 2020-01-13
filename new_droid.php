@@ -26,12 +26,14 @@ if ($_REQUEST['name'] != "") {
         printf("Error: %s.\n", $stmt->sqlstate);
         printf("Error: %s.\n", $stmt->error);
     }
-    if (!file_exists("uploads/members/".$row['member_uid']."/".$droid_uid)) {
-        mkdir("uploads/members/".$row['member_uid']."/".$droid_uid);
+    echo "Droid created with ID: ".$droid_uid."<br/>";
+    if (!file_exists("uploads/members/".$member_uid."/".$droid_uid)) {
+	echo "Creating droid directory: uploads/members/".$member_uid."/".$droid_uid."<br/>";
+        mkdir("uploads/members/".$member_uid."/".$droid_uid);
     }
 
 
-/*    if (($stmt->error == "") && ($config->site_options & $options['SEND_EMAILS'])){
+    if (($stmt->error == "") && ($config->site_options & $options['SEND_EMAILS'])){
         $sql = "SELECT forename,surname FROM members WHERE member_uid = ".$_SESSION["user"];
         $officer = $conn->query($sql)->fetch_object();
         $officer_name = $officer->forename." ".$officer->surname;
@@ -50,7 +52,6 @@ if ($_REQUEST['name'] != "") {
     }
 
     $stmt->close();
- */
 }
 
 echo "<form>";

@@ -56,6 +56,7 @@ if ($result->num_rows > 0) {
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(1)')\">ID</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(2)')\">Name</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(3)')\">email</th>";
+    echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(4)')\">ID</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(5)')\">PLI</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(6)')\">Primary MOT</th>";
     echo "<th class=members onclick=\"w3.sortHTML('#members','.item', 'td:nth-child(7)')\">Droids</th>";
@@ -70,6 +71,9 @@ if ($result->num_rows > 0) {
 	if (($row['permissions'] != 0 ) && ($_SESSION['permissions'] & $perms['EDIT_PERMISSIONS'])) echo "*";
 	echo "</td>";
 	echo "<td class=members>" . $row["email"]. "</td>";
+	echo "<td class=members>";
+        echo ($row['pli_active'] == "on") ? "Sent" : "";
+	echo "</td>";
 	# Display PLI information and colour code to expiry date
 	if (strtotime($row['pli_date']) > strtotime('-11 months')) {
 	    echo "<td class=members bgcolor=green>".$row['pli_date']."</td>";

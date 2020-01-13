@@ -9,7 +9,52 @@
     src: url(./fonts/Aurebesh.otf);
 }
 
-body {
-	font-family: StarWars;
+html {
+	padding: 0px;
 }
 
+body {
+	font-family: StarWars;
+	padding: 0px;
+}
+
+#id_badge {
+	background-color: #6699cc;
+	width: 510px;
+	margin: 10px;
+	border: 10px;
+	padding: 10px;
+}
+
+.id_badge_title {
+	border: 4px solid #ffffff;
+        background-color: #bbbbbb;
+        text-align: center;
+        border-radius: 8px;
+        padding: 5px;
+        margin: 5px;
+}
+
+.id_badge_photo {
+	padding: 5px;
+	border: 4px solid #ffffff;
+	border-radius: 8px;
+	margin: 5px;
+}
+
+.id_badge_photo img {
+	border-radius: 8px;
+	width: 480px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
+
+.id_badge_status {
+	border: 4px solid #ffffff;
+	background-color: #bbbbbb;
+	text-align: center;
+	border-radius: 8px;
+	padding: 5px;
+	margin: 5px;
+}

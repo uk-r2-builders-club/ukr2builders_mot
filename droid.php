@@ -207,7 +207,7 @@ if ($droid['public'] == 'No') {
 echo "<form>";
 echo "<h2>". $droid['name'] ."</h2>";
 echo "<a href=display_sheet.php?droid_uid=".$_REQUEST['droid_uid'].">Get Droid Info Sheet</a>";
-echo "<table style=droid>";
+echo "<table class=droid>";
 echo "<input type=hidden name=droid_uid value=".$_REQUEST['droid_uid'].">";
 echo " <tr><th>Owner: </th><td><a href=member.php?member_uid=".$member['member_uid'].">".$member['forename']." ".$member['surname']."</a></td></tr>";
 echo " <tr><th>Club: </th><td><select name=club_uid>";
@@ -243,7 +243,7 @@ echo " <tr><th>Drive Voltage: </th><td><input type=text name=drive_voltage size=
 echo " <tr><th>Drive Type: </th><td><input type=text name=drive_type size=50 value=\"".$droid['drive_type']."\"></td></tr>";
 echo " <tr><th>Top Speed: </th><td><input type=text name=top_speed size=4 value=\"".$droid['top_speed']."\">km/h</td></tr>";
 echo " <tr><th>Sound System: </th><td><input type=text name=sound_system size=50 value=\"".$droid['sound_system']."\"></td></tr>";
-echo " <tr><th>Approx Value: </th><td>£<input type=text name=value size=49 value=\"".$droid['value']."\"></td></tr>";
+echo " <tr><th>Approx Value: </th><td>£<input type=text name=value size=40 value=\"".$droid['value']."\"></td></tr>";
 if ($club_config['options'] & $club_options['TIER_TWO']) {
     echo " <tr><th>Tier 2 Approved: </th><td><select name=tier_two>";
     if ($droid['tier_two'] == 'Yes') {
@@ -366,12 +366,12 @@ echo "</div>";
 
 echo "<div class=\"Droid-Images\">";
 
-echo "<table>";
-echo "<tr>\n";
+echo "<table class=droid_images border=0px>";
+echo "<tr border=0px>\n";
 $photos = array("photo_front", "photo_side", "photo_rear");
 foreach($photos as $photo) {
-	echo "<td class=droid_images>";
-	echo "<div id=$photo class=\"droid_image w3-cell\"><img id=$photo src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=$photo&width=240\">";
+	echo "<td border=0px>";
+	echo "<div id=$photo class=\"droid_image\"><img id=$photo src=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=$photo&width=240\">";
 	// echo "<a target=_blank href=\"showImage.php?club_uid=".$droid['club_uid']."&member_id=".$member['member_uid']."&droid_id=".$_REQUEST['droid_uid']."&type=droid&name=$photo&width=480\">Zoom</a></div>";
 	echo "<a href=\"droid.php?delete_image=$photo&droid_uid=".$droid['droid_uid']."\">Delete</a></div>";
 	echo "<div id=$photo class=\"w3-cell image_upload\">";
@@ -398,6 +398,7 @@ if (($droid['topps_id'] != "0") &&  ($config->site_options & $options['TOPPS']))
 	echo "</td></tr></table>";
 	echo "</div>";
 }
+
 echo "</div>"; # column right
 
 

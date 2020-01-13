@@ -100,7 +100,10 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
 		    }
 		    $message .= "<br />";
 		    if ($droid->primary_droid == "Yes") {
-			    $message .= "Cost for primary droid is £".$config->primary_cost.". The link below will take you directly to the paypal payment page<br />";
+			    $message .= "Cost for primary droid is £".$config->primary_cost.". The best way to pay this is to log into the MOT site and use the Paypal<br />";
+			    $message .= "button there. This will automatically update your PLI status, and also give you access to all the info we hold about your droid<br />";
+			    $message .= "and more. The site is here: <a href=\"".$config->site_base."\">MOT Site</a><br />";
+			    $message .= "Or, you can click the link here and pay that way, tho it will be a manual process to update your records which may take a few days. <br />";
 			    $message .= "<a href=\"".$config->paypal_link."/".$config->primary_cost."\">".$config->paypal_link."/".$config->primary_cost."</a><br />";
 	            } else {
 			    $message .= "As you already have a droid, cost for an additional droid is £".$config->other_cost.". The link below will take you directly to the paypal payment page<br />";
