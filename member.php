@@ -221,7 +221,13 @@ echo "</div>";
 
 # Member details
 echo "<div class=\"Member-Info\">";
-echo "<h2>". $member['forename'] ." ".$member['surname']."</h2>";
+echo "<h2>". $member['forename'] ." ".$member['surname'];
+if ($_SESSION['permissions'] & $perms['DUMP_DATA']) {
+	echo " <a href=\"id_images.php?member_uid=".$member['member_uid']."\" target=_blank>";
+	echo "<img src=\"images/download.svg\" height=20 alt=\"Download ID Images\">";
+	echo "</a>";
+}
+echo "</h2>";
 if ($config->site_options & $options['PAYPAL']) {
     if (strtotime($member['pli_date']) < strtotime('-1 year') && $valid_mot == 1) {
 	echo "Your PLI is due. Click here to pay it via PayPal : ";

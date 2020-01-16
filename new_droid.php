@@ -50,6 +50,8 @@ if ($_REQUEST['name'] != "") {
         $headers = "From: R2 Builders MOT <".$config->from_email.">"."\r\n"."X-Mailer: PHP/".phpversion();
         mail($to, $subject, $message, $headers);
     }
+    $sql = "UPDATE members SET pli_active='' WHERE member_uid = $member_uid";
+    $conn->query($sql);
 
     $stmt->close();
 }

@@ -114,8 +114,8 @@ if ($_REQUEST['new_mot'] != "" && ($_SESSION['permissions'] & $perms['ADD_MOT'])
 	    # $success = mail($member->email, $subject, $message, $headers);
 	    echo "<br />Email sent to droid owner ".$success;
 
-	    $sql = "UPDATE members SET pli_active='' WHERE member_uid = $droid->member_uid";
-	    $conn->query($sql);
+	    //$sql = "UPDATE members SET pli_active='' WHERE member_uid = $droid->member_uid";
+	    //$conn->query($sql);
 
     }
 
